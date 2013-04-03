@@ -21,4 +21,5 @@ import org.openmrs.module.BaseModuleActivator;
  */
 public class PaperRecordActivator extends BaseModuleActivator {
 
+
 }
