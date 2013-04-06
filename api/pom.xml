@@ -20,6 +20,14 @@
             <version>2.5</version>
             <scope>provided</scope>
         </dependency>
+
+        <dependency> <!-- Needed for AddressSupport, which is in openmrs-web -->
+            <groupId>org.openmrs.web</groupId>
+            <artifactId>openmrs-web</artifactId>
+            <version>${openmrsCoreVersion}</version>
+            <type>jar</type>
+            <scope>provided</scope>
+        </dependency>
     </dependencies>
 
     <build>

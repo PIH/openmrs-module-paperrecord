@@ -1,0 +1,47 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC  "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+        "http://www.hibernate.org/dtd/hibernate-mapping-3.0.dtd">
+
+<hibernate-mapping>
+
+    <class name="org.openmrs.module.paperrecord.PaperRecordMergeRequest" table="emr_paper_record_merge_request">
+        <id name="mergeRequestId" type="int" column="merge_request_id" unsaved-value="0">
+            <generator class="native"/>
+        </id>
+
+        <property name="uuid" type="java.lang.String" column="uuid" length="38" unique="true"/>
+
+        <property name="preferredIdentifier" type="java.lang.String" column="preferred_identifier" not-null="true"
+                  length="50"/>
+
+        <property name="notPreferredIdentifier" type="java.lang.String" column="not_preferred_identifier"
+                  not-null="true" length="50"/>
+
+        <property name="dateCreated" type="java.util.Date" column="date_created"/>
+
+        <property name="status" column="status" length="50" not-null="true">
+            <type name="org.openmrs.util.HibernateEnumType">
+                <param name="enumClassName">org.openmrs.module.paperrecord.PaperRecordMergeRequest$Status</param>
+            </type>
+        </property>
+
+
+        <many-to-one name="creator" class="org.openmrs.User" not-null="true">
+            <column name="creator"/>
+        </many-to-one>
+
+        <many-to-one name="preferredPatient" class="org.openmrs.Patient" not-null="true">
+            <column name="preferred_patient"/>
+        </many-to-one>
+
+        <many-to-one name="notPreferredPatient" class="org.openmrs.Patient" not-null="true">
+            <column name="not_preferred_patient"/>
+        </many-to-one>
+
+        <many-to-one name="recordLocation" class="org.openmrs.Location" not-null="true">
+            <column name="record_location"/>
+        </many-to-one>
+
+    </class>
+
+</hibernate-mapping>

@@ -1,0 +1,49 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC
+        "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+        "http://www.hibernate.org/dtd/hibernate-mapping-3.0.dtd">
+<hibernate-mapping>
+
+    <class name="org.openmrs.module.paperrecord.PaperRecordRequest" table="emr_paper_record_request">
+        <id name="requestId" type="int" column="request_id" unsaved-value="0">
+            <generator class="native"/>
+        </id>
+
+        <property name="uuid" type="java.lang.String"
+                  column="uuid" length="38" unique="true"/>
+
+        <property name="identifier" type="java.lang.String" column="identifier" length="50"/>
+
+        <property name="dateCreated" type="java.util.Date" column="date_created"/>
+
+        <property name="dateStatusChanged" type="java.util.Date" column="date_status_changed"/>
+
+        <!-- we use field access here so that we can remove getter and force the use of the update status message -->
+        <property name="status" column="status" length="50" not-null="true" access="field">
+            <type name="org.openmrs.util.HibernateEnumType">
+                <param name="enumClassName">org.openmrs.module.paperrecord.PaperRecordRequest$Status</param>
+            </type>
+        </property>
+
+        <many-to-one name="assignee" class="org.openmrs.Person">
+            <column name="assignee"/>
+        </many-to-one>
+
+        <many-to-one name="creator" class="org.openmrs.User" not-null="true">
+            <column name="creator"/>
+        </many-to-one>
+
+        <many-to-one name="patient" class="org.openmrs.Patient" not-null="true">
+            <column name="patient_id"/>
+        </many-to-one>
+
+        <many-to-one name="requestLocation" class="org.openmrs.Location" not-null="true">
+            <column name="request_location"/>
+        </many-to-one>
+
+        <many-to-one name="recordLocation" class="org.openmrs.Location" not-null="true">
+            <column name="record_location"/>
+        </many-to-one>
+
+    </class>
+</hibernate-mapping>

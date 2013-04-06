@@ -4,6 +4,62 @@
        xsi:schemaLocation="http://www.springframework.org/schema/beans
   		    http://www.springframework.org/schema/beans/spring-beans-3.0.xsd">
 
-    <!-- Add here beans related to the API context -->
+    <bean id="paperRecordService" class="org.springframework.transaction.interceptor.TransactionProxyFactoryBean">
+        <property name="transactionManager">
+            <ref bean="transactionManager"/>
+        </property>
+        <property name="target">
+            <bean class="org.openmrs.module.paperrecord.PaperRecordServiceImpl">
+                <property name="paperRecordRequestDAO">
+                    <bean class="${project.parent.groupId}.${project.parent.artifactId}.db.HibernatePaperRecordRequestDAO">
+                        <property name="sessionFactory">
+                            <ref bean="sessionFactory"/>
+                        </property>
+                    </bean>
+                </property>
+                <property name="paperRecordMergeRequestDAO">
+                    <bean class="${project.parent.groupId}.${project.parent.artifactId}.db.HibernatePaperRecordMergeRequestDAO">
+                        <property name="sessionFactory">
+                            <ref bean="sessionFactory"/>
+                        </property>
+                    </bean>
+                </property>
+                <property name="administrationService" ref="adminService"/>
+                <property name="patientService" ref="patientService"/>
+                <property name="messageSourceService" ref="messageSourceService"/>
+                <property name="identifierSourceService" ref="baseIdentifierSourceService"/>
+                <property name="printerService" ref="printerService"/>
+                <property name="emrApiProperties" ref="emrApiProperties"/>
+                <property name="paperRecordProperties" ref="paperRecordProperties"/>
+                <property name="paperRecordLabelTemplate">
+                    <bean class="org.openmrs.module.paperrecord.DefaultZplPaperRecordLabelTemplate">
+                        <property name="messageSourceService" ref="messageSourceService"/>
+                        <property name="emrApiProperties" ref="emrApiProperties"/>
+                    </bean>
+                </property>
+                <property name="idCardLabelTemplate">
+                    <bean class="org.openmrs.module.paperrecord.DefaultZplIdCardLabelTemplate">
+                        <property name="messageSourceService" ref="messageSourceService"/>
+                        <property name="emrApiProperties" ref="emrApiProperties"/>
+                    </bean>
+                </property>
+            </bean>
+        </property>
+        <property name="preInterceptors">
+            <ref bean="serviceInterceptors"/>
+        </property>
+        <property name="transactionAttributeSource">
+            <ref bean="transactionAttributeSource"/>
+        </property>
+    </bean>
+
+    <bean parent="serviceContext">
+        <property name="moduleService">
+            <list merge="true">
+                <value>org.openmrs.module.paperrecord.PaperRecordService</value>
+                <ref local="paperRecordService"/>
+            </list>
+        </property>
+    </bean>
 
 </beans>

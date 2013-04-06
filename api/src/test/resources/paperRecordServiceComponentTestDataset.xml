@@ -1,0 +1,33 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<dataset>
+    <!-- this sets the identifier type with id=2 in the standard test dataset to the "paper record identifier type" -->
+    <global_property property="emr.paperRecordIdentifierType" property_value="2f470aa8-1d73-43b7-81b5-01f0c0dfa53c"
+                     uuid="696cb3c3-9e66-42c6-8f03-2a0c1e9ca2a8"/>
+
+    <!-- this sets the identifier type with id=1 in the standard test dataset to the "primary identifier type" -->
+    <global_property property="emr.primaryIdentifierType" property_value="1a339fe9-38bc-4ab3-b180-320988c0b968"
+                     uuid="776cb3c3-9e66-42c6-8f03-2a0c1e9ca2a8"/>
+
+    <emr_paper_record_request request_id="1" identifier="CATBALL" patient_id="7" request_location="2"
+                              record_location="1" status="SENT" date_created="2006-01-18 00:00:00.0"
+                              uuid="696cb3c3-9e66-42c6-8f03-2a0c1e9ca2a8"/>
+    <emr_paper_record_request request_id="2" identifier="DOGBALL" patient_id="7" request_location="2"
+                              record_location="1" status="SENT" date_created="2006-01-18 00:00:00.0"
+                              uuid="776cb3c3-9e66-42c6-8f03-2a0c1e9ca2a8"/>
+
+    <location_tag location_tag_id="1001" name="Medical Record Location" description="Medical Record Location"
+                  creator="1" date_created="2012-10-23 16:13:45 " retired="0"
+                  uuid="0967d73d-f3c9-492b-abed-356478610a66"/>
+
+    <!-- tag locations 1 & 2 from the standard test dataset as medical record locations -->
+    <location_tag_map location_id="1" location_tag_id="1001"/>
+    <location_tag_map location_id="2" location_tag_id="1001"/>
+
+
+    <!-- create a child location of location 1-->
+    <location location_id="1001" parent_location="1" name="Child location" description="Child location" address1=""
+              address2="" city_village="" state_province="" postal_code="" country="" latitude="" longitude=""
+              creator="1" date_created="2008-08-15 15:28:54.0" retired="true" retired_by="1"
+              date_retired="2008-08-15 00:00:00.0" retire_reason="test" uuid="1676660c-4785-4285-9119-d197268f7f4a"/>
+
+</dataset>
