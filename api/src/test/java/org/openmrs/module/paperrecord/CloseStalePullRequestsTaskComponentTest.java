@@ -56,6 +56,9 @@ public class CloseStalePullRequestsTaskComponentTest extends BaseModuleContextSe
     public void shouldClosePullRequestsOverTwelveHoursOld() {
         log.error("Darius hacky debugging: isAuthenticated = " + Context.isAuthenticated());
         log.error("Darius hacky debugging: authenticatedUser = " + Context.getAuthenticatedUser().getUsername() + " (" + Context.getAuthenticatedUser().getSystemId() + ")");
+        log.error("Darius hacky debugging: authenticatedUser uuid = " + Context.getAuthenticatedUser().getUuid());
+        log.error("Darius hacky debugging: authenticatedUser privs = " + Context.getAuthenticatedUser().getPrivileges());
+        log.error("Darius hacky debugging: authenticatedUser roles = " + Context.getAuthenticatedUser().getAllRoles());
 
         // some data from standard test dataset
         Person person = personService.getPerson(3);
