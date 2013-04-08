@@ -6,12 +6,12 @@ import org.openmrs.Location;
 import org.openmrs.Patient;
 import org.openmrs.api.LocationService;
 import org.openmrs.api.PatientService;
-import org.openmrs.api.context.Context;
 import org.openmrs.module.emrapi.adt.AdtService;
 import org.openmrs.module.paperrecord.PaperRecordRequest;
 import org.openmrs.module.paperrecord.PaperRecordService;
 import org.openmrs.test.BaseModuleContextSensitiveTest;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.test.annotation.DirtiesContext;
 
 import java.util.List;
 
@@ -21,6 +21,7 @@ import static org.junit.Assert.assertThat;
 /**
  *
  */
+@DirtiesContext
 public class FixPaperRecordRequestsForMergeComponentTest extends BaseModuleContextSensitiveTest {
 
     @Autowired
@@ -32,6 +33,8 @@ public class FixPaperRecordRequestsForMergeComponentTest extends BaseModuleConte
     @Autowired
     private LocationService locationService;
 
+    @Autowired
+    private PatientService patientService;
 
     @Before
     public void before() throws Exception {
@@ -41,7 +44,6 @@ public class FixPaperRecordRequestsForMergeComponentTest extends BaseModuleConte
 
     @Test
     public void shouldCancelPendingPaperRecordRequestsAfterMerge() {
-        PatientService patientService = Context.getPatientService();
         Location paperRecordLocation = locationService.getLocation(1);
         Location someLocation = locationService.getLocation(2);
         Location anotherLocation = locationService.getLocation(3);

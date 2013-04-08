@@ -28,7 +28,6 @@ import org.openmrs.api.context.Context;
 import org.openmrs.module.emrapi.printer.PrinterService;
 import org.openmrs.test.BaseModuleContextSensitiveTest;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.test.annotation.DirtiesContext;
 
 import java.util.Arrays;
 import java.util.Date;
@@ -38,7 +37,6 @@ import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.mock;
 
-@DirtiesContext
 public class PaperRecordServiceComponentTest extends BaseModuleContextSensitiveTest {
 
     @Autowired
