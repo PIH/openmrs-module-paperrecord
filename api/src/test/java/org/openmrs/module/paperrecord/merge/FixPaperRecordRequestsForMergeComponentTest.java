@@ -30,7 +30,7 @@ public class FixPaperRecordRequestsForMergeComponentTest extends BaseModuleConte
     private PaperRecordService paperRecordService;
 
     @Autowired
-    LocationService locationService;
+    private LocationService locationService;
 
 
     @Before
