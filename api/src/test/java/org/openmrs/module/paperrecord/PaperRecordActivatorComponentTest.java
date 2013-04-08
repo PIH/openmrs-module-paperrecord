@@ -6,7 +6,7 @@ import org.openmrs.test.BaseModuleContextSensitiveTest;
 /**
  *
  */
-public class PaperRecordActivatorTest extends BaseModuleContextSensitiveTest {
+public class PaperRecordActivatorComponentTest extends BaseModuleContextSensitiveTest {
 
     @Test
     public void testStartup() throws Exception {
