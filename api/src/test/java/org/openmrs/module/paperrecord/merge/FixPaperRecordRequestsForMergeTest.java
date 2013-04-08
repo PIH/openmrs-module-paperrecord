@@ -2,6 +2,7 @@ package org.openmrs.module.paperrecord.merge;
 
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.openmrs.Location;
 import org.openmrs.Patient;
 import org.openmrs.PatientIdentifier;
@@ -23,7 +24,7 @@ import org.openmrs.module.paperrecord.IsExpectedRequest;
 import org.openmrs.module.paperrecord.PaperRecordProperties;
 import org.openmrs.module.paperrecord.PaperRecordRequest;
 import org.openmrs.module.paperrecord.PaperRecordService;
-import org.springframework.test.annotation.DirtiesContext;
+import org.powermock.modules.junit4.PowerMockRunner;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -38,9 +39,7 @@ import static org.openmrs.module.paperrecord.PaperRecordRequest.Status;
 /**
  *
  */
-// This test is not context-sensitive, but it may be run between two other context-sensitive tests, and our setting up a
-// mock UserContext breaks things
-@DirtiesContext
+@RunWith(PowerMockRunner.class)
 public class FixPaperRecordRequestsForMergeTest {
 
     private AdtServiceImpl service;
@@ -102,6 +101,16 @@ public class FixPaperRecordRequestsForMergeTest {
         service.setEmrApiProperties(emrApiProperties);
         service.setPatientMergeActions(Arrays.<PatientMergeAction>asList(fixPaperRecordRequestsForMerge));
     }
+
+
+    /*
+    @After
+    public void tearDown() throws Exception {
+        // This test is not context-sensitive, but it may be run between two other context-sensitive tests, and our setting up a
+        // mock UserContext breaks things.
+        Context.clearUserContext();
+    }
+    */
 
 
     @Test
