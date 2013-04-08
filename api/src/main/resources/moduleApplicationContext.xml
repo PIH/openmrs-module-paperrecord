@@ -41,6 +41,7 @@
                     <bean class="org.openmrs.module.paperrecord.DefaultZplIdCardLabelTemplate">
                         <property name="messageSourceService" ref="messageSourceService"/>
                         <property name="emrApiProperties" ref="emrApiProperties"/>
+                        <property name="paperRecordProperties" ref="paperRecordProperties"/>
                     </bean>
                 </property>
             </bean>
