@@ -40,6 +40,7 @@
         <uiframeworkModuleVersion>2.5.1</uiframeworkModuleVersion>
         <idgenModuleVersion>2.4</idgenModuleVersion>
         <providermanagementModuleVersion>1.1.3</providermanagementModuleVersion>
+        <metadatasharingVersion>1.1.6</metadatasharingVersion>
     </properties>
 
     <dependencies>
@@ -77,6 +78,13 @@
             <groupId>org.openmrs.module</groupId>
             <artifactId>providermanagement-api</artifactId>
             <version>${providermanagementModuleVersion}</version>
+            <scope>provided</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.openmrs.module</groupId>
+            <artifactId>metadatasharing-api</artifactId>
+            <version>${metadatasharingVersion}</version>
             <scope>provided</scope>
         </dependency>
 
