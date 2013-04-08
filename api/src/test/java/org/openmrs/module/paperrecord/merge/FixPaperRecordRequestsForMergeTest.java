@@ -62,7 +62,6 @@ public class FixPaperRecordRequestsForMergeTest {
         personForCurrentUser.addName(new PersonName("Current", "User", "Person"));
 
         User authenticatedUser = new User();
-        authenticatedUser.setUuid("user-from-other-test");
         authenticatedUser.setPerson(personForCurrentUser);
 
         UserContext userContext = mock(UserContext.class);

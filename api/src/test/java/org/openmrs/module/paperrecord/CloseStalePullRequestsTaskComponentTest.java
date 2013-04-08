@@ -15,15 +15,12 @@
 package org.openmrs.module.paperrecord;
 
 import org.apache.commons.lang.time.DateUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.junit.Before;
 import org.junit.Test;
 import org.openmrs.Location;
 import org.openmrs.Person;
 import org.openmrs.api.LocationService;
 import org.openmrs.api.PersonService;
-import org.openmrs.api.context.Context;
 import org.openmrs.scheduler.TaskDefinition;
 import org.openmrs.test.BaseModuleContextSensitiveTest;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -35,8 +32,6 @@ import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 
 public class CloseStalePullRequestsTaskComponentTest extends BaseModuleContextSensitiveTest {
-
-    private final Log log = LogFactory.getLog(getClass());
 
     @Autowired
     private PaperRecordService paperRecordService;
@@ -54,12 +49,6 @@ public class CloseStalePullRequestsTaskComponentTest extends BaseModuleContextSe
 
     @Test
     public void shouldClosePullRequestsOverTwelveHoursOld() {
-        log.error("Darius hacky debugging: isAuthenticated = " + Context.isAuthenticated());
-        log.error("Darius hacky debugging: authenticatedUser = " + Context.getAuthenticatedUser().getUsername() + " (" + Context.getAuthenticatedUser().getSystemId() + ")");
-        log.error("Darius hacky debugging: authenticatedUser uuid = " + Context.getAuthenticatedUser().getUuid());
-        log.error("Darius hacky debugging: authenticatedUser privs = " + Context.getAuthenticatedUser().getPrivileges());
-        log.error("Darius hacky debugging: authenticatedUser roles = " + Context.getAuthenticatedUser().getAllRoles());
-
         // some data from standard test dataset
         Person person = personService.getPerson(3);
         Location recordLocation = locationService.getLocation(1);

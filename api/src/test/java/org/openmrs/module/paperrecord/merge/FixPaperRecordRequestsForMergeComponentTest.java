@@ -11,7 +11,6 @@ import org.openmrs.module.paperrecord.PaperRecordRequest;
 import org.openmrs.module.paperrecord.PaperRecordService;
 import org.openmrs.test.BaseModuleContextSensitiveTest;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.test.annotation.DirtiesContext;
 
 import java.util.List;
 
@@ -21,7 +20,6 @@ import static org.junit.Assert.assertThat;
 /**
  *
  */
-@DirtiesContext
 public class FixPaperRecordRequestsForMergeComponentTest extends BaseModuleContextSensitiveTest {
 
     @Autowired
