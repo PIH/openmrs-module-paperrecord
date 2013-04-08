@@ -18,10 +18,8 @@ import org.apache.commons.lang.time.DateUtils;
 import org.junit.Before;
 import org.junit.Test;
 import org.openmrs.Location;
-import org.openmrs.Patient;
 import org.openmrs.Person;
 import org.openmrs.api.LocationService;
-import org.openmrs.api.PatientService;
 import org.openmrs.api.PersonService;
 import org.openmrs.scheduler.TaskDefinition;
 import org.openmrs.test.BaseModuleContextSensitiveTest;
@@ -39,9 +37,6 @@ public class CloseStalePullRequestsTaskComponentTest extends BaseModuleContextSe
     private PaperRecordService paperRecordService;
 
     @Autowired
-    private PatientService patientService;
-
-    @Autowired
     private LocationService locationService;
 
     @Autowired
@@ -56,7 +51,6 @@ public class CloseStalePullRequestsTaskComponentTest extends BaseModuleContextSe
     public void shouldClosePullRequestsOverTwelveHoursOld() {
 
         // some data from standard test dataset
-        Patient patient = patientService.getPatient(2);
         Person person = personService.getPerson(3);
         Location recordLocation = locationService.getLocation(1);
         Location requestLocation = locationService.getLocation(2);
@@ -104,7 +98,6 @@ public class CloseStalePullRequestsTaskComponentTest extends BaseModuleContextSe
     public void shouldClosePullRequestsBasedOnCustomExpireHours() {
 
         // some data from standard test dataset
-        Patient patient = patientService.getPatient(2);
         Person person = personService.getPerson(3);
         Location recordLocation = locationService.getLocation(1);
         Location requestLocation = locationService.getLocation(2);
