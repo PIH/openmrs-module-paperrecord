@@ -34,7 +34,7 @@
     </modules>
 
     <properties>
-        <openmrsCoreVersion>1.9.3</openmrsCoreVersion>
+        <openmrsCoreVersion>1.9.4-SNAPSHOT</openmrsCoreVersion>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <emrapiModuleVersion>1.0-SNAPSHOT</emrapiModuleVersion>
         <uiframeworkModuleVersion>2.5.1</uiframeworkModuleVersion>
