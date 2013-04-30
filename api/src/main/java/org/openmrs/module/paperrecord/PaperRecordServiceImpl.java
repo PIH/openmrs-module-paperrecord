@@ -464,7 +464,7 @@ public class PaperRecordServiceImpl extends BaseOpenmrsService implements PaperR
         try {
             printerService.printViaSocket(dataBuffer.toString(), Printer.Type.LABEL, location, encoding);
         } catch (Exception e) {
-            throw new UnableToPrintLabelException("Unable to print paper record label for patient " + patient, e);
+            throw new UnableToPrintLabelException("Unable to print paper record label at location " + location + " for patient " + patient, e);
         }
     }
 
@@ -477,7 +477,7 @@ public class PaperRecordServiceImpl extends BaseOpenmrsService implements PaperR
         try {
             printerService.printViaSocket(data.toString(), Printer.Type.LABEL, location, encoding);
         } catch (Exception e) {
-            throw new UnableToPrintLabelException("Unable to print paper record label for patient " + patient, e);
+            throw new UnableToPrintLabelException("Unable to print id card label at location " + location +" for patient " + patient, e);
         }
 
     }
