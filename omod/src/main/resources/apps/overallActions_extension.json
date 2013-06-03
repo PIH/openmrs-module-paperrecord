@@ -6,7 +6,7 @@
         "label": "emr.task.requestPaperRecord.label",
         "script": "showRequestChartDialog()",
         "icon": "icon-folder-open",
-        "order": -10,
+        "order": -12,
         "requiredPrivilege": "Task: ${project.parent.groupId}.${project.parent.artifactId}.requestPaperRecord"
     },
     {
@@ -16,7 +16,7 @@
         "label": "emr.task.printIdCardLabel.label",
         "script": "printIdCardLabel()",
         "icon": "icon-print",
-        "order": -10,
+        "order": -11,
         "requiredPrivilege": "Task: emr.printLabels"
     },
     {
