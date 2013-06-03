@@ -94,6 +94,8 @@ public class PaperRecordServiceTest {
 
     private PatientIdentifierType paperRecordIdentifierType;
 
+    private PatientIdentifierType externalDossierIdentifierType;
+
     private PatientIdentifierType primaryIdentifierType;
 
     @Before
@@ -120,6 +122,10 @@ public class PaperRecordServiceTest {
         primaryIdentifierType = new PatientIdentifierType();
         primaryIdentifierType.setId(3);
         when(mockEmrApiProperties.getPrimaryIdentifierType()).thenReturn(primaryIdentifierType);
+
+        externalDossierIdentifierType = new PatientIdentifierType();
+        externalDossierIdentifierType.setId(4);
+        when(mockPaperRecordProperties.getExternalDossierIdentifierType()).thenReturn(externalDossierIdentifierType);
 
         paperRecordService = new PaperRecordServiceStub(paperRecordIdentifierType);
         paperRecordService.setPaperRecordRequestDAO(mockPaperRecordDAO);

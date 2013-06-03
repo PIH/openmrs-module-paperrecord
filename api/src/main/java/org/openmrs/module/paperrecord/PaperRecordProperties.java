@@ -15,6 +15,10 @@ public class PaperRecordProperties extends ModuleProperties {
         return getPatientIdentifierTypeByGlobalProperty(PaperRecordConstants.GP_PAPER_RECORD_IDENTIFIER_TYPE, false);
     }
 
+    public PatientIdentifierType getExternalDossierIdentifierType() {
+        return getPatientIdentifierTypeByGlobalProperty(PaperRecordConstants.GP_EXTERNAL_DOSSIER_IDENTIFIER_TYPE, false);
+    }
+
     public LocationTag getMedicalRecordLocationLocationTag() {
         return locationService.getLocationTagByName(PaperRecordConstants.LOCATION_TAG_MEDICAL_RECORD_LOCATION);
     }

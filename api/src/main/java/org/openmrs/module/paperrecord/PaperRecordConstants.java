@@ -11,6 +11,8 @@ public class PaperRecordConstants {
 
     public static final String GP_PAPER_RECORD_IDENTIFIER_TYPE = "emr.paperRecordIdentifierType";
 
+    public static final String GP_EXTERNAL_DOSSIER_IDENTIFIER_TYPE = "emr.externalDossierIdentifierType";
+
     public static final String LOCATION_TAG_MEDICAL_RECORD_LOCATION = "Medical Record Location";
 
 }
