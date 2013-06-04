@@ -4,6 +4,7 @@ import junit.framework.Assert;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
+import org.mockito.Mockito;
 import org.openmrs.Location;
 import org.openmrs.Patient;
 import org.openmrs.PatientIdentifier;
@@ -26,6 +27,8 @@ public class DefauktZplIdCardLabelTemplateTest {
 
     private PatientIdentifierType paperRecordIdentifierType;
 
+    private PatientIdentifierType externalDossierIdentifierType;
+
     @Before
     public void setup() {
         primaryIdentifierType = new PatientIdentifierType();
@@ -34,11 +37,17 @@ public class DefauktZplIdCardLabelTemplateTest {
         paperRecordIdentifierType = new PatientIdentifierType();
         paperRecordIdentifierType.setUuid("097fbd00-81e0-11e2-9e96-0800200c9a66");
 
+
         EmrApiProperties emrApiProperties = mock(EmrApiProperties.class);
         when(emrApiProperties.getPrimaryIdentifierType()).thenReturn(primaryIdentifierType);
 
         PaperRecordProperties paperRecordProperties = mock(PaperRecordProperties.class);
         when(paperRecordProperties.getPaperRecordIdentifierType()).thenReturn(paperRecordIdentifierType);
+
+        externalDossierIdentifierType = new PatientIdentifierType();
+        externalDossierIdentifierType.setId(4);
+        when(paperRecordProperties.getExternalDossierIdentifierType()).thenReturn(externalDossierIdentifierType);
+
 
         MessageSourceService messageSourceService = mock(MessageSourceService.class);
         when(messageSourceService.getMessage("emr.archivesRoom.recordNumber.label")).thenReturn("Dossier ID");

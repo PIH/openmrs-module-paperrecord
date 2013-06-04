@@ -60,13 +60,12 @@ public class DefaultZplIdCardLabelTemplate implements IdCardLabelTemplate {
         data.append("^FO480,40^FB520,1,0,R,0^AUN^FD" + primaryIdentifier.getIdentifier() + "^FS");
 
         List<PatientIdentifier> paperRecordIdentifiers = patient.getPatientIdentifiers(paperRecordProperties.getPaperRecordIdentifierType());
-
+        List<PatientIdentifier> externalIdentifiers = patient.getPatientIdentifiers(paperRecordProperties.getExternalDossierIdentifierType());
         /* Print patient record identifiers in two columns*/
         if (paperRecordIdentifiers != null && paperRecordIdentifiers.size() > 0) {
+            int count = 0;
             int verticalPosition = 110;
             int horizontalPosition = 100;
-            int count = 0;
-
             for (PatientIdentifier identifier : paperRecordIdentifiers) {
                 data.append("^FO" + horizontalPosition + "," + verticalPosition + "^AUN^FD" + identifier.getIdentifier() + "^FS");
                 if (identifier.getLocation() != null) {
@@ -85,6 +84,27 @@ public class DefaultZplIdCardLabelTemplate implements IdCardLabelTemplate {
                 // we can't fit more than 6 dossier numbers on a label--this is a real edge case
                 if (count > 6) {
                     break;
+                }
+            }
+            if(externalIdentifiers!=null){
+                for(PatientIdentifier externalIdentifier: externalIdentifiers){
+                    if (count > 6) {
+                        break;
+                    }
+                    count++;
+                    data.append("^FO" + horizontalPosition + "," + verticalPosition + "^AUN^FD" + externalIdentifier.getIdentifier() + "^FS");
+                    if (externalIdentifier.getLocation() != null) {
+                        data.append("^FO" + horizontalPosition + "," + (verticalPosition + 50) + "^ATN^FD" + externalIdentifier.getLocation().getName() + " "
+                                + messageSourceService.getMessage("ui.i18n.PatientIdentifierType.name." + externalIdentifier.getIdentifierType().getUuid()) + "^FS");
+                    }
+                    verticalPosition = verticalPosition + 100;
+                    count++;
+
+                    // switch to second column if needed
+                    if (verticalPosition == 410) {
+                        verticalPosition = 110;
+                        horizontalPosition = 550;
+                    }
                 }
             }
         }

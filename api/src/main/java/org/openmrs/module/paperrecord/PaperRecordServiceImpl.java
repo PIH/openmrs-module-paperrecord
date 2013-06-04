@@ -441,18 +441,7 @@ public class PaperRecordServiceImpl extends BaseOpenmrsService implements PaperR
     @Override
     public void printPaperRecordLabels(Patient patient, Location location, Integer count) throws UnableToPrintLabelException {
         PatientIdentifier paperRecordIdentifier = GeneralUtils.getPatientIdentifier(patient, paperRecordProperties.getPaperRecordIdentifierType(), getMedicalRecordLocationAssociatedWith(location));
-        String paperRecordIdentifierValue = paperRecordIdentifier != null ? paperRecordIdentifier.getIdentifier() : null;
-        List<PatientIdentifier> patientIdentifiers = patient.getPatientIdentifiers(paperRecordProperties.getExternalDossierIdentifierType());
-        if(patientIdentifiers!=null && patientIdentifiers.size()>0){
-            Map<String, List<String>> externalIdentifiers =  new HashMap<String, List<String>>();
-            List<String> exIds = new ArrayList<String>();
-            for (PatientIdentifier externalIdentifier : patientIdentifiers) {
-               exIds.add(externalIdentifier.getIdentifier());
-            }
-            externalIdentifiers.put(paperRecordProperties.getExternalDossierIdentifierType().getUuid(), exIds);
-            printExternalPaperRecordLabels(patient, paperRecordIdentifierValue, externalIdentifiers,location, count);
-        }
-        printPaperRecordLabels(patient, paperRecordIdentifierValue, location, count);
+        printPaperRecordLabels(patient, paperRecordIdentifier != null ? paperRecordIdentifier.getIdentifier() : null, location, count);
     }
 
     private void printPaperRecordLabels(Patient patient, String identifier, Location location, Integer count) throws UnableToPrintLabelException {
@@ -478,31 +467,6 @@ public class PaperRecordServiceImpl extends BaseOpenmrsService implements PaperR
             throw new UnableToPrintLabelException("Unable to print paper record label at location " + location + " for patient " + patient, e);
         }
     }
-
-    private void printExternalPaperRecordLabels(Patient patient, String paperIdentifier, Map<String, List<String>> externalIdentifiers , Location location, Integer count) throws UnableToPrintLabelException {
-        if (count == null || count == 0) {
-            return;  // just do nothing if we don't have a count
-        }
-
-        String data = paperRecordLabelTemplate.generateLabel(patient, paperIdentifier, externalIdentifiers);
-        String encoding = paperRecordLabelTemplate.getEncoding();
-
-        // just duplicate the data if we are printing multiple labels
-        StringBuffer dataBuffer = new StringBuffer();
-        dataBuffer.append(data);
-
-        while (count > 1) {
-            dataBuffer.append(data);
-            count--;
-        }
-
-        try {
-            printerService.printViaSocket(dataBuffer.toString(), Printer.Type.LABEL, location, encoding);
-        } catch (Exception e) {
-            throw new UnableToPrintLabelException("Unable to print paper record label at location " + location + " for patient " + patient, e);
-        }
-    }
-
 
     @Override
     public void printIdCardLabel(Patient patient, Location location) throws UnableToPrintLabelException {
