@@ -286,7 +286,7 @@ public class PaperRecordServiceImpl extends BaseOpenmrsService implements PaperR
                 String identifier = request.getIdentifier();
                 if (StringUtils.isBlank(identifier)) {
                     identifier = createPaperMedicalRecordNumberFor(request.getPatient(),
-                            request.getRecordLocation());
+                            request.getRecordLocation()).getIdentifier();
                     request.setIdentifier(identifier);
                     request.updateStatus(Status.ASSIGNED_TO_CREATE);
                     printPaperRecordLabels(request, location, NUMBER_OF_LABELS_TO_PRINT_WHEN_CREATING_NEW_RECORD);
@@ -558,8 +558,9 @@ public class PaperRecordServiceImpl extends BaseOpenmrsService implements PaperR
         }
     }
 
-    // leaving this method as public so that it can be tested by integration test in mirebalais module
-    public String createPaperMedicalRecordNumberFor(Patient patient, Location medicalRecordLocation) {
+    @Override
+    @Transactional
+    public PatientIdentifier createPaperMedicalRecordNumberFor(Patient patient, Location medicalRecordLocation) {
         if (patient == null) {
             throw new IllegalArgumentException("Patient shouldn't be null");
         }
@@ -574,7 +575,7 @@ public class PaperRecordServiceImpl extends BaseOpenmrsService implements PaperR
         patient.addIdentifier(paperRecordIdentifier);
         patientService.savePatientIdentifier(paperRecordIdentifier);
 
-        return paperRecordId;
+        return paperRecordIdentifier;
     }
 
     protected Location getMedicalRecordLocationAssociatedWith(Location location) {

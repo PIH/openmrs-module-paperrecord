@@ -54,6 +54,16 @@ public interface PaperRecordService extends OpenmrsService {
     @Authorized(PaperRecordConstants.PRIVILEGE_PAPER_RECORDS_REQUEST_RECORDS)
     boolean paperRecordExistsForPatientWithIdentifier(String patientIdentifier, Location location);
 
+    /**
+     * Creates a paper medical record number for the given patient at the specified medical record location
+     *
+     * @param patient
+     * @param medicalRecordLocation
+     * @return the Patient identifier created
+     */
+    @Authorized(PaperRecordConstants.PRIVILEGE_PAPER_RECORDS_MANAGE_REQUESTS)
+    PatientIdentifier createPaperMedicalRecordNumberFor(Patient patient, Location medicalRecordLocation);
+
 
     /**
      * Fetches the Paper Record Request with the specified id
