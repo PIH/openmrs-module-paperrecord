@@ -33,6 +33,8 @@ import org.openmrs.module.emrapi.utils.GeneralUtils;
 import org.openmrs.module.idgen.service.IdentifierSourceService;
 import org.openmrs.module.paperrecord.db.PaperRecordMergeRequestDAO;
 import org.openmrs.module.paperrecord.db.PaperRecordRequestDAO;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
@@ -49,6 +51,8 @@ import static org.openmrs.module.paperrecord.PaperRecordRequest.PENDING_STATUSES
 import static org.openmrs.module.paperrecord.PaperRecordRequest.Status;
 
 public class PaperRecordServiceImpl extends BaseOpenmrsService implements PaperRecordService {
+
+    private final Logger log = LoggerFactory.getLogger(getClass());
 
     private final static int NUMBER_OF_LABELS_TO_PRINT_WHEN_CREATING_NEW_RECORD = 4;
 
@@ -571,6 +575,14 @@ public class PaperRecordServiceImpl extends BaseOpenmrsService implements PaperR
 
         paperRecordId = identifierSourceService.generateIdentifier(paperRecordIdentifierType,
                 "generating a new dossier number");
+
+        // double check to make sure this dossier number is not in use
+        while (paperRecordExistsWithIdentifier(paperRecordId, medicalRecordLocation)) {
+            log.error("Attempted to generate duplicate paper record identifier " + paperRecordId );
+            paperRecordId = identifierSourceService.generateIdentifier(paperRecordIdentifierType,
+                    "generating a new dossier number");
+        }
+
         PatientIdentifier paperRecordIdentifier = new PatientIdentifier(paperRecordId, paperRecordIdentifierType,
                 medicalRecordLocation);
         patient.addIdentifier(paperRecordIdentifier);

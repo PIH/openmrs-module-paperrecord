@@ -1220,6 +1220,23 @@ public class PaperRecordServiceTest {
         assertThat(request2.getStatus(), is(Status.OPEN));
     }
 
+    @Test
+    public void createPaperMedicalRecordNumber_shouldSkipIdentifiersAlreadyInUse() {
+
+        Location medicalRecordLocation = createMedicalRecordLocation();
+        PatientIdentifier identifier = createIdentifier(medicalRecordLocation, "A00001");
+
+        when(mockPatientService.getPatientIdentifiers("A00001", Collections.singletonList(paperRecordIdentifierType),
+                Collections.singletonList(medicalRecordLocation), null, null))
+                .thenReturn(Collections.singletonList(identifier));
+
+        when(mockIdentifierSourceService.generateIdentifier(paperRecordIdentifierType, "generating a new dossier number")).thenReturn("A00001", "A00002");
+
+        PatientIdentifier paperMedicalRecordIdentifier = paperRecordService.createPaperMedicalRecordNumber(new Patient(), medicalRecordLocation);
+
+        assertThat(paperMedicalRecordIdentifier.getIdentifier(), is("A00002"));
+    }
+
     private PatientIdentifier createIdentifier(Location medicalRecordLocation, String identifier) {
         PatientIdentifier identifer = new PatientIdentifier();
         identifer.setIdentifier(identifier);
