@@ -404,7 +404,7 @@ public class PaperRecordServiceTest {
 
         PatientIdentifier identifier = new PatientIdentifier(paperMedicalRecordNumberAsExpected, paperRecordIdentifierType, createMedicalRecordLocation());
 
-        String paperMedicalRecordNumber = paperRecordService.createPaperMedicalRecordNumberFor(patient, createMedicalRecordLocation()).getIdentifier();
+        String paperMedicalRecordNumber = paperRecordService.createPaperMedicalRecordNumber(patient, createMedicalRecordLocation()).getIdentifier();
 
         // cannot compare using one identifier because the equals is not implemented correctly
         verify(mockPatientService).savePatientIdentifier(any(PatientIdentifier.class));

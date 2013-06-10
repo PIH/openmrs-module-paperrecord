@@ -123,6 +123,7 @@ public class PaperRecordServiceImpl extends BaseOpenmrsService implements PaperR
     }
 
 
+
     @Override
     public boolean paperRecordExistsWithIdentifier(String identifier, Location location) {
 
@@ -285,7 +286,7 @@ public class PaperRecordServiceImpl extends BaseOpenmrsService implements PaperR
             } else {
                 String identifier = request.getIdentifier();
                 if (StringUtils.isBlank(identifier)) {
-                    identifier = createPaperMedicalRecordNumberFor(request.getPatient(),
+                    identifier = createPaperMedicalRecordNumber(request.getPatient(),
                             request.getRecordLocation()).getIdentifier();
                     request.setIdentifier(identifier);
                     request.updateStatus(Status.ASSIGNED_TO_CREATE);
@@ -560,7 +561,7 @@ public class PaperRecordServiceImpl extends BaseOpenmrsService implements PaperR
 
     @Override
     @Transactional
-    public PatientIdentifier createPaperMedicalRecordNumberFor(Patient patient, Location medicalRecordLocation) {
+    public PatientIdentifier createPaperMedicalRecordNumber(Patient patient, Location medicalRecordLocation) {
         if (patient == null) {
             throw new IllegalArgumentException("Patient shouldn't be null");
         }
