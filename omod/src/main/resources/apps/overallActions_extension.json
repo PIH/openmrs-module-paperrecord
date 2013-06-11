@@ -7,7 +7,7 @@
         "script": "showRequestChartDialog()",
         "icon": "icon-folder-open",
         "order": -12,
-        "requiredPrivilege": "Task: ${project.parent.groupId}.${project.parent.artifactId}.requestPaperRecord"
+        "requiredPrivilege": "Task: emr.requestPaperRecord"
     },
     {
         "id": "${project.parent.groupId}.${project.parent.artifactId}.printIdCardLabel",
