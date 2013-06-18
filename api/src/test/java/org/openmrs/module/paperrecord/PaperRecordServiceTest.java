@@ -327,11 +327,13 @@ public class PaperRecordServiceTest {
         when(mockIdCardLabelTemplate.generateLabel(any(Patient.class))).thenReturn("some data");
 
         Person assignTo = new Person(15);
+        Patient patient = new Patient();
+        Location location = new Location();
 
         List<PaperRecordRequest> requests = new ArrayList<PaperRecordRequest>();
-        requests.add(buildPaperRecordRequestWithoutIdentifier());
-        requests.add(buildPaperRecordRequestWithoutIdentifier());
-        requests.add(buildPaperRecordRequestWithoutIdentifier());
+        requests.add(buildPaperRecordRequestWithoutIdentifier(patient, location));
+        requests.add(buildPaperRecordRequestWithoutIdentifier(patient, location));
+        requests.add(buildPaperRecordRequestWithoutIdentifier(patient, location));
 
         paperRecordService.assignRequests(requests, assignTo, null);
 
@@ -339,19 +341,90 @@ public class PaperRecordServiceTest {
     }
 
     @Test
-    public void testAssignRequestsWithIdentifiersShouldReturnErrors() throws Exception {
+    public void testAssignRequestsWithoutIdentifiersShouldUpdateIdentifier() throws Exception {
+
         Person assignTo = new Person(15);
+        Patient patient = new Patient();
+        Location location = new Location();
 
         List<PaperRecordRequest> requests = new ArrayList<PaperRecordRequest>();
-        requests.add(buildPaperRecordRequestWithIdentifier());
-        requests.add(buildPaperRecordRequestWithIdentifier());
-        requests.add(buildPaperRecordRequestWithIdentifier());
+        requests.add(buildPaperRecordRequestWithoutIdentifier(patient, location));
+        requests.add(buildPaperRecordRequestWithoutIdentifier(patient, location));
+        requests.add(buildPaperRecordRequestWithoutIdentifier(patient, location));
+
+        // even thought the requests don't have an identifier, give the patient one
+        PatientIdentifier identifier = new PatientIdentifier();
+        identifier.setPatient(patient);
+        identifier.setLocation(location);
+        identifier.setIdentifierType(paperRecordIdentifierType);
+        identifier.setIdentifier("ABC");
+        patient.addIdentifier(identifier);
+
+        paperRecordService.assignRequests(requests, assignTo, null);
+
+        // because the patient has an identifier, these should now be pull requests
+        verify(mockPaperRecordDAO, times(3)).saveOrUpdate(argThat(new IsAssignedTo(assignTo, PaperRecordRequest.Status.ASSIGNED_TO_PULL)));
+
+        for (PaperRecordRequest request : requests) {
+            assertThat(request.getIdentifier(), is("ABC"));
+        }
+    }
+
+
+    @Test
+    public void testAssignRequestsWithIdentifiers() throws Exception {
+
+        Person assignTo = new Person(15);
+        Patient patient = new Patient(1);
+        Location location = new Location(1);
+
+        PatientIdentifier identifier = new PatientIdentifier();
+        identifier.setPatient(patient);
+        identifier.setLocation(location);
+        identifier.setIdentifierType(paperRecordIdentifierType);
+        identifier.setIdentifier("ABC");
+        patient.addIdentifier(identifier);
+
+        List<PaperRecordRequest> requests = new ArrayList<PaperRecordRequest>();
+        requests.add(buildPaperRecordRequestWithIdentifier(patient, location, "ABC"));
+        requests.add(buildPaperRecordRequestWithIdentifier(patient, location, "ABC"));
+        requests.add(buildPaperRecordRequestWithIdentifier(patient, location, "ABC"));
 
         Map<String, List<String>> response = paperRecordService.assignRequests(requests, assignTo, null);
 
         assertThat(response.get("success").size(), is(3));
 
         verify(mockPaperRecordDAO, times(3)).saveOrUpdate(argThat(new IsAssignedTo(assignTo, PaperRecordRequest.Status.ASSIGNED_TO_PULL)));
+    }
+
+    @Test
+    public void testAssignRequestsWithIdentifiersShouldUpdateIdentifier() throws Exception {
+
+        Person assignTo = new Person(15);
+        Patient patient = new Patient(1);
+        Location location = new Location(1);
+
+        PatientIdentifier identifier = new PatientIdentifier();
+        identifier.setPatient(patient);
+        identifier.setLocation(location);
+        identifier.setIdentifierType(paperRecordIdentifierType);
+        identifier.setIdentifier("DEF");   // note that this is a different identifier from what we are assigning to the requests
+        patient.addIdentifier(identifier);
+
+        List<PaperRecordRequest> requests = new ArrayList<PaperRecordRequest>();
+        requests.add(buildPaperRecordRequestWithIdentifier(patient, location, "ABC"));
+        requests.add(buildPaperRecordRequestWithIdentifier(patient, location, "ABC"));
+        requests.add(buildPaperRecordRequestWithIdentifier(patient, location, "ABC"));
+
+        Map<String, List<String>> response = paperRecordService.assignRequests(requests, assignTo, null);
+
+        assertThat(response.get("success").size(), is(3));
+
+        verify(mockPaperRecordDAO, times(3)).saveOrUpdate(argThat(new IsAssignedTo(assignTo, PaperRecordRequest.Status.ASSIGNED_TO_PULL)));
+
+        for (PaperRecordRequest request : requests) {
+            assertThat(request.getIdentifier(), is("DEF"));
+        }
     }
 
 
@@ -365,34 +438,15 @@ public class PaperRecordServiceTest {
     @Test(expected = IllegalArgumentException.class)
     public void testAssignRequestsShouldFailIfAssigneeNull() throws Exception {
 
+        Patient patient = new Patient(1);
+        Location location = new Location(1);
+
         List<PaperRecordRequest> requests = new ArrayList<PaperRecordRequest>();
-        requests.add(buildPaperRecordRequestWithoutIdentifier());
-        requests.add(buildPaperRecordRequestWithoutIdentifier());
-        requests.add(buildPaperRecordRequestWithoutIdentifier());
+        requests.add(buildPaperRecordRequestWithoutIdentifier(patient, location));
+        requests.add(buildPaperRecordRequestWithoutIdentifier(patient, location));
+        requests.add(buildPaperRecordRequestWithoutIdentifier(patient, location));
 
         paperRecordService.assignRequests(requests, null, null);
-    }
-
-    @Test
-    public void testAssignRequestsShouldReturnErrorIfPatientHasValidIdentifierEvenIfRequestDoesNot() throws Exception {
-        Person assignTo = new Person(15);
-
-        List<PaperRecordRequest> requests = new ArrayList<PaperRecordRequest>();
-        requests.add(buildPaperRecordRequestWithoutIdentifier());
-
-        // add an identifier to this patient
-        Patient patient = requests.get(0).getPatient();
-        PatientIdentifier patientIdentifier = new PatientIdentifier();
-        patientIdentifier.setIdentifier("ABC");
-        patientIdentifier.setIdentifierType(paperRecordIdentifierType);
-        patientIdentifier.setLocation(requests.get(0).getRecordLocation());
-        patient.addIdentifier(patientIdentifier);
-
-        Map<String, List<String>> response = paperRecordService.assignRequests(requests, assignTo, null);
-
-        assertThat(response.get("error").size(), is(1));
-
-        verify(mockPaperRecordDAO, never()).saveOrUpdate(argThat(new IsAssignedTo(assignTo, PaperRecordRequest.Status.ASSIGNED_TO_PULL, "ABC")));
     }
 
     @Test
@@ -1284,9 +1338,7 @@ public class PaperRecordServiceTest {
         return expectedMergeRequest;
     }
 
-    private PaperRecordRequest buildPaperRecordRequestWithoutIdentifier() {
-        Patient patient = new Patient(1);
-        Location location = new Location(1);
+    private PaperRecordRequest buildPaperRecordRequestWithoutIdentifier(Patient patient, Location location) {
         PaperRecordRequest request = new PaperRecordRequest();
         request.setPatient(patient);
         request.updateStatus(PaperRecordRequest.Status.OPEN);
@@ -1294,18 +1346,16 @@ public class PaperRecordServiceTest {
         return request;
     }
 
-    private PaperRecordRequest buildPaperRecordRequestWithIdentifier() {
-        Patient patient = new Patient(1);
+    private PaperRecordRequest buildPaperRecordRequestWithIdentifier(Patient patient, Location location, String identifier) {
         PatientIdentifier patientIdentifier = new PatientIdentifier();
         patientIdentifier.setIdentifierType(paperRecordIdentifierType);
         patientIdentifier.setIdentifier("ABC");
         patient.addIdentifier(patientIdentifier);
-        Location location = new Location(1);
         PaperRecordRequest request = new PaperRecordRequest();
         request.setPatient(patient);
         request.updateStatus(PaperRecordRequest.Status.OPEN);
         request.setRecordLocation(location);
-        request.setIdentifier("ABC");
+        request.setIdentifier(identifier);
         return request;
     }
 

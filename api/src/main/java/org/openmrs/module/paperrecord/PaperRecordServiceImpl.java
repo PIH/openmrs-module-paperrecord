@@ -283,16 +283,16 @@ public class PaperRecordServiceImpl extends BaseOpenmrsService implements PaperR
         response.put("error", new LinkedList<String>());
 
         for (PaperRecordRequest request : requests) {
-            // first do a sanity check, in case an identifier has been created since the request was placed
-            // and verify that this request is open, or else we can't assign it
-            if (patientHasPaperRecordIdentifier(request) || request.getStatus() != Status.OPEN) {
-                response.get("error").add(request.getPatient().getPatientIdentifier().getIdentifier());
-            } else {
-                String identifier = request.getIdentifier();
-                if (StringUtils.isBlank(identifier)) {
-                    identifier = createPaperMedicalRecordNumber(request.getPatient(),
-                            request.getRecordLocation()).getIdentifier();
-                    request.setIdentifier(identifier);
+
+            // as a sanity check, ignore any requests that aren't open
+            if (request.getStatus() == Status.OPEN) {
+
+                // update the identifier on the request just in case it has changed since the request has been issued
+                request.setIdentifier(getPaperMedicalRecordNumberFor(request.getPatient(), request.getRecordLocation()));
+
+                if (StringUtils.isBlank(request.getIdentifier())) {
+                    request.setIdentifier(createPaperMedicalRecordNumber(request.getPatient(),
+                            request.getRecordLocation()).getIdentifier());
                     request.updateStatus(Status.ASSIGNED_TO_CREATE);
                     printPaperRecordLabels(request, location, NUMBER_OF_LABELS_TO_PRINT_WHEN_CREATING_NEW_RECORD);
                     printIdCardLabel(request.getPatient(), location);
@@ -304,16 +304,11 @@ public class PaperRecordServiceImpl extends BaseOpenmrsService implements PaperR
                 request.setAssignee(assignee);
                 paperRecordRequestDAO.saveOrUpdate(request);
 
-                response.get("success").add(identifier);
+                response.get("success").add(request.getIdentifier());
             }
         }
 
         return response;
-    }
-
-    private boolean patientHasPaperRecordIdentifier(PaperRecordRequest request) {
-        return StringUtils.isBlank(request.getIdentifier()) &&
-                getPaperMedicalRecordNumberFor(request.getPatient(), request.getRecordLocation()) != null;
     }
 
     @Override
