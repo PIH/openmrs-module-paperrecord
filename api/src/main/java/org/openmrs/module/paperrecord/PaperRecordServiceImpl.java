@@ -560,10 +560,12 @@ public class PaperRecordServiceImpl extends BaseOpenmrsService implements PaperR
 
     @Override
     @Transactional
-    public PatientIdentifier createPaperMedicalRecordNumber(Patient patient, Location medicalRecordLocation) {
+    public PatientIdentifier createPaperMedicalRecordNumber(Patient patient, Location location) {
         if (patient == null) {
             throw new IllegalArgumentException("Patient shouldn't be null");
         }
+
+        Location medicalRecordLocation = getMedicalRecordLocationAssociatedWith(location);
 
         PatientIdentifierType paperRecordIdentifierType = paperRecordProperties.getPaperRecordIdentifierType();
         String paperRecordId = "";
