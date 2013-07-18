@@ -62,10 +62,10 @@ public class DefaultZplIdCardLabelTemplate implements IdCardLabelTemplate {
         List<PatientIdentifier> paperRecordIdentifiers = patient.getPatientIdentifiers(paperRecordProperties.getPaperRecordIdentifierType());
         List<PatientIdentifier> externalIdentifiers = patient.getPatientIdentifiers(paperRecordProperties.getExternalDossierIdentifierType());
         /* Print patient record identifiers in two columns*/
+        int count = 0;
+        int verticalPosition = 110;
+        int horizontalPosition = 100;
         if (paperRecordIdentifiers != null && paperRecordIdentifiers.size() > 0) {
-            int count = 0;
-            int verticalPosition = 110;
-            int horizontalPosition = 100;
             for (PatientIdentifier identifier : paperRecordIdentifiers) {
                 data.append("^FO" + horizontalPosition + "," + verticalPosition + "^AUN^FD" + identifier.getIdentifier() + "^FS");
                 if (identifier.getLocation() != null) {
@@ -86,28 +86,29 @@ public class DefaultZplIdCardLabelTemplate implements IdCardLabelTemplate {
                     break;
                 }
             }
-            if(externalIdentifiers!=null){
-                for(PatientIdentifier externalIdentifier: externalIdentifiers){
-                    if (count > 6) {
-                        break;
-                    }
-                    count++;
-                    data.append("^FO" + horizontalPosition + "," + verticalPosition + "^AUN^FD" + externalIdentifier.getIdentifier() + "^FS");
-                    if (externalIdentifier.getLocation() != null) {
-                        data.append("^FO" + horizontalPosition + "," + (verticalPosition + 50) + "^ATN^FD" + externalIdentifier.getLocation().getName() + " "
-                                + messageSourceService.getMessage("ui.i18n.PatientIdentifierType.name." + externalIdentifier.getIdentifierType().getUuid()) + "^FS");
-                    }
-                    verticalPosition = verticalPosition + 100;
-                    count++;
+        }
+        if(externalIdentifiers!=null){
+            for(PatientIdentifier externalIdentifier: externalIdentifiers){
+                if (count > 6) {
+                    break;
+                }
+                count++;
+                data.append("^FO" + horizontalPosition + "," + verticalPosition + "^AUN^FD" + externalIdentifier.getIdentifier() + "^FS");
+                if (externalIdentifier.getLocation() != null) {
+                    data.append("^FO" + horizontalPosition + "," + (verticalPosition + 50) + "^ATN^FD" + externalIdentifier.getLocation().getName() + " "
+                            + messageSourceService.getMessage("ui.i18n.PatientIdentifierType.name." + externalIdentifier.getIdentifierType().getUuid()) + "^FS");
+                }
+                verticalPosition = verticalPosition + 100;
+                count++;
 
-                    // switch to second column if needed
-                    if (verticalPosition == 410) {
-                        verticalPosition = 110;
-                        horizontalPosition = 550;
-                    }
+                // switch to second column if needed
+                if (verticalPosition == 410) {
+                    verticalPosition = 110;
+                    horizontalPosition = 550;
                 }
             }
         }
+
 
         /* Draw the "tear line" */
         data.append("^FO1025,10^GB0,590,10^FS");
