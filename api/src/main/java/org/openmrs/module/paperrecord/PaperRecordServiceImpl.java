@@ -151,13 +151,19 @@ public class PaperRecordServiceImpl extends BaseOpenmrsService implements PaperR
             // data model should prevent us from ever getting her, but just in case
             throw new APIException("Multiple patients found with identifier " + patientIdentifier);
         } else {
-
-            List<PatientIdentifier> identifiers = patientService.getPatientIdentifiers(null,
-                    Collections.singletonList(paperRecordProperties.getPaperRecordIdentifierType()),
-                    Collections.singletonList(getMedicalRecordLocationAssociatedWith(location)), Collections.singletonList(patients.get(0)), null);
-
-            return identifiers != null && identifiers.size() > 0 ? true : false;
+           return paperRecordExistsForPatient(patients.get(0), location);
         }
+    }
+
+    @Override
+    public boolean paperRecordExistsForPatient(Patient patient, Location location) {
+
+        List<PatientIdentifier> identifiers = patientService.getPatientIdentifiers(null,
+                Collections.singletonList(paperRecordProperties.getPaperRecordIdentifierType()),
+                Collections.singletonList(getMedicalRecordLocationAssociatedWith(location)), Collections.singletonList(patient), null);
+
+        return identifiers != null && identifiers.size() > 0 ? true : false;
+
     }
 
     @Override
@@ -566,6 +572,11 @@ public class PaperRecordServiceImpl extends BaseOpenmrsService implements PaperR
         }
 
         Location medicalRecordLocation = getMedicalRecordLocationAssociatedWith(location);
+
+        if(paperRecordExistsForPatient(patient, medicalRecordLocation) ){
+            log.warn("Patient already has a paper record number at this location. patientId=" + patient.getId().toString() + ", location=" + location.getName());
+            return null;
+        }
 
         PatientIdentifierType paperRecordIdentifierType = paperRecordProperties.getPaperRecordIdentifierType();
         String paperRecordId = "";
