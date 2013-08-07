@@ -54,9 +54,9 @@ public class PaperRecordServiceImpl extends BaseOpenmrsService implements PaperR
 
     private final Logger log = LoggerFactory.getLogger(getClass());
 
-    private final static int NUMBER_OF_LABELS_TO_PRINT_WHEN_CREATING_NEW_RECORD = 4;
+    private final static int NUMBER_OF_LABELS_TO_PRINT_WHEN_CREATING_NEW_RECORD = 3;
 
-    private final static int NUMBER_OF_LABELS_TO_PRINT_WHEN_PULLING_RECORD = 3;
+    private final static int NUMBER_OF_LABELS_TO_PRINT_WHEN_PULLING_RECORD = 2;
 
     private PaperRecordRequestDAO paperRecordRequestDAO;
 
