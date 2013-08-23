@@ -1,5 +1,6 @@
 package org.openmrs.module.paperrecord;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.openmrs.Patient;
@@ -50,10 +51,17 @@ public class DefaultZplIdCardLabelTemplate implements IdCardLabelTemplate {
         data.append("^XA");
         data.append("^CI28");   // specify Unicode encoding
 
+        String patientName = null;
+        if(patient.getPersonName() != null ){
+            patientName = (patient.getPersonName().getGivenName() != null ? patient.getPersonName().getGivenName() : "") + " "
+                    + (patient.getPersonName().getFamilyName() != null ? patient.getPersonName().getFamilyName() : "");
+        }
          /* Name (Only print first and last name) */
-        if (patient.getPersonName() != null) {
-            data.append("^FO100,40^AUN^FD" + (patient.getPersonName().getGivenName() != null ? patient.getPersonName().getGivenName() : "") + " "
-                    + (patient.getPersonName().getFamilyName() != null ? patient.getPersonName().getFamilyName() : "") + "^FS");
+        if (patientName != null) {
+            if (patientName.length() > PaperRecordLabelTemplate.LABEL_PRINTER_LINE_MAX_SIZE){
+                patientName = StringUtils.substring(patientName,  0, PaperRecordLabelTemplate.LABEL_PRINTER_LINE_MAX_SIZE -1);
+            }
+            data.append("^FO100,40^AUN^FD" + patientName + "^FS");
         }
 
         /* Primary identifier */

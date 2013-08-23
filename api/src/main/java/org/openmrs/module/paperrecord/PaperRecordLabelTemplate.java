@@ -16,10 +16,11 @@ package org.openmrs.module.paperrecord;
 
 import org.openmrs.Patient;
 
-import java.util.List;
-import java.util.Map;
-
 public interface PaperRecordLabelTemplate {
+
+    public final static Integer IDCARD_PRINTER_LINE_MAX_SIZE = 41;
+    public final static Integer LABEL_PRINTER_LINE_MAX_SIZE = 25;
+    public final static Integer CHARTLABEL_PRINTER_LINE_MAX_SIZE = 20;
 
     String generateLabel(Patient patient, String paperRecordIdentifier);
 
