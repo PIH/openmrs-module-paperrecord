@@ -4,7 +4,6 @@ import junit.framework.Assert;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
-import org.mockito.Mockito;
 import org.openmrs.Location;
 import org.openmrs.Patient;
 import org.openmrs.PatientIdentifier;
@@ -126,7 +125,7 @@ public class DefauktZplIdCardLabelTemplateTest {
         String data = template.generateLabel(patient);
 
         System.out.println(data);
-        Assert.assertTrue(data.equals("^XA^CI28^FO100,40^AUN^FDEllen Jazayeri^FS^FO480,40^FB520,1,0,R,0^AUN^FD2F1406^FS^FO100,110^AUN^FDA002300^FS^FO100,160^ATN^FDMirebalais Dossier ID^FS^FO1025,10^GB0,590,10^FS^XZ"));
+        Assert.assertTrue(data.equals("^XA^CI28^FO100,40^AUN^FDJazayeri, Ellen^FS^FO480,40^FB520,1,0,R,0^AUN^FD2F1406^FS^FO100,110^AUN^FDA002300^FS^FO100,160^ATN^FDMirebalais Dossier ID^FS^FO1025,10^GB0,590,10^FS^XZ"));
 
     }
 

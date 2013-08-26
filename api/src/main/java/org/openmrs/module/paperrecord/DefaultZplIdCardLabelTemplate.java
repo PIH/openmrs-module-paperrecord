@@ -53,8 +53,8 @@ public class DefaultZplIdCardLabelTemplate implements IdCardLabelTemplate {
 
         String patientName = null;
         if(patient.getPersonName() != null ){
-            patientName = (patient.getPersonName().getGivenName() != null ? patient.getPersonName().getGivenName() : "") + " "
-                    + (patient.getPersonName().getFamilyName() != null ? patient.getPersonName().getFamilyName() : "");
+            patientName = (patient.getPersonName().getFamilyName() != null ? patient.getPersonName().getFamilyName() : "") + ", "
+                    + (patient.getPersonName().getGivenName() != null ? patient.getPersonName().getGivenName() : "");
         }
          /* Name (Only print first and last name) */
         if (patientName != null) {
