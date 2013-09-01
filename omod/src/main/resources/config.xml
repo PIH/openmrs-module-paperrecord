@@ -21,6 +21,9 @@
         <require_module version="${uiframeworkModuleVersion}">org.openmrs.module.uiframework</require_module>
         <require_module version="${emrapiModuleVersion}">org.openmrs.module.emrapi</require_module>
         <require_module version="${idgenModuleVersion}">org.openmrs.module.idgen</require_module>
+        <require_module version="${appuiVersion}">org.openmrs.module.appui</require_module>
+        <require_module version="${appframeworkVersion}">org.openmrs.module.appframework</require_module>
+        <require_module version="${coreappsVersion}">org.openmrs.module.coreapps</require_module>
     </require_modules>
     <!-- / Required Modules -->
 
@@ -42,6 +45,10 @@
     <messages>
         <lang>fr</lang>
         <file>messages_fr.properties</file>
+    </messages>
+    <messages>
+        <lang>ht</lang>
+        <file>messages_ht.properties</file>
     </messages>
     <!-- /Internationalization -->
 
