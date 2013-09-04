@@ -56,8 +56,8 @@ public class DefaultZplPaperRecordLabelTemplateTest {
 
         MessageSourceService messageSourceService = mock(MessageSourceService.class);
         when(messageSourceService.getMessage("paperrecord.archivesRoom.recordNumber.label")).thenReturn("Dossier id:");
-        when(messageSourceService.getMessage("paperrecord.gender.M")).thenReturn("Male");
-        when(messageSourceService.getMessage("paperrecord.gender.F")).thenReturn("Female");
+        when(messageSourceService.getMessage("coreapps.gender.M")).thenReturn("Male");
+        when(messageSourceService.getMessage("coreapps.gender.F")).thenReturn("Female");
 
         EmrApiProperties emrApiProperties = mock(EmrApiProperties.class);
         primaryIdentifierType = new PatientIdentifierType();

@@ -79,7 +79,7 @@ public class DefaultZplPaperRecordLabelTemplate implements PaperRecordLabelTempl
             data.append(df.format(patient.getBirthdate()) + (patient.getBirthdateEstimated() ? " (*)" : "") + ", ");
         }
         if (patient.getGender() != null) {
-            data.append(messageSourceService.getMessage("paperrecord.gender." + patient.getGender()));
+            data.append(messageSourceService.getMessage("coreapps.gender." + patient.getGender()));
         }
         data.append("^FS");
 
