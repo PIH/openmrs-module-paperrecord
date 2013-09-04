@@ -79,7 +79,7 @@ public class DefaultZplPaperRecordLabelTemplate implements PaperRecordLabelTempl
             data.append(df.format(patient.getBirthdate()) + (patient.getBirthdateEstimated() ? " (*)" : "") + ", ");
         }
         if (patient.getGender() != null) {
-            data.append(messageSourceService.getMessage("emr.gender." + patient.getGender()));
+            data.append(messageSourceService.getMessage("paperrecord.gender." + patient.getGender()));
         }
         data.append("^FS");
 
@@ -130,7 +130,7 @@ public class DefaultZplPaperRecordLabelTemplate implements PaperRecordLabelTempl
 
         /* Print the patient's paper record identifier, if it exists */
         if (StringUtils.isNotBlank(paperRecordIdentifier)) {
-            data.append("^FO680,40^FB520,1,0,R,0^AUN^FD" + messageSourceService.getMessage("emr.archivesRoom.recordNumber.label")
+            data.append("^FO680,40^FB520,1,0,R,0^AUN^FD" + messageSourceService.getMessage("paperrecord.archivesRoom.recordNumber.label")
                     + " " + paperRecordIdentifier + "^FS");
         }
 
