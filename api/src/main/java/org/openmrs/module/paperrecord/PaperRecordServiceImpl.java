@@ -129,6 +129,7 @@ public class PaperRecordServiceImpl extends BaseOpenmrsService implements PaperR
 
 
     @Override
+    @Transactional(readOnly = true)
     public boolean paperRecordExistsWithIdentifier(String identifier, Location location) {
 
         List<PatientIdentifier> identifiers = patientService.getPatientIdentifiers(identifier,
@@ -139,6 +140,7 @@ public class PaperRecordServiceImpl extends BaseOpenmrsService implements PaperR
     }
 
     @Override
+    @Transactional(readOnly = true)
     public boolean paperRecordExistsForPatientWithIdentifier(String patientIdentifier, Location location) {
 
         List<Patient> patients = patientService.getPatients(null, patientIdentifier, Collections.singletonList(emrApiProperties.getPrimaryIdentifierType()), true);
@@ -156,6 +158,7 @@ public class PaperRecordServiceImpl extends BaseOpenmrsService implements PaperR
     }
 
     @Override
+    @Transactional(readOnly = true)
     public boolean paperRecordExistsForPatient(Patient patient, Location location) {
 
         List<PatientIdentifier> identifiers = patientService.getPatientIdentifiers(null,
@@ -173,6 +176,7 @@ public class PaperRecordServiceImpl extends BaseOpenmrsService implements PaperR
     }
 
     @Override
+    @Transactional(readOnly = true)
     public PaperRecordMergeRequest getPaperRecordMergeRequestById(Integer id) {
         return paperRecordMergeRequestDAO.getById(id);
     }
@@ -391,6 +395,7 @@ public class PaperRecordServiceImpl extends BaseOpenmrsService implements PaperR
     }
 
     @Override
+    @Transactional(readOnly = true)
     public PaperRecordRequest getMostRecentSentPaperRecordRequestByIdentifier(String identifier) {
 
         List<PaperRecordRequest> requests = getSentPaperRecordRequestByIdentifier(identifier);
@@ -433,18 +438,21 @@ public class PaperRecordServiceImpl extends BaseOpenmrsService implements PaperR
     }
 
     @Override
+    @Transactional(readOnly = true)
     public void printPaperRecordLabel(PaperRecordRequest request, Location location) throws UnableToPrintLabelException {
         printPaperRecordLabels(request, location, 1);
     }
 
 
     @Override
+    @Transactional(readOnly = true)
     public void printPaperRecordLabels(PaperRecordRequest request, Location location, Integer count) throws UnableToPrintLabelException {
         printPaperRecordLabels(request.getPatient(), request.getIdentifier(), location, count);
 
     }
 
     @Override
+    @Transactional(readOnly = true)
     public void printPaperRecordLabels(Patient patient, Location location, Integer count) throws UnableToPrintLabelException {
         PatientIdentifier paperRecordIdentifier = GeneralUtils.getPatientIdentifier(patient, paperRecordProperties.getPaperRecordIdentifierType(), getMedicalRecordLocationAssociatedWith(location));
         printPaperRecordLabels(patient, paperRecordIdentifier != null ? paperRecordIdentifier.getIdentifier() : null, location, count);
@@ -475,6 +483,7 @@ public class PaperRecordServiceImpl extends BaseOpenmrsService implements PaperR
     }
 
     @Override
+    @Transactional(readOnly = true)
     public void printIdCardLabel(Patient patient, Location location) throws UnableToPrintLabelException {
 
         String data = idCardLabelTemplate.generateLabel(patient);
