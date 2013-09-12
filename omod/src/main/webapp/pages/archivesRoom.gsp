@@ -2,8 +2,8 @@
     ui.decorateWith("appui", "standardEmrPage")
 
     ui.includeJavascript("paperrecord", "knockout-2.1.0.js")
-    ui.includeJavascript("paperrecord", "recordRequest.js?query=1")
-    ui.includeJavascript("paperrecord", "archivesRoom.js?query=1")
+    ui.includeJavascript("paperrecord", "recordRequest.js")
+    ui.includeJavascript("paperrecord", "archivesRoom.js")
 
     ui.includeCss("mirebalais", "archivesRoom.css")
 
