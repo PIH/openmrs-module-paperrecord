@@ -113,8 +113,8 @@ public class PaperRecordRequest extends BaseOpenmrsObject {
     }
 
     public void updateStatus(Status status) {
-        this.status = status;
         this.dateStatusChanged = new Date();
+        this.status = status;
     }
 
     @Override
