@@ -21,6 +21,7 @@ public interface PaperRecordLabelTemplate {
     public final static Integer IDCARD_PRINTER_LINE_MAX_SIZE = 41;
     public final static Integer LABEL_PRINTER_LINE_MAX_SIZE = 25;
     public final static Integer CHARTLABEL_PRINTER_LINE_MAX_SIZE = 20;
+    public final static Integer CHARTLABEL_LOWER_FONT_PRINTER_LINE_MAX_SIZE = 33;
 
     String generateLabel(Patient patient, String paperRecordIdentifier);
 

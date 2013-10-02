@@ -61,12 +61,16 @@ public class DefaultZplPaperRecordLabelTemplate implements PaperRecordLabelTempl
             patientName = (patient.getPersonName().getFamilyName() != null ? patient.getPersonName().getFamilyName() : "") + ", "
                     + (patient.getPersonName().getGivenName() != null ? patient.getPersonName().getGivenName() : "");
         }
+        String fontHeight = "V"; //large font
         /* Name (Only print first and last name) */
         if (patientName != null) {
             if (patientName.length() > PaperRecordLabelTemplate.CHARTLABEL_PRINTER_LINE_MAX_SIZE){
-                patientName = StringUtils.substring(patientName,  0, PaperRecordLabelTemplate.CHARTLABEL_PRINTER_LINE_MAX_SIZE -1);
+                fontHeight ="T"; //smaller font
             }
-            data.append("^FO140,40^AVN^FD" + patientName + "^FS");
+            if (patientName.length() > PaperRecordLabelTemplate.CHARTLABEL_LOWER_FONT_PRINTER_LINE_MAX_SIZE){
+                patientName = StringUtils.substring(patientName,  0, PaperRecordLabelTemplate.CHARTLABEL_LOWER_FONT_PRINTER_LINE_MAX_SIZE -1);
+            }
+            data.append("^FO140,40^A" + fontHeight + "N^FD" + patientName + "^FS");
         }
 
         /* Primary identifier */
