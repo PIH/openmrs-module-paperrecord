@@ -68,17 +68,17 @@ public class DefaultZplPaperRecordLabelTemplate implements PaperRecordLabelTempl
                 fontHeight ="U"; //smaller font
             }
             if (patientName.length() > PaperRecordLabelTemplate.CHARTLABEL_LOWER_FONT_PRINTER_LINE_MAX_SIZE){
-                patientName = StringUtils.substring(patientName,  0, PaperRecordLabelTemplate.CHARTLABEL_LOWER_FONT_PRINTER_LINE_MAX_SIZE -1);
+                patientName = StringUtils.substring(patientName,  0, PaperRecordLabelTemplate.CHARTLABEL_LOWER_FONT_PRINTER_LINE_MAX_SIZE);
             }
-            data.append("^FO140,40^A" + fontHeight + "N^FD" + patientName + "^FS");
+            data.append("^FO080,40^A" + fontHeight + "N^FD" + patientName + "^FS");
         }
 
         /* Primary identifier */
-        data.append("^FO140,120^AUN^FD" + primaryIdentifier.getIdentifier() + "^FS");
+        data.append("^FO080,120^AUN^FD" + primaryIdentifier.getIdentifier() + "^FS");
 
 
         /* Birthdate & Gender */
-        data.append("^FO140,190^ATN^FD");
+        data.append("^FO080,190^ATN^FD");
         if (patient.getBirthdate() != null) {
             data.append(df.format(patient.getBirthdate()) + (patient.getBirthdateEstimated() ? " (*)" : "") + ", ");
         }
@@ -121,7 +121,7 @@ public class DefaultZplPaperRecordLabelTemplate implements PaperRecordLabelTempl
                     }
 
                     if (!StringUtils.isBlank(output.toString())) {
-                        data.append("^FO140," + verticalPosition + "^ATN^FD" + output.toString() + "^FS");
+                        data.append("^FO080," + verticalPosition + "^ATN^FD" + output.toString() + "^FS");
                         verticalPosition = verticalPosition + 50;
                     }
                 }
