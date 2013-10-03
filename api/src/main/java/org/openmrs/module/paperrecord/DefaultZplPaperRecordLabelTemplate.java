@@ -65,7 +65,7 @@ public class DefaultZplPaperRecordLabelTemplate implements PaperRecordLabelTempl
         /* Name (Only print first and last name) */
         if (patientName != null) {
             if (patientName.length() > PaperRecordLabelTemplate.CHARTLABEL_PRINTER_LINE_MAX_SIZE){
-                fontHeight ="T"; //smaller font
+                fontHeight ="U"; //smaller font
             }
             if (patientName.length() > PaperRecordLabelTemplate.CHARTLABEL_LOWER_FONT_PRINTER_LINE_MAX_SIZE){
                 patientName = StringUtils.substring(patientName,  0, PaperRecordLabelTemplate.CHARTLABEL_LOWER_FONT_PRINTER_LINE_MAX_SIZE -1);
