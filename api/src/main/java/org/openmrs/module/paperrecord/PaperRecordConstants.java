@@ -15,4 +15,12 @@ public class PaperRecordConstants {
 
     public static final String LOCATION_TAG_MEDICAL_RECORD_LOCATION = "Medical Record Location";
 
+    public static final String TASK_CLOSE_STALE_PULL_REQUESTS = "EMR module - Close Stale Pull Request";
+
+    public static final String TASK_CLOSE_STALE_PULL_REQUESTS_DESCRIPTION = "Closes any pending pull record requests older than a specified date";
+
+    public static final String TASK_CLOSE_STALE_CREATE_REQUESTS = "Paper Records module - Close Stale Create Requests";
+
+    public static final String TASK_CLOSE_STALE_CREATE_REQUESTS_DESCRIPTION = "Closes any pending create record requests older than a specified date";
+
 }
