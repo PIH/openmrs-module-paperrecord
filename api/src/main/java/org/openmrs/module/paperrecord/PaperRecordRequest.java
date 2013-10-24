@@ -112,6 +112,22 @@ public class PaperRecordRequest extends BaseOpenmrsObject {
     public PaperRecordRequest() {
     }
 
+    @Override
+    public String toString() {
+        String ret;
+        ret = this.getId() == null ? "(no id) " : this.getId().toString() + " ";
+        ret += this.getIdentifier() + " ";
+        ret += this.getPatient() == null ? "(no patient) " : this.getPatient().toString() + " ";
+        ret += this.getRecordLocation() == null ? "(no record location) " : this.getRecordLocation().toString() + " ";
+        ret += this.getRequestLocation() == null ? "(no request location) " : this.getRequestLocation().toString() + " ";
+        ret += this.getStatus() == null ? "(no status) " : this.getStatus().toString() + " ";
+        ret += this.getAssignee() == null ? "(no assignee) " : this.getAssignee().toString() + " ";
+        ret += this.getCreator() == null ? "(no creator) " : this.getCreator().toString() + " ";
+        ret += this.getDateCreated() == null ? "(no date created) " : this.getDateCreated().toString() + " ";
+        ret += this.getDateStatusChanged() == null ? "(no date status changed)" : this.getDateStatusChanged().toString();
+        return "Paper Record Request: [" + ret + "]";
+    }
+
     public void updateStatus(Status status) {
         this.dateStatusChanged = new Date();
         this.status = status;

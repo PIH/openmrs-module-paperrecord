@@ -302,7 +302,17 @@ public class ArchivesRoomFragmentController {
 
                 if (lastSentRequest != null) {
                     result.put("locationLastSent", ui.format(lastSentRequest.getRequestLocation()));
-                    result.put("dateLastSent", timeAndDateFormat.format(lastSentRequest.getDateStatusChanged()));
+
+                    // temporary try/catch for debugging purpose
+                    try {
+                        result.put("dateLastSent", timeAndDateFormat.format(lastSentRequest.getDateStatusChanged()));
+                    }
+                    catch (NullPointerException e) {
+                        String err = "Unable to parse date last sent for " + lastSentRequest.toString() + "\n";
+                        err += "While creating simple object for " + request.toString();
+                        log.error(err);
+                    }
+
                 }
 
             }
