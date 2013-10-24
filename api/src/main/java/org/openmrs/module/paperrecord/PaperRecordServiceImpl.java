@@ -575,6 +575,26 @@ public class PaperRecordServiceImpl extends BaseOpenmrsService implements PaperR
 
     @Override
     @Transactional
+    public void expirePendingCreateRequests(Date expireDate) {
+
+        List<PaperRecordRequest> createRequests = new ArrayList<PaperRecordRequest>();
+
+        // note that since we are calling the other service methods directly, they
+        // won't be transactional, so we need to make sure this method is transactional
+
+        createRequests.addAll(getOpenPaperRecordRequestsToCreate());
+        createRequests.addAll(getAssignedPaperRecordRequestsToCreate());
+
+        for (PaperRecordRequest request : createRequests) {
+            if (request.getDateCreated().before(expireDate)) {
+                markPaperRecordRequestAsCancelled(request);
+            }
+        }
+
+    }
+
+    @Override
+    @Transactional
     public PatientIdentifier createPaperMedicalRecordNumber(Patient patient, Location location) {
         if (patient == null) {
             throw new IllegalArgumentException("Patient shouldn't be null");

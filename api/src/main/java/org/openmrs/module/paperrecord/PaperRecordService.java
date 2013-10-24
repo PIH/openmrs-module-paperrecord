@@ -312,6 +312,14 @@ public interface PaperRecordService extends OpenmrsService {
     void expirePendingPullRequests(Date expireDate);
 
     /**
+     * Expires all pending pull requests (ie, those create request with status OPEN or ASSIGNED_TO_CREATE) that
+     * has a date_creaated before the specified expire date: Expires requests by setting the status
+     * of those requests to CANCELLED
+     * @param expireDate
+     */
+    void expirePendingCreateRequests(Date expireDate);
+
+    /**
      * Hack to bring this up to the interface level to allow us to stub out the template when printing
      */
     void setPrinterService(PrinterService printerService);
