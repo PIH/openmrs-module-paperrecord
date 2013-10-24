@@ -24,6 +24,9 @@ import org.openmrs.User;
 
 import java.util.Date;
 
+import static org.hamcrest.core.Is.is;
+import static org.junit.Assert.assertThat;
+
 public class PaperRecordRequestTest {
 
     @Test
@@ -60,7 +63,7 @@ public class PaperRecordRequestTest {
         request.setDateCreated(new DateTime(2012, 10, 10, 10, 10).toDate());
         request.setDateStatusChanged(new DateTime(2012, 9, 9, 9, 9).toDate());
 
-        Assert.assertEquals("Paper Record Request: [1 ABC Patient#1 1 2 OPEN Person(personId=1) username Wed Oct 10 10:10:00 EDT 2012 Sun Sep 09 09:09:00 EDT 2012]", request.toString());
+        assertThat(request.toString(), is("Paper Record Request: [1 ABC Patient#1 1 2 OPEN Person(personId=1) username Wed Oct 10 10:10:00 EDT 2012 Sun Sep 09 09:09:00 EDT 2012]"));
     }
 
     @Test
@@ -69,7 +72,7 @@ public class PaperRecordRequestTest {
         PaperRecordRequest request = new PaperRecordRequest();
         request.updateStatus(null);
         request.setDateStatusChanged(null);
-        Assert.assertEquals("Paper Record Request: [(no id) null (no patient) (no record location) (no request location) (no status) (no assignee) (no creator) (no date created) (no date status changed)]", request.toString());
-    }
 
+        assertThat(request.toString(), is("Paper Record Request: [(no id) null (no patient) (no record location) (no request location) (no status) (no assignee) (no creator) (no date created) (no date status changed)]"));
+    }
 }
