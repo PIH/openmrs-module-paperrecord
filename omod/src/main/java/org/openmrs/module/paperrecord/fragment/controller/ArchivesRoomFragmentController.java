@@ -300,19 +300,13 @@ public class ArchivesRoomFragmentController {
 
                 PaperRecordRequest lastSentRequest = paperRecordService.getMostRecentSentPaperRecordRequestByIdentifier(request.getIdentifier());
 
-                if (lastSentRequest != null) {
+                // the second check here, where we confirm that the last send request is not equal to the request we are trying to display,
+                // is a hack to work around some transactional issues we were seeing: sometimes we were finding that a request was changed to "sent"
+                // in a different thread while this method was running, resulting in the same request being returned as the most recent request;
+                // ideally, the call to getMostRecentSentPaperRecordRequestsByIdentifier should not occur here, but during the same @Transactional block as when we fetch the main requests list
+                if (lastSentRequest != null && !lastSentRequest.equals(request)) {
                     result.put("locationLastSent", ui.format(lastSentRequest.getRequestLocation()));
-
-                    // temporary try/catch for debugging purpose
-                    try {
-                        result.put("dateLastSent", timeAndDateFormat.format(lastSentRequest.getDateStatusChanged()));
-                    }
-                    catch (NullPointerException e) {
-                        String err = "Unable to parse date last sent for " + lastSentRequest.toString() + "\n";
-                        err += "While creating simple object for " + request.toString();
-                        log.error(err);
-                    }
-
+                    result.put("dateLastSent", timeAndDateFormat.format(lastSentRequest.getDateStatusChanged()));
                 }
 
             }
