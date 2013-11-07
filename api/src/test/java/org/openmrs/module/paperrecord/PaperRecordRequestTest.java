@@ -29,7 +29,7 @@ import java.util.Date;
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
 
-public class PaperRecordRequestTest {t
+public class PaperRecordRequestTest {
 
     @Test
     public void testUpdateStatusShouldUpdateStatusLastUpdated() throws InterruptedException {
