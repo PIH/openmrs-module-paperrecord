@@ -35,7 +35,7 @@ public class PaperRecordRequestTest {
 
     @Before
     public void setup() {
-        timeZoneCode = DateTimeZone.getDefault().getShortName(new Date().getTime());
+        timeZoneCode = new DateTime().getZone().getID();
     }
 
     @Test
