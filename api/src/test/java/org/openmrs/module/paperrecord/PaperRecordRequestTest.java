@@ -29,14 +29,7 @@ import java.util.Date;
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
 
-public class PaperRecordRequestTest {
-
-    private String timeZoneCode;
-
-    @Before
-    public void setup() {
-        timeZoneCode = new DateTime().getZone().getID();
-    }
+public class PaperRecordRequestTest {t
 
     @Test
     public void testUpdateStatusShouldUpdateStatusLastUpdated() throws InterruptedException {
@@ -69,7 +62,9 @@ public class PaperRecordRequestTest {
         request.setRecordLocation(new Location(1));
         request.setRequestLocation(new Location(2));
         request.updateStatus(PaperRecordRequest.Status.OPEN);
-        request.setDateCreated(new DateTime(2012, 10, 10, 10, 10).toDate());
+        DateTime dateOct = new DateTime(2012, 10, 10, 10, 10);
+        String timeZoneCode = DateTimeZone.getDefault().getShortName(dateOct.toDate().getTime());
+        request.setDateCreated(dateOct.toDate());
         request.setDateStatusChanged(new DateTime(2012, 9, 9, 9, 9).toDate());
 
         assertThat(request.toString(), is("Paper Record Request: [1 ABC Patient#1 1 2 OPEN Person(personId=1) username Wed Oct 10 10:10:00 "
