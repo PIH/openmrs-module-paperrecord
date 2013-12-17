@@ -140,7 +140,7 @@ public class DefaultZplPaperRecordLabelTemplateTest {
 
         String data = template.generateLabel(patient, "123");
         System.out.println(data);
-        Assert.assertTrue(data.equals("^XA^CI28^FO080,40^AVN^FDJones, Indiana^FS^FO080,120^AUN^FDABC^FS^FO080,190^ATN^FD02/Dec/2010, Female^FS^FO680,40^FB520,1,0,R,0^AUN^FDDossier id: 123^FS^FO780,100^ATN^BY4^BCN,150,N^FDABC^FS^XZ"));
+        Assert.assertTrue(data.equals("^XA^CI28^PW1300^MTT^FO080,40^AVN^FDJones, Indiana^FS^FO080,120^AUN^FDABC^FS^FO080,190^ATN^FD02/Dec/2010, Female^FS^FO680,40^FB520,1,0,R,0^AUN^FDDossier id: 123^FS^FO780,100^ATN^BY4^BCN,150,N^FDABC^FS^XZ"));
 
     }
 
@@ -179,8 +179,9 @@ public class DefaultZplPaperRecordLabelTemplateTest {
         String data = template.generateLabel(patient, "A000071");
 
         Printer printer = new Printer();
-        printer.setIpAddress("10.3.18.107");
+        printer.setIpAddress("10.3.18.100");
         printer.setPort("9100");
+        printer.setId(1);
 
         new PrinterServiceImpl().printViaSocket(data, printer, "UTF-8");
     }

@@ -125,7 +125,7 @@ public class DefauktZplIdCardLabelTemplateTest {
         String data = template.generateLabel(patient);
 
         System.out.println(data);
-        Assert.assertTrue(data.equals("^XA^CI28^FO100,40^AUN^FDJazayeri, Ellen^FS^FO480,40^FB520,1,0,R,0^AUN^FD2F1406^FS^FO100,110^AUN^FDA002300^FS^FO100,160^ATN^FDMirebalais Dossier ID^FS^FO1025,10^GB0,590,10^FS^XZ"));
+        Assert.assertTrue(data.equals("^XA^CI28^PW1300^MTT^FO100,40^AUN^FDJazayeri, Ellen^FS^FO480,40^FB520,1,0,R,0^AUN^FD2F1406^FS^FO100,110^AUN^FDA002300^FS^FO100,160^ATN^FDMirebalais Dossier ID^FS^FO1025,10^GB0,590,10^FS^XZ"));
 
     }
 
@@ -203,6 +203,7 @@ public class DefauktZplIdCardLabelTemplateTest {
         Printer printer = new Printer();
         printer.setIpAddress("10.3.18.100");
         printer.setPort("9100");
+        printer.setId(1);
 
         new PrinterServiceImpl().printViaSocket(data, printer, "UTF-8");
 

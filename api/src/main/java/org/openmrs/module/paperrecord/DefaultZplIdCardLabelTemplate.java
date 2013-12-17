@@ -50,6 +50,8 @@ public class DefaultZplIdCardLabelTemplate implements IdCardLabelTemplate {
         StringBuilder data = new StringBuilder();
         data.append("^XA");
         data.append("^CI28");   // specify Unicode encoding
+        data.append("^PW1300");  // set print width
+        data.append("^MTT");   // set thermal transfer type
 
         String patientName = null;
         if(patient.getPersonName() != null ){

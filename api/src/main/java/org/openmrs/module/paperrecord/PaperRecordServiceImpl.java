@@ -470,13 +470,15 @@ public class PaperRecordServiceImpl extends BaseOpenmrsService implements PaperR
         StringBuffer dataBuffer = new StringBuffer();
         dataBuffer.append(data);
 
-        while (count > 1) {
+        int countDown = count;
+
+        while (countDown > 1) {
             dataBuffer.append(data);
-            count--;
+            countDown--;
         }
 
         try {
-            printerService.printViaSocket(dataBuffer.toString(), Printer.Type.LABEL, location, encoding);
+            printerService.printViaSocket(dataBuffer.toString(), Printer.Type.LABEL, location, encoding, false, 500 + (count * 100));   // add a slight delay to avoid overloading a single printer
         } catch (Exception e) {
             throw new UnableToPrintLabelException("Unable to print paper record label at location " + location + " for patient " + patient, e);
         }
@@ -490,7 +492,7 @@ public class PaperRecordServiceImpl extends BaseOpenmrsService implements PaperR
         String encoding = idCardLabelTemplate.getEncoding();
 
         try {
-            printerService.printViaSocket(data.toString(), Printer.Type.LABEL, location, encoding);
+            printerService.printViaSocket(data.toString(), Printer.Type.LABEL, location, encoding, false, 500); // add a half-second delay to avoid overloading printers
         } catch (Exception e) {
             throw new UnableToPrintLabelException("Unable to print id card label at location " + location +" for patient " + patient, e);
         }

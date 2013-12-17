@@ -53,6 +53,8 @@ public class DefaultZplPaperRecordLabelTemplate implements PaperRecordLabelTempl
         StringBuilder data = new StringBuilder();
         data.append("^XA");
         data.append("^CI28");   // specify Unicode encoding
+        data.append("^PW1300");  // set print width
+        data.append("^MTT");   // set thermal transfer type
 
         /* LEFT COLUMN */
 

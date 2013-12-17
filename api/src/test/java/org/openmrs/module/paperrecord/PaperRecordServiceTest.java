@@ -1110,7 +1110,7 @@ public class PaperRecordServiceTest {
 
         paperRecordService.printPaperRecordLabel(request, location);
 
-        verify(mockPrinterService).printViaSocket("data\nlines\n", Printer.Type.LABEL, location, "UTF-8");
+        verify(mockPrinterService).printViaSocket("data\nlines\n", Printer.Type.LABEL, location, "UTF-8", false, 600);
 
     }
 
@@ -1130,7 +1130,7 @@ public class PaperRecordServiceTest {
         paperRecordService.printPaperRecordLabels(request, location, 3);
 
         verify(mockPrinterService).printViaSocket("data\nlines\ndata\n" +
-                "lines\ndata\nlines\n", Printer.Type.LABEL, location, "UTF-8");
+                "lines\ndata\nlines\n", Printer.Type.LABEL, location, "UTF-8", false, 800);
 
     }
 
@@ -1151,7 +1151,7 @@ public class PaperRecordServiceTest {
 
         paperRecordService.printPaperRecordLabels(patient, location, 1);
 
-        verify(mockPrinterService).printViaSocket("data\nlines\n", Printer.Type.LABEL, location, "UTF-8");
+        verify(mockPrinterService).printViaSocket("data\nlines\n", Printer.Type.LABEL, location, "UTF-8", false, 600);
     }
 
     @Test
@@ -1171,7 +1171,7 @@ public class PaperRecordServiceTest {
 
         paperRecordService.printIdCardLabel(patient, location);
 
-        verify(mockPrinterService).printViaSocket("data\nlines\n", Printer.Type.LABEL, location, "UTF-8");
+        verify(mockPrinterService).printViaSocket("data\nlines\n", Printer.Type.LABEL, location, "UTF-8", false, 500);
     }
 
     @Test
