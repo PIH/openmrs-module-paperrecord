@@ -208,10 +208,11 @@ public interface PaperRecordService extends OpenmrsService {
      * Returns the most recent "sent" paper record request (if any) for the record with the specified identifier
      * "Most Recent" is the one with the most recent dateStatusChanged field
      *
-     * @param identifier the paper record identifier OR the patient identifier associated with the request
+     * @param identifier the paper record identifier
      * @return returns the most recent "sent" paper record request (if any) for the record with specified identifier
      */
-    PaperRecordRequest getMostRecentSentPaperRecordRequestByIdentifier(String identifier);
+    @Authorized(PaperRecordConstants.PRIVILEGE_PAPER_RECORDS_MANAGE_REQUESTS)
+    PaperRecordRequest getMostRecentSentPaperRecordRequestByPaperRecordIdentifier(String identifier);
 
     /**
      * Marks the specified paper record request as "sent"

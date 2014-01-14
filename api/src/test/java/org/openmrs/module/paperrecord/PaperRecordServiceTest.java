@@ -775,7 +775,7 @@ public class PaperRecordServiceTest {
 
         IsExpectedRequest expectedRequestMatcher = new IsExpectedRequest(yetAnotherRequest);
 
-        PaperRecordRequest returnedRequest = paperRecordService.getMostRecentSentPaperRecordRequestByIdentifier(identifier);
+        PaperRecordRequest returnedRequest = paperRecordService.getMostRecentSentPaperRecordRequestByPaperRecordIdentifier(identifier);
         expectedRequestMatcher.matches(returnedRequest);
     }
 
@@ -789,7 +789,7 @@ public class PaperRecordServiceTest {
                 .thenReturn(null);
 
 
-        assertNull(paperRecordService.getMostRecentSentPaperRecordRequestByIdentifier(identifier));
+        assertNull(paperRecordService.getMostRecentSentPaperRecordRequestByPaperRecordIdentifier(identifier));
     }
 
     @Test

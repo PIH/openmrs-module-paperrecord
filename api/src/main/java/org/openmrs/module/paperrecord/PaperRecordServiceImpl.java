@@ -80,7 +80,6 @@ public class PaperRecordServiceImpl extends BaseOpenmrsService implements PaperR
 
     private IdCardLabelTemplate idCardLabelTemplate;
 
-
     public void setPaperRecordRequestDAO(PaperRecordRequestDAO paperRecordRequestDAO) {
         this.paperRecordRequestDAO = paperRecordRequestDAO;
     }
@@ -366,39 +365,12 @@ public class PaperRecordServiceImpl extends BaseOpenmrsService implements PaperR
         return getPaperRecordRequestByIdentifierAndStatus(identifier, Collections.singletonList(Status.SENT));
     }
 
-    private List<PaperRecordRequest> getPaperRecordRequestByIdentifierAndStatus(String identifier, List<Status> statusList) {
-        // TODO: once we have multiple medical record locations, we will need to add location as a criteria
-
-        if (StringUtils.isBlank(identifier)) {
-            return new ArrayList<PaperRecordRequest>();
-        }
-
-        // first see if we find any requests by paper record identifier
-        List<PaperRecordRequest> requests = paperRecordRequestDAO.findPaperRecordRequests(
-                statusList, null, null, identifier, null);
-
-        // if no requests, see if this is patient identifier
-        if (requests == null || requests.size() == 0) {
-            List<Patient> patients = patientService.getPatients(null, identifier, Collections.singletonList(emrApiProperties.getPrimaryIdentifierType()), true);
-            if (patients != null && patients.size() > 0) {
-                if (patients.size() > 1) {
-                    throw new IllegalStateException("Duplicate patients exist with identifier " + identifier);
-                } else {
-                    requests = paperRecordRequestDAO.findPaperRecordRequests(statusList, patients.get(0), null,
-                            null, null);
-                }
-            }
-
-        }
-
-        return requests;
-    }
-
     @Override
     @Transactional(readOnly = true)
-    public PaperRecordRequest getMostRecentSentPaperRecordRequestByIdentifier(String identifier) {
+    public PaperRecordRequest getMostRecentSentPaperRecordRequestByPaperRecordIdentifier(String identifier) {
 
-        List<PaperRecordRequest> requests = getSentPaperRecordRequestByIdentifier(identifier);
+        List<PaperRecordRequest> requests = getPaperRecordRequestByPaperRecordIdentifierAndStatus(identifier,
+                Collections.singletonList(Status.SENT));
 
         if (requests == null || requests.size() == 0) {
             return null;
@@ -414,6 +386,45 @@ public class PaperRecordServiceImpl extends BaseOpenmrsService implements PaperR
             return requests.get(requests.size() - 1);  // most recent is last one in list
         }
     }
+
+    private List<PaperRecordRequest> getPaperRecordRequestByIdentifierAndStatus(String identifier, List<Status> statusList) {
+
+        // first see if we find any requests by paper record identifier
+        List<PaperRecordRequest> requests = getPaperRecordRequestByPaperRecordIdentifierAndStatus(identifier, statusList);
+
+        // if no requests, see if this is patient identifier
+        // (note tha this appears to be computationally expensive so I've switched out the getMostRecentSentPaperRecordRequest
+        // method--which gets called multiple times for long "open record" lists, and which never would have a patient identifier
+        // passed--so that it does not perform this search)
+        if ((requests == null || requests.size() == 0)) {
+            List<Patient> patients = patientService.getPatients(null, identifier, Collections.singletonList(emrApiProperties.getPrimaryIdentifierType()), true);
+            if (patients != null && patients.size() > 0) {
+                if (patients.size() > 1) {
+                    throw new IllegalStateException("Duplicate patients exist with identifier " + identifier);
+                } else {
+                    requests = paperRecordRequestDAO.findPaperRecordRequests(statusList, patients.get(0), null,
+                            null, null);
+                }
+            }
+        }
+
+        return requests;
+    }
+
+
+    private List<PaperRecordRequest> getPaperRecordRequestByPaperRecordIdentifierAndStatus(String identifier, List<Status> statusList) {
+
+        // TODO: once we have multiple medical record locations, we will need to add location as a criteria
+
+        if (StringUtils.isBlank(identifier)) {
+            return new ArrayList<PaperRecordRequest>();
+        }
+
+        return paperRecordRequestDAO.findPaperRecordRequests(statusList, null, null, identifier, null);
+    }
+
+
+
 
     @Override
     @Transactional

@@ -176,7 +176,7 @@ public class ArchivesRoomFragmentControllerTest {
         List<PaperRecordRequest> requests = createSamplePullPaperRecordRequestList();
 
         when(paperRecordService.getOpenPaperRecordRequestsToPull()).thenReturn(requests);
-        when(paperRecordService.getMostRecentSentPaperRecordRequestByIdentifier("123")).thenReturn(createSampleSentRequest());
+        when(paperRecordService.getMostRecentSentPaperRecordRequestByPaperRecordIdentifier("123")).thenReturn(createSampleSentRequest());
         when(emrApiProperties.getPrimaryIdentifierType()).thenReturn(patientIdentifierType);
 
         List<SimpleObject> results = controller.getOpenRecordsToPull(paperRecordService, emrApiProperties, ui);
@@ -203,7 +203,7 @@ public class ArchivesRoomFragmentControllerTest {
         List<PaperRecordRequest> requests = createSamplePullPaperRecordRequestList();
 
         when(paperRecordService.getAssignedPaperRecordRequestsToPull()).thenReturn(requests);
-        when(paperRecordService.getMostRecentSentPaperRecordRequestByIdentifier("123")).thenReturn(createSampleSentRequest());
+        when(paperRecordService.getMostRecentSentPaperRecordRequestByPaperRecordIdentifier("123")).thenReturn(createSampleSentRequest());
         when(emrApiProperties.getPrimaryIdentifierType()).thenReturn(patientIdentifierType);
 
         List<SimpleObject> results = controller.getAssignedRecordsToPull(paperRecordService, emrApiProperties, ui);

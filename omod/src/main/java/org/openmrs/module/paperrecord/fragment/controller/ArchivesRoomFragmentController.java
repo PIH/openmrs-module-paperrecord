@@ -287,7 +287,7 @@ public class ArchivesRoomFragmentController {
         List<SimpleObject> results = new ArrayList<SimpleObject>();
 
         for (PaperRecordRequest request : requests) {
-            SimpleObject result = SimpleObject.fromObject(request, ui, "requestId", "patient", "identifier", "requestLocation");
+             SimpleObject result = SimpleObject.fromObject(request, ui, "requestId", "patient", "identifier", "requestLocation");
 
             // manually add the date and patient identifier
             result.put("dateCreated", timeAndDateFormat.format(request.getDateCreated()));
@@ -298,7 +298,7 @@ public class ArchivesRoomFragmentController {
             if (request.getStatus().equals(PaperRecordRequest.Status.ASSIGNED_TO_PULL)
                     || (request.getStatus().equals(PaperRecordRequest.Status.OPEN) && StringUtils.isNotBlank(request.getIdentifier()))) {
 
-                PaperRecordRequest lastSentRequest = paperRecordService.getMostRecentSentPaperRecordRequestByIdentifier(request.getIdentifier());
+                PaperRecordRequest lastSentRequest = paperRecordService.getMostRecentSentPaperRecordRequestByPaperRecordIdentifier(request.getIdentifier());
 
                 // the second check here, where we confirm that the last send request is not equal to the request we are trying to display,
                 // is a hack to work around some transactional issues we were seeing: sometimes we were finding that a request was changed to "sent"
@@ -309,7 +309,7 @@ public class ArchivesRoomFragmentController {
                     result.put("dateLastSent", timeAndDateFormat.format(lastSentRequest.getDateStatusChanged()));
                 }
 
-            }
+           }
 
             results.add(result);
         }
