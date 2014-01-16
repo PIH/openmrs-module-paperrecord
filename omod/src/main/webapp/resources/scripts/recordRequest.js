@@ -7,7 +7,7 @@ var mergeRequestsViewModel;
 
 var cancelPaperRecordRequestDialog = null;
 
-function RecordRequestModel(requestId, patientName, patientId, dossierNumber, sendToLocation, timeRequested, timeRequestedSortable, dateLastSent, locationLastSent) {
+function RecordRequestModel(requestId, patientName, patientId, dossierNumber, sendToLocation, timeRequested, timeRequestedSortable, dateLastSent, locationLastSent, selected) {
     var model = {};
     model.requestId = requestId;
     model.patientName = patientName;
@@ -18,7 +18,7 @@ function RecordRequestModel(requestId, patientName, patientId, dossierNumber, se
     model.timeRequestedSortable = timeRequestedSortable;
     model.locationLastSent = locationLastSent;
     model.dateLastSent = dateLastSent;
-    model.selected = ko.observable(false);
+    model.selected = ko.observable(selected === undefined ? false : selected);
     model.hovered = ko.observable(false);
     model.visible = ko.observable(true);
 
@@ -82,6 +82,11 @@ function PullRequestsViewModel(recordsToPull) {
         jQuery.getJSON(emr.fragmentActionLink("paperrecord", "archivesRoom", "getOpenRecordsToPull"))
             .success(function(data) {
 
+                // fetch all the ids of any existing selected ids (so we can hold selection state)
+                var selectedRequestIds = jQuery.map(api.selectedRequests(), function(request) {
+                    return request.requestId;
+                });
+
                 // remove any existing entries
                 api.recordsToPull.removeAll();
 
@@ -89,7 +94,7 @@ function PullRequestsViewModel(recordsToPull) {
                 jQuery.each(data, function(index, request) {
                     api.recordsToPull.push(RecordRequestModel(request.requestId, request.patient,
                         request.patientIdentifier, request.identifier, request.requestLocation, request.dateCreated,
-                        request.dateCreatedSortable, request.dateLastSent, request.locationLastSent));
+                        request.dateCreatedSortable, request.dateLastSent, request.locationLastSent, selectedRequestIds.indexOf(request.requestId) == -1 ? false : true));
                 });
 
             })
@@ -140,6 +145,11 @@ function CreateRequestsViewModel(recordsToCreate) {
         jQuery.getJSON(emr.fragmentActionLink("paperrecord", "archivesRoom", "getOpenRecordsToCreate"))
             .success(function(data) {
 
+                // fetch all the ids of any existing selected ids (so we can hold selection state)
+                var selectedRequestIds = jQuery.map(api.selectedRequests(), function(request) {
+                    return request.requestId;
+                });
+
                 // remove any existing entries
                 api.recordsToCreate.removeAll();
 
@@ -147,7 +157,7 @@ function CreateRequestsViewModel(recordsToCreate) {
                 jQuery.each(data, function(index, request) {
                     api.recordsToCreate.push(RecordRequestModel(request.requestId, request.patient,
                         request.patientIdentifier, request.identifier, request.requestLocation, request.dateCreated,
-                        request.dateCreatedSortable));
+                        request.dateCreatedSortable, undefined, undefined, selectedRequestIds.indexOf(request.requestId) == -1 ? false : true));
                 });
 
             })
