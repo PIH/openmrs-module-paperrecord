@@ -93,10 +93,10 @@ jq(document).ready( function() {
 
         e.preventDefault();
 
+        var selectedRequests = createRequestsViewModel.selectedRequests();
         var requestIds = [];
 
-        jQuery.each(createRequestsViewModel.selectedRequests(), function(index, request) {
-            request.visible(false);
+        jQuery.each(selectedRequests, function(index, request) {
             requestIds.push(request.requestId);
         });
 
@@ -107,9 +107,15 @@ jq(document).ready( function() {
             type: 'POST'
         })
             .success(function(data) {
-                assignedCreateRequestsViewModel.load();
 
                 emr.successMessage(data.message);
+
+                assignedCreateRequestsViewModel.load();
+
+                jQuery.each(selectedRequests, function(index, request) {
+                    request.visible(false);
+                });
+
             })
             .error(function(xhr) {
                 emr.handleError(xhr);
@@ -120,10 +126,10 @@ jq(document).ready( function() {
 
         e.preventDefault();
 
+        var selectedRequests = pullRequestsViewModel.selectedRequests();
         var requestIds = [];
 
-        jQuery.each(pullRequestsViewModel.selectedRequests(), function(index, request) {
-            request.visible(false);
+        jQuery.each(selectedRequests, function(index, request) {
             requestIds.push(request.requestId);
         });
 
@@ -134,9 +140,15 @@ jq(document).ready( function() {
             type: 'POST'
         })
             .success(function(data) {
-                assignedPullRequestsViewModel.load();
 
                 emr.successMessage(data.message);
+
+                assignedPullRequestsViewModel.load();
+
+                jQuery.each(selectedRequests, function(index, request) {
+                    request.visible(false);
+                })
+
             })
             .error(function(xhr) {
                 emr.handleError(xhr);
