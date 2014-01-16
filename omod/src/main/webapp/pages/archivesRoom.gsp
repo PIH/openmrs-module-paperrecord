@@ -51,7 +51,7 @@
                 </tr>
                 </thead>
                 <tbody data-bind="foreach: recordsToCreate">
-                <tr data-bind="attr:{'class': patientId}, css:{ selected: selected(), hover: hovered() }" >
+                <tr data-bind="attr:{'class': patientId}, css:{ selected: selected(), hover: hovered() }, visible: visible()" >
                     <td data-bind="event: { mouseover: \$root.hoverRecords, mouseout: \$root.unHoverRecords }, click: \$root.selectRecordToBeCreated"><span data-bind="text: patientName"></span></td>
                     <td data-bind="event: { mouseover: \$root.hoverRecords, mouseout: \$root.unHoverRecords }, click: \$root.selectRecordToBeCreated"><span data-bind="text: patientId"></span></td>
                     <td data-bind="event: { mouseover: \$root.hoverRecords, mouseout: \$root.unHoverRecords }, click: \$root.selectRecordToBeCreated"><span data-bind="text: sendToLocation"></span></td>
@@ -89,7 +89,7 @@
             </tr>
             </thead>
             <tbody data-bind="foreach: assignedRecordsToCreate">
-            <tr data-bind="attr:{'class': patientId}, css:{ selected: selected() }" >
+            <tr data-bind="attr:{'class': patientId}, css:{ selected: selected() }, visible: visible()" >
                 <td><span data-bind="text: patientName"></span></td>
                 <td><span data-bind="text: dossierNumber"></span></td>
                 <td><span data-bind="text: sendToLocation"></span></td>
@@ -130,7 +130,7 @@
                 </tr>
                 </thead>
                 <tbody data-bind="foreach: recordsToPull">
-                <tr data-bind="attr:{'class': patientId}, css:{selected: selected(), hover: hovered() }" >
+                <tr data-bind="attr:{'class': patientId}, css:{selected: selected(), hover: hovered()}, visible: visible()" >
                     <td data-bind="event: { mouseover: \$root.hoverRecords, mouseout: \$root.unHoverRecords }, click: \$root.selectRecordToBePulled"><span data-bind="text: patientName"></span></td>
                     <td data-bind="event: { mouseover: \$root.hoverRecords, mouseout: \$root.unHoverRecords }, click: \$root.selectRecordToBePulled"><span data-bind="text: dossierNumber"></span></td>
                     <td data-bind="event: { mouseover: \$root.hoverRecords, mouseout: \$root.unHoverRecords }, click: \$root.selectRecordToBePulled"><span data-bind="text: sendToLocation"></span></td>
@@ -171,7 +171,7 @@
             </tr>
             </thead>
             <tbody data-bind="foreach: assignedRecordsToPull">
-            <tr data-bind="attr:{'class': patientId}, css:{selected: selected() }" >
+            <tr data-bind="attr:{'class': patientId}, css:{selected: selected() }, visible: visible()" >
                 <td><span data-bind="text: patientName"></span></td>
                 <td><span data-bind="text: dossierNumber"></span></td>
                 <td><span data-bind="text: sendToLocation"></span></td>

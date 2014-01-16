@@ -20,6 +20,7 @@ function RecordRequestModel(requestId, patientName, patientId, dossierNumber, se
     model.dateLastSent = dateLastSent;
     model.selected = ko.observable(false);
     model.hovered = ko.observable(false);
+    model.visible = ko.observable(true);
 
     return model;
 }
@@ -72,7 +73,7 @@ function PullRequestsViewModel(recordsToPull) {
     });
 
     api.cancelRequest = function (request) {
-        openCancelPaperRecordRequestDialog(request.requestId);
+        openCancelPaperRecordRequestDialog(request);
     }
 
     api.load = function() {
@@ -130,7 +131,7 @@ function CreateRequestsViewModel(recordsToCreate) {
     });
 
     api.cancelRequest = function (request) {
-        openCancelPaperRecordRequestDialog(request.requestId);
+        openCancelPaperRecordRequestDialog(request);
     }
 
     api.load = function() {
@@ -164,7 +165,7 @@ function AssignedPullRequestsViewModel(assignedRecordsToPull) {
     api.assignedRecordsToPull = ko.observableArray(assignedRecordsToPull);
 
     api.cancelRequest = function (request) {
-        openCancelPaperRecordRequestDialog(request.requestId);
+        openCancelPaperRecordRequestDialog(request);
     }
 
     api.load = function() {
@@ -213,7 +214,7 @@ function AssignedCreateRequestsViewModel(assignedRecordsToCreate) {
     api.assignedRecordsToCreate = ko.observableArray(assignedRecordsToCreate);
 
     api.cancelRequest = function (request) {
-        openCancelPaperRecordRequestDialog(request.requestId);
+        openCancelPaperRecordRequestDialog(request);
     }
 
     api.load = function() {
@@ -303,15 +304,15 @@ function refreshAllQueues() {
     mergeRequestsViewModel.load();
 }
 
-function openCancelPaperRecordRequestDialog(requestId) {
+function openCancelPaperRecordRequestDialog(request) {
 
     cancelPaperRecordRequestDialog = emr.setupConfirmationDialog({
         selector: '#cancel-paper-record-request-dialog',
         actions: {
             confirm: function() {
-                emr.getFragmentActionWithCallback('paperrecord', 'archivesRoom', 'markPaperRecordRequestAsCancelled', { requestId: requestId }, function(data) {
+                emr.getFragmentActionWithCallback('paperrecord', 'archivesRoom', 'markPaperRecordRequestAsCancelled', { requestId: request.requestId }, function(data) {
+                    request.visible(false);
                     cancelPaperRecordRequestDialog .close();
-                    refreshAllQueues();
                 });
             },
             cancel: function() {

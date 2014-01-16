@@ -96,6 +96,7 @@ jq(document).ready( function() {
         var requestIds = [];
 
         jQuery.each(createRequestsViewModel.selectedRequests(), function(index, request) {
+            request.visible(false);
             requestIds.push(request.requestId);
         });
 
@@ -106,7 +107,7 @@ jq(document).ready( function() {
             type: 'POST'
         })
             .success(function(data) {
-                refreshAllQueues();
+                assignedCreateRequestsViewModel.load();
 
                 emr.successMessage(data.message);
             })
@@ -122,6 +123,7 @@ jq(document).ready( function() {
         var requestIds = [];
 
         jQuery.each(pullRequestsViewModel.selectedRequests(), function(index, request) {
+            request.visible(false);
             requestIds.push(request.requestId);
         });
 
@@ -132,7 +134,7 @@ jq(document).ready( function() {
             type: 'POST'
         })
             .success(function(data) {
-                refreshAllQueues();
+                assignedPullRequestsViewModel.load();
 
                 emr.successMessage(data.message);
             })
