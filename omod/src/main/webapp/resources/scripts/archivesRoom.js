@@ -114,6 +114,7 @@ jq(document).ready( function() {
 
                 jQuery.each(selectedRequests, function(index, request) {
                     request.visible(false);
+                    request.selected(false);
                 });
 
             })
@@ -147,6 +148,7 @@ jq(document).ready( function() {
 
                 jQuery.each(selectedRequests, function(index, request) {
                     request.visible(false);
+                    request.selected(false);
                 })
 
             })
