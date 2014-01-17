@@ -171,7 +171,7 @@ public class ArchivesRoomFragmentController {
 
         try {
             // fetch the pending request associated with this message
-            PaperRecordRequest paperRecordRequest = paperRecordService.getAssignedPaperRecordRequestByIdentifier(identifier);
+            PaperRecordRequest paperRecordRequest = paperRecordService.getPendingPaperRecordRequestByIdentifier(identifier);
 
             if (paperRecordRequest == null) {
                 // if no matching request found, determine what error we need to return

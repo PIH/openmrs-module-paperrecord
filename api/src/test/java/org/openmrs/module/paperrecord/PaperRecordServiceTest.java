@@ -527,6 +527,73 @@ public class PaperRecordServiceTest {
     }
 
     @Test
+    public void getPendingPaperRecordRequestByIdentifierShouldRetrieveRequestByPaperRecordIdentifier() {
+
+        Patient patient = new Patient();
+        patient.setId(15);
+
+        Location medicalRecordLocation = createMedicalRecordLocation();
+        Location requestLocation = createLocation(4, "Outpatient Clinic");
+
+        // generate an existing paper record request
+        String identifier = "ABC123";
+        PaperRecordRequest request = createPaperRecordRequest(patient, medicalRecordLocation, identifier);
+        request.setId(10);
+        request.setRequestLocation(requestLocation);
+        request.setDateCreated(new Date());
+        request.updateStatus(Status.OPEN);
+
+        when(mockPaperRecordDAO.findPaperRecordRequests(argThat(new StatusListOf(PENDING_STATUSES)),
+                argThat(new NullPatient()), argThat(new NullLocation()), eq(identifier), argThat(new NullBoolean()))).thenReturn(Collections.singletonList(request));
+        IsExpectedRequest expectedRequestMatcher = new IsExpectedRequest(request);
+
+        PaperRecordRequest returnedRequest = paperRecordService.getPendingPaperRecordRequestByIdentifier(identifier);
+        expectedRequestMatcher.matches(returnedRequest);
+
+    }
+
+    @Test
+    public void getPendingPaperRecordRequestByIdentifierShouldRetrieveRequestByPatientIdentifier() {
+
+        Location medicalRecordLocation = createMedicalRecordLocation();
+        Location requestLocation = createLocation(4, "Outpatient Clinic");
+
+        Patient patient = new Patient();
+        patient.setId(15);
+
+        PatientIdentifier patientIdentifier = new PatientIdentifier();
+        patientIdentifier.setIdentifierType(primaryIdentifierType);
+        patientIdentifier.setIdentifier("Patient_ID");
+        patientIdentifier.setLocation(medicalRecordLocation);
+        patient.addIdentifier(patientIdentifier);
+
+        // generate an existing paper record request
+        String identifier = "ABC123";
+        PaperRecordRequest request = createPaperRecordRequest(patient, medicalRecordLocation, identifier);
+        request.setId(10);
+        request.setRequestLocation(requestLocation);
+        request.setDateCreated(new Date());
+        request.updateStatus(Status.OPEN);
+
+        when(mockPatientService.getPatients(null, "Patient_ID", Collections.singletonList(primaryIdentifierType), true)).thenReturn(Collections.singletonList(patient));
+        when(mockPaperRecordDAO.findPaperRecordRequests(argThat(new StatusListOf(PENDING_STATUSES)),
+                eq(patient), argThat(new NullLocation()), argThat(new NullString()), argThat(new NullBoolean()))).thenReturn(Collections.singletonList(request));
+        IsExpectedRequest expectedRequestMatcher = new IsExpectedRequest(request);
+
+        PaperRecordRequest returnedRequest = paperRecordService.getPendingPaperRecordRequestByIdentifier("Patient_ID");
+        expectedRequestMatcher.matches(returnedRequest);
+
+    }
+
+    @Test
+    public void getPendingPaperRecordRequestByIdentifierShouldReturnNullIfNoActiveRequestWithThatIdentifier() {
+        String identifier = "ABC123";
+        when(mockPaperRecordDAO.findPaperRecordRequests(argThat(new StatusListOf(PENDING_STATUSES)),
+                argThat(new NullPatient()), argThat(new NullLocation()), eq(identifier), argThat(new NullBoolean()))).thenReturn(null);
+        assertNull(paperRecordService.getPendingPaperRecordRequestByIdentifier(identifier));
+    }
+
+    @Test
     public void getAssignedPaperRecordRequestByIdentifierShouldRetrieveRequestByPaperRecordIdentifier() {
 
         Patient patient = new Patient();

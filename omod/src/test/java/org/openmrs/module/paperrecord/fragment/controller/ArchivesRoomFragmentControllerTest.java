@@ -122,7 +122,7 @@ public class ArchivesRoomFragmentControllerTest {
         request.setDateCreated(new Date());
         request.updateStatus(PaperRecordRequest.Status.ASSIGNED_TO_PULL);
 
-        when(paperRecordService.getAssignedPaperRecordRequestByIdentifier(eq("123"))).thenReturn(request);
+        when(paperRecordService.getPendingPaperRecordRequestByIdentifier(eq("123"))).thenReturn(request);
 
         FragmentActionResult result = controller.markPaperRecordRequestAsSent("123", paperRecordService, ui);
 

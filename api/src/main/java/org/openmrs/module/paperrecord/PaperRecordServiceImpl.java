@@ -344,6 +344,21 @@ public class PaperRecordServiceImpl extends BaseOpenmrsService implements PaperR
 
     @Override
     @Transactional(readOnly = true)
+    public PaperRecordRequest getPendingPaperRecordRequestByIdentifier(String identifier) {
+        // TODO: once we have multiple medical record locations, we will need to add location as a criteria
+        List<PaperRecordRequest> requests = getPaperRecordRequestByIdentifierAndStatus(identifier, PENDING_STATUSES);
+
+        if (requests == null || requests.size() == 0) {
+            return null;
+        } else if (requests.size() > 1) {
+            throw new IllegalStateException("Duplicate record requests in the pending state with identifier " + identifier);
+        } else {
+            return requests.get(0);
+        }
+    }
+
+    @Override
+    @Transactional(readOnly = true)
     public PaperRecordRequest getAssignedPaperRecordRequestByIdentifier(String identifier) {
         // TODO: once we have multiple medical record locations, we will need to add location as a criteria
         List<PaperRecordRequest> requests = getPaperRecordRequestByIdentifierAndStatus(identifier, ASSIGNED_STATUSES);
@@ -351,7 +366,7 @@ public class PaperRecordServiceImpl extends BaseOpenmrsService implements PaperR
         if (requests == null || requests.size() == 0) {
             return null;
         } else if (requests.size() > 1) {
-            throw new IllegalStateException("Duplicate record requests in the pending state with identifier " + identifier);
+            throw new IllegalStateException("Duplicate record requests in the assigned state with identifier " + identifier);
         } else {
             return requests.get(0);
         }
