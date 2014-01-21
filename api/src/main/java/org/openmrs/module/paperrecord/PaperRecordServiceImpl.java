@@ -54,10 +54,6 @@ public class PaperRecordServiceImpl extends BaseOpenmrsService implements PaperR
 
     private final Logger log = LoggerFactory.getLogger(getClass());
 
-    private final static int NUMBER_OF_LABELS_TO_PRINT_WHEN_CREATING_NEW_RECORD = 3;
-
-    private final static int NUMBER_OF_LABELS_TO_PRINT_WHEN_PULLING_RECORD = 2;
-
     private PaperRecordRequestDAO paperRecordRequestDAO;
 
     private PaperRecordMergeRequestDAO paperRecordMergeRequestDAO;
@@ -303,11 +299,11 @@ public class PaperRecordServiceImpl extends BaseOpenmrsService implements PaperR
                     request.setIdentifier(createPaperMedicalRecordNumber(request.getPatient(),
                             request.getRecordLocation()).getIdentifier());
                     request.updateStatus(Status.ASSIGNED_TO_CREATE);
-                    printPaperRecordLabels(request, location, NUMBER_OF_LABELS_TO_PRINT_WHEN_CREATING_NEW_RECORD);
+                    printPaperRecordLabels(request, location, PaperRecordConstants.NUMBER_OF_LABELS_TO_PRINT_WHEN_CREATING_NEW_RECORD);
                     printIdCardLabel(request.getPatient(), location);
                 } else {
                     request.updateStatus(PaperRecordRequest.Status.ASSIGNED_TO_PULL);
-                    printPaperRecordLabels(request, location, NUMBER_OF_LABELS_TO_PRINT_WHEN_PULLING_RECORD);
+                    printPaperRecordLabels(request, location, PaperRecordConstants.NUMBER_OF_LABELS_TO_PRINT_WHEN_PULLING_RECORD);
                 }
 
                 request.setAssignee(assignee);
