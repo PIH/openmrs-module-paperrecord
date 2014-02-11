@@ -134,13 +134,13 @@ public class DefaultZplPaperRecordLabelTemplate implements PaperRecordLabelTempl
 
         /* RIGHT COLUMN */
 
-        /* Print the patient's paper record identifier, if it exists */
+        /* Print the patient's paper record identifier, if it exists  (h x w set to 120, 110, not sure if this is accurate) */
         if (StringUtils.isNotBlank(paperRecordIdentifier)) {
-            data.append("^FO680,40^FB520,1,0,R,0^AVN^FD" + paperRecordIdentifier + "^FS");
+            data.append("^FO680,40^FB520,1,0,R,0^AUN,120,110^FD" + paperRecordIdentifier + "^FS");
         }
 
         /* Print the bar code, based on the primary identifier */
-        data.append("^FO780,120^ATN^BY4^BCN,150,N^FD" + primaryIdentifier.getIdentifier() + "^FS");    // print barcode & identifier
+        data.append("^FO780,160^ATN^BY4^BCN,150,N^FD" + primaryIdentifier.getIdentifier() + "^FS");    // print barcode & identifier
 
         /* Print command */
         data.append("^XZ");
