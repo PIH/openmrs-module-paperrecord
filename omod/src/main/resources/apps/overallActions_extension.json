@@ -20,11 +20,11 @@
         "requiredPrivilege": "Task: emr.printLabels"
     },
     {
-        "id": "${project.parent.groupId}.${project.parent.artifactId}.printPaperRecordLabel",
+        "id": "${project.parent.groupId}.${project.parent.artifactId}.printPaperFormLabel",
         "extensionPointId": "patientDashboard.overallActions",
         "type": "script",
-        "label": "paperrecord.task.printPaperRecordLabel.label",
-        "script": "printPaperRecordLabel()",
+        "label": "paperrecord.task.printPaperFormLabel.label",
+        "script": "printPaperFormLabel()",
         "icon": "icon-print",
         "order": -10,
         "requiredPrivilege": "Task: emr.printLabels"

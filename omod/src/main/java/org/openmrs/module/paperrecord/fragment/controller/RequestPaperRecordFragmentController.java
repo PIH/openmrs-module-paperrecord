@@ -55,7 +55,8 @@ public class RequestPaperRecordFragmentController {
         service.createPaperMedicalRecordNumber(patient, location);
 
         try {
-            service.printPaperRecordLabels(patient, location, PaperRecordConstants.NUMBER_OF_LABELS_TO_PRINT_WHEN_CREATING_NEW_RECORD);
+            service.printPaperRecordLabels(patient, location, 1);       // label for the paper record itself
+            service.printPaperFormLabels(patient, location, PaperRecordConstants.NUMBER_OF_FORM_LABELS_TO_PRINT);    // labels for individual paper forms
             service.printIdCardLabel(patient, location);
 
             Printer printer = printerService.getDefaultPrinter(location, Printer.Type.LABEL);
@@ -84,6 +85,25 @@ public class RequestPaperRecordFragmentController {
             return SimpleObject.create("success", true, "message", ui.message("paperrecord.patientDashBoard.printLabels.successMessage") + " " + printer.getPhysicalLocation().getName());
         } catch (UnableToPrintLabelException e) {
             log.warn("User " + uiSessionContext.getCurrentUser() + " unable to print paper record label at location "
+                    + uiSessionContext.getSessionLocation(), e);
+            return SimpleObject.create("success", false, "message", ui.message("paperrecord.archivesRoom.error.unableToPrintLabel"));
+        }
+    }
+
+    public SimpleObject printPaperFormLabel(UiUtils ui,
+                                              @RequestParam("patientId") Patient patient,
+                                              @RequestParam("locationId") Location location,
+                                              @SpringBean("paperRecordService") PaperRecordService service,
+                                              @SpringBean("printerService") PrinterService printerService,
+                                              UiSessionContext uiSessionContext) throws UnableToPrintLabelException {
+
+        try {
+            service.printPaperFormLabels(patient, location, 1);     // we print one label by default
+            Printer printer = printerService.getDefaultPrinter(location, Printer.Type.LABEL);
+
+            return SimpleObject.create("success", true, "message", ui.message("paperrecord.patientDashBoard.printLabels.successMessage") + " " + printer.getPhysicalLocation().getName());
+        } catch (UnableToPrintLabelException e) {
+            log.warn("User " + uiSessionContext.getCurrentUser() + " unable to print paper form label at location "
                     + uiSessionContext.getSessionLocation(), e);
             return SimpleObject.create("success", false, "message", ui.message("paperrecord.archivesRoom.error.unableToPrintLabel"));
         }

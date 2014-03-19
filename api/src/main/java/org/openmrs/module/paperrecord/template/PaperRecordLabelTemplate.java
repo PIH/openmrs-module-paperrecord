@@ -12,18 +12,12 @@
  * Copyright (C) OpenMRS, LLC.  All Rights Reserved.
  */
 
-package org.openmrs.module.paperrecord;
+package org.openmrs.module.paperrecord.template;
 
-import org.openmrs.Patient;
+/**
+ * Template for the label for a Paper Record (where a Paper Record consists of *all* the paper
+ * forms, reports, records, etc for a patient)
+ */
+public interface PaperRecordLabelTemplate extends LabelTemplate {
 
-public interface PaperRecordLabelTemplate {
-
-    public final static Integer IDCARD_PRINTER_LINE_MAX_SIZE = 41;
-    public final static Integer LABEL_PRINTER_LINE_MAX_SIZE = 25;
-    public final static Integer CHARTLABEL_PRINTER_LINE_MAX_SIZE = 23;
-    public final static Integer CHARTLABEL_LOWER_FONT_PRINTER_LINE_MAX_SIZE = 30;
-
-    String generateLabel(Patient patient, String paperRecordIdentifier);
-
-    String getEncoding();
 }

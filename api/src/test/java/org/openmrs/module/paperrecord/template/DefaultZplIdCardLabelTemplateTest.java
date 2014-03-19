@@ -1,4 +1,4 @@
-package org.openmrs.module.paperrecord;
+package org.openmrs.module.paperrecord.template;
 
 import junit.framework.Assert;
 import org.junit.Before;
@@ -14,11 +14,12 @@ import org.openmrs.module.emrapi.EmrApiProperties;
 import org.openmrs.module.emrapi.printer.Printer;
 import org.openmrs.module.emrapi.printer.PrinterServiceImpl;
 import org.openmrs.module.emrapi.printer.UnableToPrintViaSocketException;
+import org.openmrs.module.paperrecord.PaperRecordProperties;
 
 import static org.powermock.api.mockito.PowerMockito.mock;
 import static org.powermock.api.mockito.PowerMockito.when;
 
-public class DefauktZplIdCardLabelTemplateTest {
+public class DefaultZplIdCardLabelTemplateTest {
 
     private DefaultZplIdCardLabelTemplate template;
 
@@ -67,7 +68,7 @@ public class DefauktZplIdCardLabelTemplateTest {
         primaryIdentifier.setIdentifier("ABC");
         patient.addIdentifier(primaryIdentifier);
 
-        template.generateLabel(patient);
+        template.generateLabel(patient, null);
     }
 
 
@@ -79,7 +80,7 @@ public class DefauktZplIdCardLabelTemplateTest {
         PersonName personName = new PersonName();
         patient.addName(personName);
 
-        template.generateLabel(patient);
+        template.generateLabel(patient, null);
     }
 
     @Test
@@ -95,7 +96,7 @@ public class DefauktZplIdCardLabelTemplateTest {
         PersonName personName = new PersonName();
         patient.addName(personName);
 
-        String result = template.generateLabel(patient);
+        String result = template.generateLabel(patient, null);
         Assert.assertTrue(result.contains("ABC"));
     }
 
@@ -122,7 +123,7 @@ public class DefauktZplIdCardLabelTemplateTest {
         name.setGivenName("Ellen");
         patient.addName(name);
 
-        String data = template.generateLabel(patient);
+        String data = template.generateLabel(patient, null);
 
         System.out.println(data);
         Assert.assertTrue(data.equals("^XA^CI28^PW1300^MTT^FO100,40^AUN^FDJazayeri, Ellen^FS^FO480,40^FB520,1,0,R,0^AUN^FD2F1406^FS^FO100,110^AUN^FDA002300^FS^FO100,160^ATN^FDMirebalais Dossier ID^FS^FO1025,10^GB0,590,10^FS^XZ"));
@@ -198,7 +199,7 @@ public class DefauktZplIdCardLabelTemplateTest {
         name.setGivenName("Ellen");
         patient.addName(name);
 
-        String data = template.generateLabel(patient);
+        String data = template.generateLabel(patient, null);
 
         Printer printer = new Printer();
         printer.setIpAddress("10.3.18.100");

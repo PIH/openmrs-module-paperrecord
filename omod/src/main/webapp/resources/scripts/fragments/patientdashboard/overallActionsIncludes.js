@@ -49,3 +49,16 @@ function printPaperRecordLabel() {
         }
     );
 }
+
+function printPaperFormLabel() {
+    emr.getFragmentActionWithCallback('paperrecord', 'requestPaperRecord', 'printPaperFormLabel'
+        , { patientId: patient.id, locationId: sessionLocationModel.id() }
+        , function(data) {
+            if(data.success) {
+                emr.successMessage(data.message);
+            } else {
+                emr.errorMessage(data.message);
+            }
+        }
+    );
+}

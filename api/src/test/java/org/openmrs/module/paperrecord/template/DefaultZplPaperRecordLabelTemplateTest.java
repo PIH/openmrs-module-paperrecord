@@ -12,7 +12,10 @@
  * Copyright (C) OpenMRS, LLC.  All Rights Reserved.
  */
 
-package org.openmrs.module.paperrecord;
+package org.openmrs.module.paperrecord.template;
+
+import java.util.Calendar;
+import java.util.Locale;
 
 import junit.framework.Assert;
 import org.junit.Before;
@@ -26,6 +29,7 @@ import org.openmrs.PersonAddress;
 import org.openmrs.PersonName;
 import org.openmrs.api.context.Context;
 import org.openmrs.messagesource.MessageSourceService;
+import org.openmrs.module.appframework.feature.FeatureToggleProperties;
 import org.openmrs.module.emrapi.EmrApiProperties;
 import org.openmrs.module.emrapi.printer.Printer;
 import org.openmrs.module.emrapi.printer.PrinterServiceImpl;
@@ -33,12 +37,11 @@ import org.openmrs.module.emrapi.printer.UnableToPrintViaSocketException;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 
-import java.util.Calendar;
-import java.util.Locale;
-
 import static org.powermock.api.mockito.PowerMockito.mock;
 import static org.powermock.api.mockito.PowerMockito.mockStatic;
 import static org.powermock.api.mockito.PowerMockito.when;
+import static org.junit.Assert.assertThat;
+import static org.hamcrest.CoreMatchers.is;
 
 @RunWith(PowerMockRunner.class)
 @PrepareForTest({Context.class})
@@ -47,6 +50,8 @@ public class DefaultZplPaperRecordLabelTemplateTest {
     private DefaultZplPaperRecordLabelTemplate template;
 
     private PatientIdentifierType primaryIdentifierType;
+
+    private FeatureToggleProperties featureToggles;
 
     @Before
     public void setup() {
@@ -64,9 +69,13 @@ public class DefaultZplPaperRecordLabelTemplateTest {
         primaryIdentifierType.setUuid("e0987dc0-460f-11e2-bcfd-0800200c9a66");
         when(emrApiProperties.getPrimaryIdentifierType()).thenReturn(primaryIdentifierType);
 
+        featureToggles = mock(FeatureToggleProperties.class);
+        when(featureToggles.isFeatureEnabled("newPaperRecordLabelTemplate")).thenReturn(true);
+
         template = new DefaultZplPaperRecordLabelTemplate();
         template.setMessageSourceService(messageSourceService);
         template.setEmrApiProperties(emrApiProperties);
+        template.setFeatureToggles(featureToggles);
 
     }
 
@@ -118,6 +127,39 @@ public class DefaultZplPaperRecordLabelTemplateTest {
 
     @Test
     public void testGenerateLabelShouldGenerateLabel() {
+
+        // we aren't testing addresses because mocking the AddressSupport singleton is problematic
+
+        Patient patient = new Patient();
+        patient.setGender("F");
+
+        Calendar cal = Calendar.getInstance();
+        cal.set(2010, 11, 2);
+        patient.setBirthdate(cal.getTime());
+
+        PatientIdentifier primaryIdentifier = new PatientIdentifier();
+        primaryIdentifier.setIdentifierType(primaryIdentifierType);
+        primaryIdentifier.setIdentifier("ABC");
+        patient.addIdentifier(primaryIdentifier);
+
+        PersonName name = new PersonName();
+        name.setFamilyName("Jones");
+        name.setGivenName("Indiana");
+        patient.addName(name);
+
+        String data = template.generateLabel(patient, "123");
+        System.out.println(data);
+        assertThat(data, is("^XA^CI28^PW1300^MTT^FO080,40^AVN^FDJones, Indiana^FS^FO080,120^AUN^FDABC^FS^FO080,190^ATN^FD02/Dec/2010, Female^FS^FO680,40^FB520,1,0,R,0^AUN,140,110^FD 123^FS^FO780,160^ATN^BY4^BCN,150,N^FDABC^FS^XZ"));
+
+    }
+
+
+    @Test
+    public void testGenerateLabelShouldGenerateOldLabel() {
+
+        // TODO remove this whole test when we remove the feature toggle
+        // override the feature toggle setting we set in the set-up
+        when(featureToggles.isFeatureEnabled("newPaperRecordLabelTemplate")).thenReturn(false);
 
         // we aren't testing addresses because mocking the AddressSupport singleton is problematic
 

@@ -14,6 +14,14 @@
 
 package org.openmrs.module.paperrecord;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Calendar;
+import java.util.Collections;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
+
 import org.hamcrest.core.Is;
 import org.junit.Before;
 import org.junit.Test;
@@ -36,16 +44,11 @@ import org.openmrs.module.idgen.service.IdentifierSourceService;
 import org.openmrs.module.paperrecord.PaperRecordRequest.Status;
 import org.openmrs.module.paperrecord.db.PaperRecordMergeRequestDAO;
 import org.openmrs.module.paperrecord.db.PaperRecordRequestDAO;
+import org.openmrs.module.paperrecord.template.IdCardLabelTemplate;
+import org.openmrs.module.paperrecord.template.PaperFormLabelTemplate;
+import org.openmrs.module.paperrecord.template.PaperRecordLabelTemplate;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
-
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Calendar;
-import java.util.Collections;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
 
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertEquals;
@@ -54,6 +57,7 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
+import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.argThat;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.any;
@@ -88,6 +92,8 @@ public class PaperRecordServiceTest {
 
     private PaperRecordLabelTemplate mockPaperRecordLabelTemplate;
 
+    private PaperFormLabelTemplate mockPaperFormLabelTemplate;
+
     private IdCardLabelTemplate mockIdCardLabelTemplate;
 
     private User authenticatedUser;
@@ -111,6 +117,7 @@ public class PaperRecordServiceTest {
         mockEmrApiProperties = mock(EmrApiProperties.class);
         mockPaperRecordProperties = mock(PaperRecordProperties.class);
         mockPaperRecordLabelTemplate = mock(PaperRecordLabelTemplate.class);
+        mockPaperFormLabelTemplate = mock(PaperFormLabelTemplate.class);
         mockIdCardLabelTemplate = mock(IdCardLabelTemplate.class);
 
         paperRecordIdentifierType = new PatientIdentifierType();
@@ -130,6 +137,7 @@ public class PaperRecordServiceTest {
         paperRecordService.setEmrApiProperties(mockEmrApiProperties);
         paperRecordService.setPaperRecordProperties(mockPaperRecordProperties);
         paperRecordService.setPaperRecordLabelTemplate(mockPaperRecordLabelTemplate);
+        paperRecordService.setPaperFormLabelTemplate(mockPaperFormLabelTemplate);
         paperRecordService.setIdCardLabelTemplate(mockIdCardLabelTemplate);
 
         // so we handle the hack in PaperRecordServiceImpl to make sure assignRequestsInternal is transactional
@@ -324,7 +332,7 @@ public class PaperRecordServiceTest {
     @Test
     public void testAssignRequestsWithoutIdentifiers() throws Exception {
 
-        when(mockIdCardLabelTemplate.generateLabel(any(Patient.class))).thenReturn("some data");
+        when(mockIdCardLabelTemplate.generateLabel(any(Patient.class), anyString())).thenReturn("some data");
 
         Person assignTo = new Person(15);
         Patient patient = new Patient();
@@ -1222,6 +1230,50 @@ public class PaperRecordServiceTest {
     }
 
     @Test
+    public void testPrintPaperFormLabelsShouldPrintThreeLabelIfCountSetToThree() throws Exception {
+
+        Location location = new Location(1);
+        Patient patient = new Patient(1);
+
+        when(mockPaperFormLabelTemplate.generateLabel(patient, "ABC")).thenReturn("data\nlines\n");
+        when(mockPaperFormLabelTemplate.getEncoding()).thenReturn("UTF-8");
+
+        PaperRecordRequest request = new PaperRecordRequest();
+        request.setPatient(patient);
+        request.setIdentifier("ABC");
+
+        paperRecordService.printPaperFormLabels(request, location, 3);
+
+        verify(mockPrinterService).printViaSocket("data\nlines\ndata\n" +
+                "lines\ndata\nlines\n", Printer.Type.LABEL, location, "UTF-8", false, 800);
+
+    }
+
+
+
+    @Test
+    public void testPrintPaperFormLabelsByPatientShouldPrintThreeLabelIfCountSetToThree() throws Exception {
+
+        Location location = new Location(1);
+        Patient patient = new Patient(1);
+
+        PatientIdentifier paperRecordIdentifier = new PatientIdentifier();
+        paperRecordIdentifier.setIdentifierType(paperRecordIdentifierType);
+        paperRecordIdentifier.setIdentifier("ABC");
+        paperRecordIdentifier.setLocation(location);
+        patient.addIdentifier(paperRecordIdentifier);
+
+        when(mockPaperFormLabelTemplate.generateLabel(patient, "ABC")).thenReturn("data\nlines\n");
+        when(mockPaperFormLabelTemplate.getEncoding()).thenReturn("UTF-8");
+
+        paperRecordService.printPaperFormLabels(patient, location, 3);
+
+        verify(mockPrinterService).printViaSocket("data\nlines\ndata\n" +
+                "lines\ndata\nlines\n", Printer.Type.LABEL, location, "UTF-8", false, 800);
+
+    }
+
+    @Test
     public void testPrintIdLabelByPatientShouldPrintSingleLabel() throws Exception {
 
         Patient patient = new Patient(1);
@@ -1233,12 +1285,12 @@ public class PaperRecordServiceTest {
         paperRecordIdentifier.setLocation(location);
         patient.addIdentifier(paperRecordIdentifier);
 
-        when(mockIdCardLabelTemplate.generateLabel(patient)).thenReturn("data\nlines\n");
+        when(mockIdCardLabelTemplate.generateLabel(eq(patient), anyString())).thenReturn("data\nlines\n");
         when(mockIdCardLabelTemplate.getEncoding()).thenReturn("UTF-8");
 
         paperRecordService.printIdCardLabel(patient, location);
 
-        verify(mockPrinterService).printViaSocket("data\nlines\n", Printer.Type.LABEL, location, "UTF-8", false, 500);
+        verify(mockPrinterService).printViaSocket("data\nlines\n", Printer.Type.LABEL, location, "UTF-8", false, 600);
     }
 
     @Test

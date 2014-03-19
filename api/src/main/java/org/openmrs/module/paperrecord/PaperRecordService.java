@@ -14,6 +14,10 @@
 
 package org.openmrs.module.paperrecord;
 
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
+
 import org.openmrs.Location;
 import org.openmrs.Patient;
 import org.openmrs.PatientIdentifier;
@@ -21,10 +25,6 @@ import org.openmrs.Person;
 import org.openmrs.annotation.Authorized;
 import org.openmrs.api.OpenmrsService;
 import org.openmrs.module.emrapi.printer.PrinterService;
-
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
 
 /**
  * Public API for functionality relating to paper medical records
@@ -235,7 +235,7 @@ public interface PaperRecordService extends OpenmrsService {
     void markPaperRecordRequestAsSent(PaperRecordRequest request);
 
     /**
-     * Marks the specified paper record request as "cancelled"
+     * Marks the specified paper record request as "cancelled"                      //To change body of implemented methods use File | Settings | File Templates.
      *
      * @param request
      */
@@ -249,7 +249,7 @@ public interface PaperRecordService extends OpenmrsService {
     void markPaperRecordRequestAsReturned(PaperRecordRequest requests);
 
     /**
-     * Prints a label for the paper record associated wth the request
+     * Prints a papr record label for the paper record associated wth the request
      * at the selected location
      *
      * @param request
@@ -260,7 +260,7 @@ public interface PaperRecordService extends OpenmrsService {
 
 
     /**
-     * Prints x numbers of labels for the paper record associated with the request
+     * Prints x numbers of paper record labels for the paper record associated with the request
      * at the default location
      *
      * @param request
@@ -271,7 +271,7 @@ public interface PaperRecordService extends OpenmrsService {
     void printPaperRecordLabels(PaperRecordRequest request, Location location, Integer count) throws UnableToPrintLabelException;
 
     /**
-     * Prints x numbers of labels for the paper record associated with the patient
+     * Prints x numbers of paper record labels for the paper record associated with the patient
      *
      * @param patient  the patient we want to print the label for
      * @param location the location where the record should be printed
@@ -280,6 +280,27 @@ public interface PaperRecordService extends OpenmrsService {
     @Authorized(PaperRecordConstants.PRIVILEGE_PAPER_RECORDS_REQUEST_RECORDS)
     void printPaperRecordLabels(Patient patient, Location location, Integer count) throws UnableToPrintLabelException;
 
+    /**
+     * Prints x numbers of paper form labels for the paper record associated with the request
+     * at the default location
+     *
+     * @param request
+     * @param location
+     * @param count    the number of labels to print
+     */
+    @Authorized(PaperRecordConstants.PRIVILEGE_PAPER_RECORDS_REQUEST_RECORDS)
+    void printPaperFormLabels(PaperRecordRequest request, Location location, Integer count) throws UnableToPrintLabelException;
+
+
+    /**
+     * Prints x numbers of paper form labels for the paper record associated with the patient
+     *
+     * @param patient  the patient we want to print the label for
+     * @param location the location where the record should be printed
+     * @param count    the of labels to print
+     */
+    @Authorized(PaperRecordConstants.PRIVILEGE_PAPER_RECORDS_REQUEST_RECORDS)
+    void printPaperFormLabels(Patient patient, Location location, Integer count) throws UnableToPrintLabelException;
 
     /**
      * Prints a label with the patient's paper record number(s), intended to be attached to the back of

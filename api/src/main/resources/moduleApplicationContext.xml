@@ -32,13 +32,21 @@
                 <property name="emrApiProperties" ref="emrApiProperties"/>
                 <property name="paperRecordProperties" ref="paperRecordProperties"/>
                 <property name="paperRecordLabelTemplate">
-                    <bean class="org.openmrs.module.paperrecord.DefaultZplPaperRecordLabelTemplate">
+                    <bean class="org.openmrs.module.paperrecord.template.DefaultZplPaperRecordLabelTemplate">
                         <property name="messageSourceService" ref="messageSourceService"/>
                         <property name="emrApiProperties" ref="emrApiProperties"/>
+                        <property name="featureToggles" ref="featureToggles"/>
+                    </bean>
+                </property>
+                <property name="paperFormLabelTemplate">
+                    <bean class="org.openmrs.module.paperrecord.template.DefaultZplPaperFormLabelTemplate">
+                        <property name="messageSourceService" ref="messageSourceService"/>
+                        <property name="emrApiProperties" ref="emrApiProperties"/>
+                        <property name="featureToggles" ref="featureToggles"/>
                     </bean>
                 </property>
                 <property name="idCardLabelTemplate">
-                    <bean class="org.openmrs.module.paperrecord.DefaultZplIdCardLabelTemplate">
+                    <bean class="org.openmrs.module.paperrecord.template.DefaultZplIdCardLabelTemplate">
                         <property name="messageSourceService" ref="messageSourceService"/>
                         <property name="emrApiProperties" ref="emrApiProperties"/>
                         <property name="paperRecordProperties" ref="paperRecordProperties"/>

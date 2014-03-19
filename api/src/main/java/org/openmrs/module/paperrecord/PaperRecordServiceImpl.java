@@ -14,6 +14,15 @@
 
 package org.openmrs.module.paperrecord;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+
 import org.apache.commons.lang.StringUtils;
 import org.openmrs.Location;
 import org.openmrs.Patient;
@@ -33,18 +42,13 @@ import org.openmrs.module.emrapi.utils.GeneralUtils;
 import org.openmrs.module.idgen.service.IdentifierSourceService;
 import org.openmrs.module.paperrecord.db.PaperRecordMergeRequestDAO;
 import org.openmrs.module.paperrecord.db.PaperRecordRequestDAO;
+import org.openmrs.module.paperrecord.template.IdCardLabelTemplate;
+import org.openmrs.module.paperrecord.template.LabelTemplate;
+import org.openmrs.module.paperrecord.template.PaperFormLabelTemplate;
+import org.openmrs.module.paperrecord.template.PaperRecordLabelTemplate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
 
 import static org.openmrs.module.paperrecord.PaperRecordRequest.ASSIGNED_STATUSES;
 import static org.openmrs.module.paperrecord.PaperRecordRequest.PENDING_STATUSES;
@@ -73,6 +77,8 @@ public class PaperRecordServiceImpl extends BaseOpenmrsService implements PaperR
     private PaperRecordProperties paperRecordProperties;
 
     private PaperRecordLabelTemplate paperRecordLabelTemplate;
+
+    private PaperFormLabelTemplate paperFormLabelTemplate;
 
     private IdCardLabelTemplate idCardLabelTemplate;
 
@@ -110,6 +116,10 @@ public class PaperRecordServiceImpl extends BaseOpenmrsService implements PaperR
 
     public void setPaperRecordLabelTemplate(PaperRecordLabelTemplate paperRecordLabelTemplate) {
         this.paperRecordLabelTemplate = paperRecordLabelTemplate;
+    }
+
+    public void setPaperFormLabelTemplate(PaperFormLabelTemplate paperFormLabelTemplate) {
+        this.paperFormLabelTemplate = paperFormLabelTemplate;
     }
 
     public void setIdCardLabelTemplate(IdCardLabelTemplate idCardLabelTemplate) {
@@ -299,11 +309,12 @@ public class PaperRecordServiceImpl extends BaseOpenmrsService implements PaperR
                     request.setIdentifier(createPaperMedicalRecordNumber(request.getPatient(),
                             request.getRecordLocation()).getIdentifier());
                     request.updateStatus(Status.ASSIGNED_TO_CREATE);
-                    printPaperRecordLabels(request, location, PaperRecordConstants.NUMBER_OF_LABELS_TO_PRINT_WHEN_CREATING_NEW_RECORD);
+                    printPaperRecordLabel(request, location);
+                    printPaperFormLabels(request, location, PaperRecordConstants.NUMBER_OF_FORM_LABELS_TO_PRINT);
                     printIdCardLabel(request.getPatient(), location);
                 } else {
                     request.updateStatus(PaperRecordRequest.Status.ASSIGNED_TO_PULL);
-                    printPaperRecordLabels(request, location, PaperRecordConstants.NUMBER_OF_LABELS_TO_PRINT_WHEN_PULLING_RECORD);
+                    printPaperFormLabels(request, location, PaperRecordConstants.NUMBER_OF_FORM_LABELS_TO_PRINT);
                 }
 
                 request.setAssignee(assignee);
@@ -469,7 +480,7 @@ public class PaperRecordServiceImpl extends BaseOpenmrsService implements PaperR
     @Override
     @Transactional(readOnly = true)
     public void printPaperRecordLabels(PaperRecordRequest request, Location location, Integer count) throws UnableToPrintLabelException {
-        printPaperRecordLabels(request.getPatient(), request.getIdentifier(), location, count);
+        printLabels(request.getPatient(), request.getIdentifier(), location, count, paperRecordLabelTemplate);
 
     }
 
@@ -477,16 +488,34 @@ public class PaperRecordServiceImpl extends BaseOpenmrsService implements PaperR
     @Transactional(readOnly = true)
     public void printPaperRecordLabels(Patient patient, Location location, Integer count) throws UnableToPrintLabelException {
         PatientIdentifier paperRecordIdentifier = GeneralUtils.getPatientIdentifier(patient, paperRecordProperties.getPaperRecordIdentifierType(), getMedicalRecordLocationAssociatedWith(location));
-        printPaperRecordLabels(patient, paperRecordIdentifier != null ? paperRecordIdentifier.getIdentifier() : null, location, count);
+        printLabels(patient, paperRecordIdentifier != null ? paperRecordIdentifier.getIdentifier() : null, location, count, paperRecordLabelTemplate);
     }
 
-    private void printPaperRecordLabels(Patient patient, String identifier, Location location, Integer count) throws UnableToPrintLabelException {
+    @Override
+    public void printPaperFormLabels(PaperRecordRequest request, Location location, Integer count) throws UnableToPrintLabelException {
+        printLabels(request.getPatient(), request.getIdentifier(), location, count, paperFormLabelTemplate);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public void printPaperFormLabels(Patient patient, Location location, Integer count) throws UnableToPrintLabelException {
+        PatientIdentifier paperRecordIdentifier = GeneralUtils.getPatientIdentifier(patient, paperRecordProperties.getPaperRecordIdentifierType(), getMedicalRecordLocationAssociatedWith(location));
+        printLabels(patient, paperRecordIdentifier != null ? paperRecordIdentifier.getIdentifier() : null, location, count, paperFormLabelTemplate);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public void printIdCardLabel(Patient patient, Location location) throws UnableToPrintLabelException {
+        printLabels(patient, null, location, 1, idCardLabelTemplate);
+    }
+
+    private void printLabels(Patient patient, String identifier, Location location, Integer count, LabelTemplate template) throws UnableToPrintLabelException {
         if (count == null || count == 0) {
             return;  // just do nothing if we don't have a count
         }
 
-        String data = paperRecordLabelTemplate.generateLabel(patient, identifier);
-        String encoding = paperRecordLabelTemplate.getEncoding();
+        String data = template.generateLabel(patient, identifier);
+        String encoding = template.getEncoding();
 
         // just duplicate the data if we are printing multiple labels
         StringBuffer dataBuffer = new StringBuffer();
@@ -506,20 +535,6 @@ public class PaperRecordServiceImpl extends BaseOpenmrsService implements PaperR
         }
     }
 
-    @Override
-    @Transactional(readOnly = true)
-    public void printIdCardLabel(Patient patient, Location location) throws UnableToPrintLabelException {
-
-        String data = idCardLabelTemplate.generateLabel(patient);
-        String encoding = idCardLabelTemplate.getEncoding();
-
-        try {
-            printerService.printViaSocket(data.toString(), Printer.Type.LABEL, location, encoding, false, 500); // add a half-second delay to avoid overloading printers
-        } catch (Exception e) {
-            throw new UnableToPrintLabelException("Unable to print id card label at location " + location +" for patient " + patient, e);
-        }
-
-    }
 
 
     @Override

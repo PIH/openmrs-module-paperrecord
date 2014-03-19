@@ -1,4 +1,10 @@
-package org.openmrs.module.paperrecord;
+package org.openmrs.module.paperrecord.template;
+
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.List;
+import java.util.ListIterator;
+import java.util.Map;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
@@ -8,22 +14,23 @@ import org.openmrs.PatientIdentifier;
 import org.openmrs.api.context.Context;
 import org.openmrs.layout.web.address.AddressSupport;
 import org.openmrs.messagesource.MessageSourceService;
+import org.openmrs.module.appframework.feature.FeatureToggleProperties;
 import org.openmrs.module.emrapi.EmrApiProperties;
 import org.openmrs.module.emrapi.utils.GeneralUtils;
-
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
-import java.util.List;
-import java.util.ListIterator;
-import java.util.Map;
 
 public class DefaultZplPaperRecordLabelTemplate implements PaperRecordLabelTemplate {
 
     private final Log log = LogFactory.getLog(getClass());
 
-    private MessageSourceService messageSourceService;
+    protected MessageSourceService messageSourceService;
 
-    private EmrApiProperties emrApiProperties;
+    protected EmrApiProperties emrApiProperties;
+
+    protected FeatureToggleProperties featureToggles;
+
+    public void setFeatureToggles(FeatureToggleProperties featureToggles) {
+        this.featureToggles = featureToggles;
+    }
 
     public void setMessageSourceService(MessageSourceService messageSourceService) {
         this.messageSourceService = messageSourceService;
@@ -133,27 +140,7 @@ public class DefaultZplPaperRecordLabelTemplate implements PaperRecordLabelTempl
         }
 
         /* RIGHT COLUMN */
-
-        /* Print the patient's paper record identifier, if it exists */
-        if (StringUtils.isNotBlank(paperRecordIdentifier)) {
-             data.append("^FO680,40^FB520,1,0,R,0^AUN^FD" + messageSourceService.getMessage("paperrecord.archivesRoom.recordNumber.label")
-                    + " " + paperRecordIdentifier + "^FS");
-        }
-
-        /* Print the bar code, based on the primary identifier */
-        data.append("^FO780,100^ATN^BY4^BCN,150,N^FD" + primaryIdentifier.getIdentifier() + "^FS");    // print barcode & identifier
-
-        /* Print the patient's paper record identifier, if it exists  (h x w set to 120, 110, not sure if this is accurate) */
-        //if (StringUtils.isNotBlank(paperRecordIdentifier)) {
-          //  data.append("^FO680,40^FB520,1,0,R,0^AUN,140,110^FD"
-            //        + paperRecordIdentifier.substring(0, paperRecordIdentifier.length() - 3) + " "
-              //      + paperRecordIdentifier.substring(paperRecordIdentifier.length() - 3) + "^FS");
-        //}
-
-        /* Print the bar code, based on the primary identifier */
-        //data.append("^FO780,160^ATN^BY4^BCN,150,N^FD" + primaryIdentifier.getIdentifier() + "^FS");    // print barcode & identifier
-
-
+        generateBarCodeAndIdentifier(data, paperRecordIdentifier, primaryIdentifier);
 
         /* Print command */
         data.append("^XZ");
@@ -164,5 +151,36 @@ public class DefaultZplPaperRecordLabelTemplate implements PaperRecordLabelTempl
     @Override
     public String getEncoding() {
         return "UTF-8";
+    }
+
+    // we break this out into a separate method so that we can override it in the DefaultZplPaperFormLabelTempalte
+    protected void generateBarCodeAndIdentifier(StringBuilder data, String paperRecordIdentifier, PatientIdentifier primaryIdentifier) {
+
+        if (featureToggles.isFeatureEnabled("newPaperRecordLabelTemplate")) {
+            /* Print the patient's paper record identifier, if it exists  (h x w set to 120, 110, not sure if this is accurate) */
+            if (StringUtils.isNotBlank(paperRecordIdentifier)) {
+                data.append("^FO680,40^FB520,1,0,R,0^AUN,140,110^FD"
+                        + paperRecordIdentifier.substring(0, paperRecordIdentifier.length() - 3) + " "
+                        + paperRecordIdentifier.substring(paperRecordIdentifier.length() - 3) + "^FS");
+            }
+
+        /* Print the bar code, based on the primary identifier */
+            data.append("^FO780,160^ATN^BY4^BCN,150,N^FD" + primaryIdentifier.getIdentifier() + "^FS");    // print barcode & identifier
+        }
+        else {
+              /* Print the patient's paper record identifier, if it exists */
+            if (StringUtils.isNotBlank(paperRecordIdentifier)) {
+                data.append("^FO680,40^FB520,1,0,R,0^AUN^FD" + messageSourceService.getMessage("paperrecord.archivesRoom.recordNumber.label")
+                        + " " + paperRecordIdentifier + "^FS");
+            }
+
+           /* Print the bar code, based on the primary identifier */
+            data.append("^FO780,100^ATN^BY4^BCN,150,N^FD" + primaryIdentifier.getIdentifier() + "^FS");    // print barcode & identifier
+        }
+
+
+
+
+
     }
 }

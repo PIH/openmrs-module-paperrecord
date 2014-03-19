@@ -1,4 +1,6 @@
-package org.openmrs.module.paperrecord;
+package org.openmrs.module.paperrecord.template;
+
+import java.util.List;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
@@ -7,8 +9,7 @@ import org.openmrs.Patient;
 import org.openmrs.PatientIdentifier;
 import org.openmrs.messagesource.MessageSourceService;
 import org.openmrs.module.emrapi.EmrApiProperties;
-
-import java.util.List;
+import org.openmrs.module.paperrecord.PaperRecordProperties;
 
 public class DefaultZplIdCardLabelTemplate implements IdCardLabelTemplate {
 
@@ -33,7 +34,7 @@ public class DefaultZplIdCardLabelTemplate implements IdCardLabelTemplate {
     }
 
     @Override
-    public String generateLabel(Patient patient) {
+    public String generateLabel(Patient patient, String paperRecordIdentifier) {
 
         if (patient.getPersonName() == null) {
             throw new IllegalArgumentException("Patient needs to have at least one name");

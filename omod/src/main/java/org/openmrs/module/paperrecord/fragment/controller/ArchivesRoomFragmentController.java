@@ -1,5 +1,10 @@
 package org.openmrs.module.paperrecord.fragment.controller;
 
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.List;
+
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -18,11 +23,6 @@ import org.openmrs.ui.framework.fragment.action.FailureResult;
 import org.openmrs.ui.framework.fragment.action.FragmentActionResult;
 import org.openmrs.ui.framework.fragment.action.SuccessResult;
 import org.springframework.web.bind.annotation.RequestParam;
-
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.List;
 
 public class ArchivesRoomFragmentController {
 
@@ -268,7 +268,7 @@ public class ArchivesRoomFragmentController {
                                            UiUtils ui) {
 
         try {
-            paperRecordService.printPaperRecordLabel(request, sessionContext.getSessionLocation());
+            paperRecordService.printPaperFormLabels(request, sessionContext.getSessionLocation(), 1);
             return new SuccessResult(ui.message("paperrecord.archivesRoom.printedLabel.message", request.getIdentifier()));
         }
         catch (UnableToPrintLabelException e) {
