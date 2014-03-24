@@ -91,6 +91,10 @@ jq(document).ready( function() {
     // handle assignment buttons
     jq('#assign-to-create-button').click(function(e) {
 
+        // disable button to prevent multiple submits
+        jq('#assign-to-create-button').addClass('disabled');
+        jq('#assign-to-create-button').attr('disabled', 'disabled');
+
         e.preventDefault();
 
         var selectedRequests = createRequestsViewModel.selectedRequests();
@@ -117,13 +121,25 @@ jq(document).ready( function() {
                     request.selected(false);
                 });
 
+                // re-enable button
+                jq('#assign-to-create-button').removeClass('disabled');
+                jq('#assign-to-create-button').removeAttr('disabled');
+
             })
             .error(function(xhr) {
                 emr.handleError(xhr);
+
+                // re-enable button
+                jq('#assign-to-create-button').removeClass('disabled');
+                jq('#assign-to-create-button').removeAttr('disabled');
             });
     })
 
     jq('#assign-to-pull-button').click(function(e) {
+
+        // disable button to prevent multiple submits
+        jq('#assign-to-pull-button').addClass('disabled');
+        jq('#assign-to-pull-button').attr('disabled', 'disabled');
 
         e.preventDefault();
 
@@ -151,9 +167,18 @@ jq(document).ready( function() {
                     request.selected(false);
                 })
 
+                // re-enable button
+                jq('#assign-to-pull-button').removeClass('disabled');
+                jq('#assign-to-pull-button').removeAttr('disabled');
+
+
             })
             .error(function(xhr) {
                 emr.handleError(xhr);
+
+                // re-enable button
+                jq('#assign-to-pull-button').removeClass('disabled');
+                jq('#assign-to-pull-button').removeAttr('disabled');
             });
     })
 
