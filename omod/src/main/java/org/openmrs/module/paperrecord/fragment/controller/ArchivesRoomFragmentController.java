@@ -280,6 +280,24 @@ public class ArchivesRoomFragmentController {
 
     }
 
+    public FragmentActionResult printPaperRecordLabelSet(@RequestParam("requestId") PaperRecordRequest request,
+                                           @SpringBean("paperRecordService") PaperRecordService paperRecordService,
+                                           UiSessionContext sessionContext,
+                                           UiUtils ui) {
+
+        try {
+            paperRecordService.printPaperRecordLabelSet(request, sessionContext.getSessionLocation());
+            return new SuccessResult(ui.message("paperrecord.archivesRoom.printedLabel.messages", request.getIdentifier()));
+        }
+        catch (UnableToPrintLabelException e) {
+            log.warn("User " + sessionContext.getCurrentUser() + " unable to print paper record label at location "
+                    + sessionContext.getSessionLocation(), e);
+            return new FailureResult(ui.message("paperrecord.archivesRoom.error.unableToPrintLabel"));
+
+        }
+
+    }
+
     private List<SimpleObject> convertPaperRecordRequestsToSimpleObjects(List<PaperRecordRequest> requests,
                                                                          PaperRecordService paperRecordService,
                                                                          EmrApiProperties emrApiProperties, UiUtils ui) {

@@ -309,9 +309,7 @@ public class PaperRecordServiceImpl extends BaseOpenmrsService implements PaperR
                     request.setIdentifier(createPaperMedicalRecordNumber(request.getPatient(),
                             request.getRecordLocation()).getIdentifier());
                     request.updateStatus(Status.ASSIGNED_TO_CREATE);
-                    printPaperRecordLabel(request, location);
-                    printPaperFormLabels(request, location, PaperRecordConstants.NUMBER_OF_FORM_LABELS_TO_PRINT);
-                    printIdCardLabel(request.getPatient(), location);
+                    printPaperRecordLabelSet(request, location);
                 } else {
                     request.updateStatus(PaperRecordRequest.Status.ASSIGNED_TO_PULL);
                     printPaperFormLabels(request, location, PaperRecordConstants.NUMBER_OF_FORM_LABELS_TO_PRINT);
@@ -507,6 +505,13 @@ public class PaperRecordServiceImpl extends BaseOpenmrsService implements PaperR
     @Transactional(readOnly = true)
     public void printIdCardLabel(Patient patient, Location location) throws UnableToPrintLabelException {
         printLabels(patient, null, location, 1, idCardLabelTemplate);
+    }
+
+    @Override
+    public void printPaperRecordLabelSet(PaperRecordRequest request, Location location) throws UnableToPrintLabelException{
+        printPaperRecordLabel(request, location);
+        printPaperFormLabels(request, location, PaperRecordConstants.NUMBER_OF_FORM_LABELS_TO_PRINT);
+        printIdCardLabel(request.getPatient(), location);
     }
 
     private void printLabels(Patient patient, String identifier, Location location, Integer count, LabelTemplate template) throws UnableToPrintLabelException {

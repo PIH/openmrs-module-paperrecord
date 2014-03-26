@@ -94,7 +94,7 @@
                 <td><span data-bind="text: dossierNumber"></span></td>
                 <td><span data-bind="text: sendToLocation"></span></td>
                 <td><span data-bind="text: timeRequested"></span></td>
-                <td><button data-bind="click: \$root.printLabel" class="print" title="${ui.message("paperrecord.archivesRoom.reprint")}"><i class="icon-print"></i> </button></td>
+                <td><button data-bind="click: \$root.printPaperRecordLabelSet" class="print" title="${ui.message("paperrecord.archivesRoom.reprint")}"><i class="icon-print"></i> </button></td>
                 <td><i data-bind="click: \$root.cancelRequest" class="delete-item icon-remove" title="${ui.message("paperrecord.archivesRoom.cancel")}"></i></td>
             </tr>
             </tbody>

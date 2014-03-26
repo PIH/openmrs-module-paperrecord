@@ -250,10 +250,11 @@ function AssignedCreateRequestsViewModel(assignedRecordsToCreate) {
 
     }
 
-    api.printLabel = function (request) {
+
+    api.printPaperRecordLabelSet = function (request) {
 
         jQuery.ajax({
-            url: emr.fragmentActionLink("paperrecord", "archivesRoom", "printLabel", { requestId: request.requestId }),
+            url: emr.fragmentActionLink("paperrecord", "archivesRoom", "printPaperRecordLabelSet", { requestId: request.requestId }),
             dataType: 'json',
             type: 'POST'
         })

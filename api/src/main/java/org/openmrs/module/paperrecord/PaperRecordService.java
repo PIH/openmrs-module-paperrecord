@@ -313,6 +313,17 @@ public interface PaperRecordService extends OpenmrsService {
     void printIdCardLabel(Patient patient, Location location) throws UnableToPrintLabelException;
 
     /**
+     * Prints a full set of labels for a paper record:
+     * 1 Paper Record Label, x Form Labels, and 1 ID Card Label
+     * where x = PaperRecordConstants.NUMBER_OF_FORM_LABELS_TO_PRINT
+     *
+     * @param paperRecordRequest
+     * @param location
+     */
+    @Authorized(PaperRecordConstants.PRIVILEGE_PAPER_RECORDS_MANAGE_REQUESTS)
+    void printPaperRecordLabelSet(PaperRecordRequest paperRecordRequest, Location location) throws UnableToPrintLabelException;
+
+    /**
      * Creates a request to merge two paper records
      *
      * @param preferredIdentifier    the identifier of the preferred paper record
