@@ -287,7 +287,7 @@ public class ArchivesRoomFragmentController {
 
         try {
             paperRecordService.printPaperRecordLabelSet(request, sessionContext.getSessionLocation());
-            return new SuccessResult(ui.message("paperrecord.archivesRoom.printedLabel.messages", request.getIdentifier()));
+            return new SuccessResult(ui.message("paperrecord.archivesRoom.printedLabels.message", request.getIdentifier()));
         }
         catch (UnableToPrintLabelException e) {
             log.warn("User " + sessionContext.getCurrentUser() + " unable to print paper record label at location "
