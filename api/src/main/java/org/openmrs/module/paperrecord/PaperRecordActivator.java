@@ -14,7 +14,10 @@
 package org.openmrs.module.paperrecord;
 
 
+import org.openmrs.api.context.Context;
 import org.openmrs.module.BaseModuleActivator;
+import org.openmrs.module.emrapi.adt.AdtService;
+import org.openmrs.module.paperrecord.merge.FixPaperRecordRequestsForMerge;
 
 /**
  * This class contains the logic that is run every time this module is either started or stopped.
@@ -22,4 +25,21 @@ import org.openmrs.module.BaseModuleActivator;
 public class PaperRecordActivator extends BaseModuleActivator {
 
 
+    @Override
+    public void started() {
+
+        // add the action to merge paper record requests to the patient merge actions
+        Context.getService(AdtService.class)
+                .addPatientMergeAction(Context.getRegisteredComponent("fixPaperRecordRequestsForMerge", FixPaperRecordRequestsForMerge.class));
+
+    }
+
+    @Override
+    public void stopped() {
+
+        // remove the action to merge paper record requests to the patient merge actions
+        Context.getService(AdtService.class)
+                .removePatientMergeAction(Context.getRegisteredComponent("fixPaperRecordRequestsForMerge", FixPaperRecordRequestsForMerge.class));
+
+    }
 }

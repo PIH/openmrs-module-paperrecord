@@ -1,5 +1,7 @@
 package org.openmrs.module.paperrecord.merge;
 
+import java.util.List;
+
 import org.apache.commons.collections.ListUtils;
 import org.openmrs.Patient;
 import org.openmrs.PatientIdentifier;
@@ -10,12 +12,10 @@ import org.openmrs.module.paperrecord.PaperRecordService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import java.util.List;
-
 /**
  *
  */
-@Component
+@Component("fixPaperRecordRequestsForMerge")
 public class FixPaperRecordRequestsForMerge implements PatientMergeAction {
 
     @Autowired
