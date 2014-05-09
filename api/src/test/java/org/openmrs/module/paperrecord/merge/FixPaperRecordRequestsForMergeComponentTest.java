@@ -7,6 +7,7 @@ import org.openmrs.Patient;
 import org.openmrs.api.LocationService;
 import org.openmrs.api.PatientService;
 import org.openmrs.module.emrapi.adt.AdtService;
+import org.openmrs.module.paperrecord.PaperRecordActivator;
 import org.openmrs.module.paperrecord.PaperRecordRequest;
 import org.openmrs.module.paperrecord.PaperRecordService;
 import org.openmrs.test.BaseModuleContextSensitiveTest;
@@ -37,6 +38,9 @@ public class FixPaperRecordRequestsForMergeComponentTest extends BaseModuleConte
     @Before
     public void before() throws Exception {
         executeDataSet("retrospectiveCheckinComponentTestDataset.xml");
+
+        // paper record merge action is wired in the activator
+        new PaperRecordActivator().started();
     }
 
 
