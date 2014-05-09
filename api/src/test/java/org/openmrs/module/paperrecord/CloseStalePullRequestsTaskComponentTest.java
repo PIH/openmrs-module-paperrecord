@@ -44,7 +44,7 @@ public class CloseStalePullRequestsTaskComponentTest extends BaseModuleContextSe
 
     @Before
     public void beforeAllTests() throws Exception {
-        executeDataSet("paperRecordServiceComponentTestDataset.xml");
+        executeDataSet("paperRecordTestDataset.xml");
     }
 
     @Test
