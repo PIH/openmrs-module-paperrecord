@@ -30,7 +30,7 @@ public class CloseStaleCreateRequestsTaskComponentTest extends BaseModuleContext
 
     @Before
     public void beforeAllTests() throws Exception {
-        executeDataSet("paperRecordTestDataset.xml");
+        executeDataSet("paperRecordServiceComponentTestDataset.xml");
     }
 
     @Test

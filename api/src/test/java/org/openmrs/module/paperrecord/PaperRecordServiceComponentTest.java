@@ -56,7 +56,7 @@ public class PaperRecordServiceComponentTest extends BaseModuleContextSensitiveT
 
     @Before
     public void beforeAllTests() throws Exception {
-        executeDataSet("paperRecordTestDataset.xml");
+        executeDataSet("paperRecordServiceComponentTestDataset.xml");
 
         // stub out the printer service
         PrinterService printerService = mock(PrinterService.class);
@@ -464,7 +464,7 @@ public class PaperRecordServiceComponentTest extends BaseModuleContextSensitiveT
     @Test
     public void testRequestPaperRecordShouldNotConsiderSentRequestAsDuplicate() {
 
-        // create a request for the patient that has a "completed" request defined in paperRecordTestDataset.xml
+        // create a request for the patient that has a "completed" request defined in paperRecordServiceComponentTestDataset.xml
         Patient patient = patientService.getPatient(7);
         Location medicalRecordLocation = locationService.getLocation(1);
         Location requestLocation = locationService.getLocation(2);
