@@ -3,18 +3,10 @@ package org.openmrs.module.paperrecord.reporting.library;
 import org.junit.Before;
 import org.junit.Test;
 import org.openmrs.Cohort;
-import org.openmrs.PatientIdentifier;
-import org.openmrs.module.emrapi.patient.reporting.library.EmrApiPatientDataLibrary;
-import org.openmrs.module.paperrecord.PaperRecordProperties;
-import org.openmrs.module.reporting.common.DateUtil;
-import org.openmrs.module.reporting.data.converter.PropertyConverter;
+import org.openmrs.api.PatientService;
 import org.openmrs.module.reporting.data.patient.EvaluatedPatientData;
-import org.openmrs.module.reporting.data.patient.definition.ConvertedPatientDataDefinition;
 import org.openmrs.module.reporting.data.patient.definition.PatientDataDefinition;
-import org.openmrs.module.reporting.data.patient.definition.PatientIdentifierDataDefinition;
 import org.openmrs.module.reporting.data.patient.service.PatientDataService;
-import org.openmrs.module.reporting.definition.library.BaseDefinitionLibrary;
-import org.openmrs.module.reporting.definition.library.DocumentedDefinition;
 import org.openmrs.module.reporting.evaluation.EvaluationContext;
 import org.openmrs.module.reporting.evaluation.EvaluationException;
 import org.openmrs.test.BaseModuleContextSensitiveTest;
@@ -33,6 +25,9 @@ public class PaperRecordPatientDataLibraryComponentTest  extends BaseModuleConte
         @Autowired
         private PaperRecordPatientDataLibrary library;
 
+        @Autowired
+        private PatientService patientService;
+
         @Before
         public void setup() throws Exception {
         executeDataSet("paperRecordTestDataset.xml");
@@ -40,7 +35,7 @@ public class PaperRecordPatientDataLibraryComponentTest  extends BaseModuleConte
 
         @Test
         public void shouldFetchPrimaryIdentifier() throws Exception {
-        test(library.getPaperRecordIdentifier(), "101");
+        test(library.getPaperRecordIdentifier(), patientService.getPatientIdentifier(1));  // primary key of identifier "101"
     }
 
     private Object eval(PatientDataDefinition definition) throws EvaluationException {

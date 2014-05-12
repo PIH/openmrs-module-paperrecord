@@ -37,7 +37,7 @@ public class PaperRecordPatientDataLibrary extends BaseDefinitionLibrary<Patient
         PatientIdentifierDataDefinition def = new PatientIdentifierDataDefinition();
         def.addType(paperRecordProperties.getPaperRecordIdentifierType());
         def.setIncludeFirstNonNullOnly(true);
-        return new ConvertedPatientDataDefinition(def, new PropertyConverter(PatientIdentifier.class, "identifier"));
+        return def;
     }
 
 }
