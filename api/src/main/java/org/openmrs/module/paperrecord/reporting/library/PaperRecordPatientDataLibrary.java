@@ -20,7 +20,7 @@ public class PaperRecordPatientDataLibrary extends BaseDefinitionLibrary<Patient
     @Autowired
     private PaperRecordProperties paperRecordProperties;
 
-    public static final String PREFIX = "paperrecord.library.patientDataDefinition.";
+    public static final String PREFIX = "paperrecord.patientDataDefinition.";
 
     @Override
     public Class<? super PatientDataDefinition> getDefinitionType() {
