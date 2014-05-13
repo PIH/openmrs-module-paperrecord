@@ -32,6 +32,7 @@ public class PaperRecordPatientDataLibrary extends BaseDefinitionLibrary<Patient
         return PREFIX;
     }
 
+
     @DocumentedDefinition("paperRecordIdentifier")
     public PatientDataDefinition getPaperRecordIdentifier() {
         PatientIdentifierDataDefinition def = new PatientIdentifierDataDefinition();
