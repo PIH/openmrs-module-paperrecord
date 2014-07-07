@@ -134,7 +134,6 @@ public class DefaultZplPaperFormLabelTemplateTest {
     // (and that the ip address and port are set properly)
 
     @Test
-    @Ignore
     public void testPrintingLabel() throws UnableToPrintViaSocketException {
 
         Patient patient = new Patient();
@@ -171,6 +170,5 @@ public class DefaultZplPaperFormLabelTemplateTest {
 
         new PrinterServiceImpl().printViaSocket(data, printer, "UTF-8");
     }
-
 
 }
