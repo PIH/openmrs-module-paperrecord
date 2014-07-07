@@ -1,8 +1,5 @@
 package org.openmrs.module.paperrecord.template;
 
-import java.util.Calendar;
-import java.util.Locale;
-
 import junit.framework.Assert;
 import org.junit.Before;
 import org.junit.Ignore;
@@ -21,6 +18,9 @@ import org.openmrs.module.emrapi.printer.PrinterServiceImpl;
 import org.openmrs.module.emrapi.printer.UnableToPrintViaSocketException;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
+
+import java.util.Calendar;
+import java.util.Locale;
 
 import static org.powermock.api.mockito.PowerMockito.mock;
 import static org.powermock.api.mockito.PowerMockito.mockStatic;
@@ -134,6 +134,7 @@ public class DefaultZplPaperFormLabelTemplateTest {
     // (and that the ip address and port are set properly)
 
     @Test
+    @Ignore
     public void testPrintingLabel() throws UnableToPrintViaSocketException {
 
         Patient patient = new Patient();
@@ -170,5 +171,29 @@ public class DefaultZplPaperFormLabelTemplateTest {
 
         new PrinterServiceImpl().printViaSocket(data, printer, "UTF-8");
     }
+
+
+    @Test
+    @Ignore
+    public void testWristbandHack() throws UnableToPrintViaSocketException {
+        int i = 0;
+
+        while(i < 1) {
+            StringBuffer data = new StringBuffer();
+
+            // TODO print width?
+            data.append("^XA^MTD^FWR^FO100,1600^AV^FDTest Test^FS^FO100,2100^AT^BY4^BC,150,N^FDABC^XZ");
+
+            Printer printer = new Printer();
+            printer.setIpAddress("10.3.18.100");
+            printer.setPort("9100");
+            printer.setId(1);
+
+            new PrinterServiceImpl().printViaSocket(data.toString(), printer, "UTF-8");
+
+            i++;
+        }
+    }
+
 
 }
