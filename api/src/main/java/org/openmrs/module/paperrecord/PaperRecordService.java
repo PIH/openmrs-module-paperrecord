@@ -14,17 +14,17 @@
 
 package org.openmrs.module.paperrecord;
 
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
-
 import org.openmrs.Location;
 import org.openmrs.Patient;
 import org.openmrs.PatientIdentifier;
 import org.openmrs.Person;
 import org.openmrs.annotation.Authorized;
 import org.openmrs.api.OpenmrsService;
-import org.openmrs.module.emrapi.printer.PrinterService;
+import org.openmrs.module.printer.PrinterService;
+
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Public API for functionality relating to paper medical records

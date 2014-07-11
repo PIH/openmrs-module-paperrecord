@@ -13,9 +13,9 @@ import org.openmrs.PersonName;
 import org.openmrs.api.context.Context;
 import org.openmrs.messagesource.MessageSourceService;
 import org.openmrs.module.emrapi.EmrApiProperties;
-import org.openmrs.module.emrapi.printer.Printer;
-import org.openmrs.module.emrapi.printer.PrinterServiceImpl;
-import org.openmrs.module.emrapi.printer.UnableToPrintViaSocketException;
+import org.openmrs.module.printer.Printer;
+import org.openmrs.module.printer.PrinterServiceImpl;
+import org.openmrs.module.printer.UnableToPrintViaSocketException;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 

@@ -14,14 +14,6 @@
 
 package org.openmrs.module.paperrecord;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Calendar;
-import java.util.Collections;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
-
 import org.hamcrest.core.Is;
 import org.junit.Before;
 import org.junit.Test;
@@ -38,8 +30,6 @@ import org.openmrs.api.PatientService;
 import org.openmrs.api.context.Context;
 import org.openmrs.messagesource.MessageSourceService;
 import org.openmrs.module.emrapi.EmrApiProperties;
-import org.openmrs.module.emrapi.printer.Printer;
-import org.openmrs.module.emrapi.printer.PrinterService;
 import org.openmrs.module.idgen.service.IdentifierSourceService;
 import org.openmrs.module.paperrecord.PaperRecordRequest.Status;
 import org.openmrs.module.paperrecord.db.PaperRecordMergeRequestDAO;
@@ -47,8 +37,18 @@ import org.openmrs.module.paperrecord.db.PaperRecordRequestDAO;
 import org.openmrs.module.paperrecord.template.IdCardLabelTemplate;
 import org.openmrs.module.paperrecord.template.PaperFormLabelTemplate;
 import org.openmrs.module.paperrecord.template.PaperRecordLabelTemplate;
+import org.openmrs.module.printer.Printer;
+import org.openmrs.module.printer.PrinterService;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Calendar;
+import java.util.Collections;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
 
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertEquals;

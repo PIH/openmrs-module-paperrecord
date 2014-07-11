@@ -14,15 +14,6 @@
 
 package org.openmrs.module.paperrecord;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-
 import org.apache.commons.lang.StringUtils;
 import org.openmrs.Location;
 import org.openmrs.Patient;
@@ -36,8 +27,6 @@ import org.openmrs.api.context.Context;
 import org.openmrs.api.impl.BaseOpenmrsService;
 import org.openmrs.messagesource.MessageSourceService;
 import org.openmrs.module.emrapi.EmrApiProperties;
-import org.openmrs.module.emrapi.printer.Printer;
-import org.openmrs.module.emrapi.printer.PrinterService;
 import org.openmrs.module.emrapi.utils.GeneralUtils;
 import org.openmrs.module.idgen.service.IdentifierSourceService;
 import org.openmrs.module.paperrecord.db.PaperRecordMergeRequestDAO;
@@ -46,9 +35,20 @@ import org.openmrs.module.paperrecord.template.IdCardLabelTemplate;
 import org.openmrs.module.paperrecord.template.LabelTemplate;
 import org.openmrs.module.paperrecord.template.PaperFormLabelTemplate;
 import org.openmrs.module.paperrecord.template.PaperRecordLabelTemplate;
+import org.openmrs.module.printer.Printer;
+import org.openmrs.module.printer.PrinterService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
 
 import static org.openmrs.module.paperrecord.PaperRecordRequest.ASSIGNED_STATUSES;
 import static org.openmrs.module.paperrecord.PaperRecordRequest.PENDING_STATUSES;
