@@ -172,28 +172,4 @@ public class DefaultZplPaperFormLabelTemplateTest {
         new PrinterServiceImpl().printViaSocket(data, printer, "UTF-8");
     }
 
-
-    @Test
-    @Ignore
-    public void testWristbandHack() throws UnableToPrintViaSocketException {
-        int i = 0;
-
-        while(i < 1) {
-            StringBuffer data = new StringBuffer();
-
-            // TODO print width?
-            data.append("^XA^MTD^FWR^FO100,1600^AV^FDTest Test^FS^FO100,2100^AT^BY4^BC,150,N^FDABC^XZ");
-
-            Printer printer = new Printer();
-            printer.setIpAddress("10.3.18.100");
-            printer.setPort("9100");
-            printer.setId(1);
-
-            new PrinterServiceImpl().printViaSocket(data.toString(), printer, "UTF-8");
-
-            i++;
-        }
-    }
-
-
 }
