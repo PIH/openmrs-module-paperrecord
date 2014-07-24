@@ -46,6 +46,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -209,36 +210,55 @@ public class PaperRecordServiceImpl extends BaseOpenmrsService implements PaperR
         // medical record location)
         Location recordLocation = getMedicalRecordLocationAssociatedWith(location);
 
-        // fetch any pending request for this patient at this location
+        // fetch any pending request for this patient at this record location
         List<PaperRecordRequest> requests = paperRecordRequestDAO.findPaperRecordRequests(PENDING_STATUSES, patient,
                 recordLocation, null, null);
 
-        // if pending records exists, simply update that request location, don't issue a new request
-        // (there should rarely be more than one pending record for a single patient, but this *may* happen if two
-        // patients with pending records are merged)
-        for (PaperRecordRequest request : requests) {
+        // if pending records exists, simply update that request location and return it, don't issue a new request
+        // TODO: support multiple requests from different locations at the same time, instead of this "LAST REQUEST WINS" scenario
+       if (requests.size() > 0) {
+           if (requests.size() > 1) {
+                cancelDuplicateRequests(requests);
+           }
+           PaperRecordRequest request = requests.get(0);
+           request.setRequestLocation(requestLocation);
+           paperRecordRequestDAO.saveOrUpdate(request);
+           return request;
+       }
+       // if no pending record exists, create a new request
+        else {
+            // fetch the appropriate identifier (if it exists)
+            PatientIdentifier paperRecordIdentifier = GeneralUtils.getPatientIdentifier(patient,
+                    paperRecordProperties.getPaperRecordIdentifierType(), recordLocation);
+            String identifier = paperRecordIdentifier != null ? paperRecordIdentifier.getIdentifier() : null;
+
+            PaperRecordRequest request = new PaperRecordRequest();
+            request.setCreator(Context.getAuthenticatedUser());
+            request.setDateCreated(new Date());
+            request.setIdentifier(identifier);
+            request.setRecordLocation(recordLocation);
+            request.setPatient(patient);
             request.setRequestLocation(requestLocation);
+
             paperRecordRequestDAO.saveOrUpdate(request);
+
             return request;
+       }
+    }
+
+    /**
+     *  Double check and remove any duplicate requests by cancelling all but the first request in the list
+     *  (there should rarely be more than one pending record for a single patient, but this *may* happen if two
+     *  patients with pending records are merged)
+     **/
+    private void cancelDuplicateRequests(List<PaperRecordRequest> requests) {
+        Iterator<PaperRecordRequest> i = requests.iterator();
+        i.next();
+        while (i.hasNext()) {
+            PaperRecordRequest request = i.next();
+            request.updateStatus(Status.CANCELLED);
+            paperRecordRequestDAO.saveOrUpdate(request);
         }
-
-        // if no pending record exists, create a new request
-        // fetch the appropriate identifier (if it exists)
-        PatientIdentifier paperRecordIdentifier = GeneralUtils.getPatientIdentifier(patient,
-                paperRecordProperties.getPaperRecordIdentifierType(), recordLocation);
-        String identifier = paperRecordIdentifier != null ? paperRecordIdentifier.getIdentifier() : null;
-
-        PaperRecordRequest request = new PaperRecordRequest();
-        request.setCreator(Context.getAuthenticatedUser());
-        request.setDateCreated(new Date());
-        request.setIdentifier(identifier);
-        request.setRecordLocation(recordLocation);
-        request.setPatient(patient);
-        request.setRequestLocation(requestLocation);
-
-        paperRecordRequestDAO.saveOrUpdate(request);
-
-        return request;
     }
 
     @Override
