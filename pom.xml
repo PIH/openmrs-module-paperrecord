@@ -34,18 +34,18 @@
     </modules>
 
     <properties>
-        <openMRSVersion>1.9.4</openMRSVersion>
+        <openMRSVersion>1.9.8</openMRSVersion>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <emrapiVersion>1.3-SNAPSHOT</emrapiVersion>
-        <uiframeworkVersion>3.1</uiframeworkVersion>
-        <appuiVersion>1.1</appuiVersion>
-        <appframeworkVersion>2.1</appframeworkVersion>
-        <idgenVersion>2.5</idgenVersion>
-        <providermanagementVersion>1.1.3</providermanagementVersion>
-        <metadatasharingVersion>1.1.7.1</metadatasharingVersion>
-        <reportingVersion>0.9.1-SNAPSHOT</reportingVersion>
+        <emrapiVersion>1.4-SNAPSHOT</emrapiVersion>
+        <uiframeworkVersion>3.3-SNAPSHOT</uiframeworkVersion>
+        <appuiVersion>1.2-SNAPSHOT</appuiVersion>
+        <appframeworkVersion>2.2-SNAPSHOT</appframeworkVersion>
+        <idgenVersion>2.7</idgenVersion>
+        <providermanagementVersion>2.2-SNAPSHOT</providermanagementVersion>
+        <metadatasharingVersion>1.1.8</metadatasharingVersion>
+        <reportingVersion>0.9.2-SNAPSHOT</reportingVersion>
         <serializationxstreamVersion>0.2.7</serializationxstreamVersion>
-        <calculationVersion>1.0</calculationVersion>
+        <calculationVersion>1.1</calculationVersion>
         <printerVersion>1.0-SNAPSHOT</printerVersion>
         <coreappsVersion>1.1-SNAPSHOT</coreappsVersion>  <!-- currently only used for messages.properties -->
     </properties>
