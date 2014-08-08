@@ -81,17 +81,15 @@ import java.util.List;
 
 public class PaperRecordRequest extends BaseOpenmrsObject {
 
-    public static enum Status {OPEN, ASSIGNED_TO_PULL, ASSIGNED_TO_CREATE, SENT, RETURNED, CANCELLED}
+    public static enum Status {OPEN, ASSIGNED, SENT, RETURNED, CANCELLED}
 
-    public static List<Status> PENDING_STATUSES = Arrays.asList(Status.OPEN, Status.ASSIGNED_TO_PULL, Status.ASSIGNED_TO_CREATE);
-
-    public static List<Status> ASSIGNED_STATUSES = Arrays.asList(Status.ASSIGNED_TO_PULL, Status.ASSIGNED_TO_CREATE);
+    public static List<Status> PENDING_STATUSES = Arrays.asList(Status.OPEN, Status.ASSIGNED);
 
     private Integer requestId;
 
     private Patient patient;
 
-    private String identifier;
+    private List<PaperRecord> paperRecords;
 
     private Location recordLocation;
 
@@ -116,7 +114,6 @@ public class PaperRecordRequest extends BaseOpenmrsObject {
     public String toString() {
         String ret;
         ret = this.getId() == null ? "(no id) " : this.getId().toString() + " ";
-        ret += this.getIdentifier() + " ";
         ret += this.getPatient() == null ? "(no patient) " : this.getPatient().toString() + " ";
         ret += this.getRecordLocation() == null ? "(no record location) " : this.getRecordLocation().toString() + " ";
         ret += this.getRequestLocation() == null ? "(no request location) " : this.getRequestLocation().toString() + " ";
@@ -159,12 +156,12 @@ public class PaperRecordRequest extends BaseOpenmrsObject {
         this.patient = patient;
     }
 
-    public String getIdentifier() {
-        return identifier;
+    public List<PaperRecord> getPaperRecords() {
+        return paperRecords;
     }
 
-    public void setIdentifier(String identifier) {
-        this.identifier = identifier;
+    public void setPaperRecords(List<PaperRecord> paperRecords) {
+        this.paperRecords = paperRecords;
     }
 
     public Location getRecordLocation() {

@@ -109,13 +109,14 @@ public class FixPaperRecordRequestsForMerge implements PatientMergeAction {
 
     }
 
+    // TODO: I had to comment all of this out, fix...
     private boolean cancelOpenCreateRequest(List<PaperRecordRequest> requests) {
-        for (PaperRecordRequest request : requests) {
-            if (request.getStatus() == PaperRecordRequest.Status.OPEN && request.getIdentifier() == null) {
-                paperRecordService.markPaperRecordRequestAsCancelled(request);
-                return true;
-            }
-        }
+   //     for (PaperRecordRequest request : requests) {
+    //        if (request.getStatus() == PaperRecordRequest.Status.OPEN && request.getIdentifier() == null) {
+   //             paperRecordService.markPaperRecordRequestAsCancelled(request);
+    //            return true;
+     //       }
+    //    }
         return false;
     }
 

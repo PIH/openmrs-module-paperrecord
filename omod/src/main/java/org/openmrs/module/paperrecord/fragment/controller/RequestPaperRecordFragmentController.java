@@ -52,7 +52,12 @@ public class RequestPaperRecordFragmentController {
                                             UiSessionContext uiSessionContext) throws UnableToPrintLabelException {
 
 
+        // TODO: change this to assureHasPaperMedicalRecordNumber?
         service.createPaperMedicalRecordNumber(patient, location);
+
+        // TODO: add create paper record method here?
+        // TODO: the create record will call the assure has paper medical record number
+        // TODO: should this fail if the patient already has a paper record "please place a request?"
 
         try {
             service.printPaperRecordLabels(patient, location, 1);       // label for the paper record itself
@@ -78,6 +83,8 @@ public class RequestPaperRecordFragmentController {
                                               @SpringBean("printerService") PrinterService printerService,
                                               UiSessionContext uiSessionContext) throws UnableToPrintLabelException {
 
+        // TODO: add assure paper medical record number
+
         try {
             service.printPaperRecordLabels(patient, location, 1);     // we print one label by default
             Printer printer = printerService.getDefaultPrinter(location, Printer.Type.LABEL);
@@ -97,6 +104,8 @@ public class RequestPaperRecordFragmentController {
                                               @SpringBean("printerService") PrinterService printerService,
                                               UiSessionContext uiSessionContext) throws UnableToPrintLabelException {
 
+        // TODO: add assure paper medical record number
+
         try {
             service.printPaperFormLabels(patient, location, 1);     // we print one label by default
             Printer printer = printerService.getDefaultPrinter(location, Printer.Type.LABEL);
@@ -115,6 +124,8 @@ public class RequestPaperRecordFragmentController {
                                          @SpringBean("paperRecordService") PaperRecordService service,
                                          @SpringBean("printerService") PrinterService printerService,
                                          UiSessionContext uiSessionContext) throws UnableToPrintLabelException {
+
+        // TODO: add assure paper medical record number (?)
 
         try {
             service.printIdCardLabel(patient, location);

@@ -191,6 +191,8 @@ public interface PaperRecordService extends OpenmrsService {
     // TODO: once we have multiple medical record locations, we will need to add location as a criteria (see paperRecordExistsWithIdentifier)
     PaperRecordRequest getPendingPaperRecordRequestByIdentifier(String identifier);
 
+
+    // TODO: can this method be deleted
     /**
      * Returns the assigned (i.e, ASSIGNED_TO_PULL or ASSIGNED_TO_CREATE) paper record request (if any) for the record with the specified identifier
      * (there should only be one assigned request per identifier & *location*)
@@ -346,6 +348,8 @@ public interface PaperRecordService extends OpenmrsService {
     @Authorized(PaperRecordConstants.PRIVILEGE_PAPER_RECORDS_MANAGE_REQUESTS)
     List<PaperRecordMergeRequest> getOpenPaperRecordMergeRequests();
 
+    // TODO: authorized, javadoc
+    List<PaperRecord> getPaperRecords(Patient patient, Location paperRecordLocation);
 
     /**
      * Expires all pending pull requests (ie, those pull requests with status OPEN or ASSIGNED_TO_PULL) that

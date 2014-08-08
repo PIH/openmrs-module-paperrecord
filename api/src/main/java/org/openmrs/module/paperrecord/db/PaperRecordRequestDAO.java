@@ -23,6 +23,8 @@ import java.util.List;
 
 public interface PaperRecordRequestDAO extends SingleClassDAO<PaperRecordRequest> {
 
+    // TODO: change implementation to work properly!
+
     /**
      * Returns all the paper record requests for the given patient and given location with ANY of the specified statuses
      *
@@ -30,10 +32,10 @@ public interface PaperRecordRequestDAO extends SingleClassDAO<PaperRecordRequest
      * @param patient
      * @param recordLocation
      * @param identifier
-     * @param hasIdentifier  restricts based on whether or not the identifier field null
+     * @param hasPaperRecords  restricts whether there are one or more paper records associatd with this request
      * @return the paper record requests for the given patient and given record location with ANY of the specified statuses
      */
     List<PaperRecordRequest> findPaperRecordRequests(List<PaperRecordRequest.Status> statusList, Patient patient,
-                                                     Location recordLocation, String identifier, Boolean hasIdentifier);
+                                                     Location recordLocation, String identifier, Boolean hasPaperRecords);
 
 }
