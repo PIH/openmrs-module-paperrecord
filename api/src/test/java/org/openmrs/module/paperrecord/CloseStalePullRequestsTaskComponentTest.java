@@ -18,8 +18,10 @@ import org.apache.commons.lang.time.DateUtils;
 import org.junit.Before;
 import org.junit.Test;
 import org.openmrs.Location;
+import org.openmrs.PatientIdentifier;
 import org.openmrs.Person;
 import org.openmrs.api.LocationService;
+import org.openmrs.api.PatientService;
 import org.openmrs.api.PersonService;
 import org.openmrs.scheduler.TaskDefinition;
 import org.openmrs.test.BaseModuleContextSensitiveTest;
@@ -42,6 +44,9 @@ public class CloseStalePullRequestsTaskComponentTest extends BaseModuleContextSe
     @Autowired
     private PersonService personService;
 
+    @Autowired
+    private PatientService patientService;
+
     @Before
     public void beforeAllTests() throws Exception {
         executeDataSet("paperRecordTestDataset.xml");
@@ -54,14 +59,23 @@ public class CloseStalePullRequestsTaskComponentTest extends BaseModuleContextSe
         Location recordLocation = locationService.getLocation(1);
         Location requestLocation = locationService.getLocation(2);
 
+        // from the custom data set
+        PatientIdentifier identifier = patientService.getPatientIdentifier(2001);
+
         Date now = new Date();
 
+        PaperRecord paperRecord = new PaperRecord();
+        paperRecord.setPatientIdentifier(identifier);
+        paperRecord.setRecordLocation(recordLocation);
+        paperRecord.updateStatus(PaperRecord.Status.ACTIVE);
+        paperRecordService.savePaperRecord(paperRecord);
+
         PaperRecordRequest beforeExpireDate = new PaperRecordRequest();
-        beforeExpireDate.setIdentifier("ABC");
+        beforeExpireDate.setPaperRecord(paperRecord);
         beforeExpireDate.setRequestLocation(requestLocation);
         beforeExpireDate.setRecordLocation(recordLocation);
         beforeExpireDate.setAssignee(person);
-        beforeExpireDate.updateStatus(PaperRecordRequest.Status.ASSIGNED_TO_PULL);
+        beforeExpireDate.updateStatus(PaperRecordRequest.Status.ASSIGNED);
         paperRecordService.savePaperRecordRequest(beforeExpireDate);
 
         // change the date created (which we can't do when we first persist it since it is set automatically)
@@ -69,11 +83,11 @@ public class CloseStalePullRequestsTaskComponentTest extends BaseModuleContextSe
         paperRecordService.savePaperRecordRequest(beforeExpireDate);
 
         PaperRecordRequest afterExpireDate = new PaperRecordRequest();
-        afterExpireDate.setIdentifier("DEF");
+        afterExpireDate.setPaperRecord(paperRecord);
         afterExpireDate.setRequestLocation(requestLocation);
         afterExpireDate.setRecordLocation(recordLocation);
         afterExpireDate.setAssignee(person);
-        afterExpireDate.updateStatus(PaperRecordRequest.Status.ASSIGNED_TO_PULL);
+        afterExpireDate.updateStatus(PaperRecordRequest.Status.ASSIGNED);
         paperRecordService.savePaperRecordRequest(afterExpireDate);
 
         // change the date created (which we can't do when we first persist it since it is set automatically)
@@ -101,14 +115,23 @@ public class CloseStalePullRequestsTaskComponentTest extends BaseModuleContextSe
         Location recordLocation = locationService.getLocation(1);
         Location requestLocation = locationService.getLocation(2);
 
+        // from the custom data set
+        PatientIdentifier identifier = patientService.getPatientIdentifier(2001);
+
         Date now = new Date();
 
+        PaperRecord paperRecord = new PaperRecord();
+        paperRecord.setPatientIdentifier(identifier);
+        paperRecord.setRecordLocation(recordLocation);
+        paperRecord.updateStatus(PaperRecord.Status.ACTIVE);
+        paperRecordService.savePaperRecord(paperRecord);
+
         PaperRecordRequest beforeExpireDate = new PaperRecordRequest();
-        beforeExpireDate.setIdentifier("ABC");
+        beforeExpireDate.setPaperRecord(paperRecord);
         beforeExpireDate.setRequestLocation(requestLocation);
         beforeExpireDate.setRecordLocation(recordLocation);
         beforeExpireDate.setAssignee(person);
-        beforeExpireDate.updateStatus(PaperRecordRequest.Status.ASSIGNED_TO_PULL);
+        beforeExpireDate.updateStatus(PaperRecordRequest.Status.ASSIGNED);
         paperRecordService.savePaperRecordRequest(beforeExpireDate);
 
         // change the date created (which we can't do when we first persist it since it is set automatically)
@@ -116,11 +139,11 @@ public class CloseStalePullRequestsTaskComponentTest extends BaseModuleContextSe
         paperRecordService.savePaperRecordRequest(beforeExpireDate);
 
         PaperRecordRequest afterExpireDate = new PaperRecordRequest();
-        afterExpireDate.setIdentifier("DEF");
+        afterExpireDate.setPaperRecord(paperRecord);
         afterExpireDate.setRequestLocation(requestLocation);
         afterExpireDate.setRecordLocation(recordLocation);
         afterExpireDate.setAssignee(person);
-        afterExpireDate.updateStatus(PaperRecordRequest.Status.ASSIGNED_TO_PULL);
+        afterExpireDate.updateStatus(PaperRecordRequest.Status.ASSIGNED);
         paperRecordService.savePaperRecordRequest(afterExpireDate);
 
         // change the date created (which we can't do when we first persist it since it is set automatically)

@@ -14,11 +14,9 @@
 
 package org.openmrs.module.paperrecord;
 
-import org.hamcrest.core.Is;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.ArgumentCaptor;
 import org.mockito.ArgumentMatcher;
 import org.openmrs.Location;
 import org.openmrs.Patient;
@@ -28,10 +26,10 @@ import org.openmrs.Person;
 import org.openmrs.User;
 import org.openmrs.api.PatientService;
 import org.openmrs.api.context.Context;
-import org.openmrs.messagesource.MessageSourceService;
 import org.openmrs.module.emrapi.EmrApiProperties;
 import org.openmrs.module.idgen.service.IdentifierSourceService;
 import org.openmrs.module.paperrecord.PaperRecordRequest.Status;
+import org.openmrs.module.paperrecord.db.PaperRecordDAO;
 import org.openmrs.module.paperrecord.db.PaperRecordMergeRequestDAO;
 import org.openmrs.module.paperrecord.db.PaperRecordRequestDAO;
 import org.openmrs.module.paperrecord.template.IdCardLabelTemplate;
@@ -66,7 +64,6 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
-import static org.openmrs.module.paperrecord.PaperRecordRequest.ASSIGNED_STATUSES;
 import static org.openmrs.module.paperrecord.PaperRecordRequest.PENDING_STATUSES;
 import static org.powermock.api.mockito.PowerMockito.mockStatic;
 
@@ -76,7 +73,9 @@ public class PaperRecordServiceTest {
 
     private PaperRecordServiceImpl paperRecordService;
 
-    private PaperRecordRequestDAO mockPaperRecordDAO;
+    private PaperRecordDAO mockPaperRecordDAO;
+
+    private PaperRecordRequestDAO mockPaperRecordRequestDAO;
 
     private PaperRecordMergeRequestDAO mockPaperRecordMergeRequestDAO;
 
@@ -109,7 +108,8 @@ public class PaperRecordServiceTest {
         authenticatedUser = new User();
         when(Context.getAuthenticatedUser()).thenReturn(authenticatedUser);
 
-        mockPaperRecordDAO = mock(PaperRecordRequestDAO.class);
+        mockPaperRecordDAO = mock(PaperRecordDAO.class);
+        mockPaperRecordRequestDAO = mock(PaperRecordRequestDAO.class);
         mockPaperRecordMergeRequestDAO = mock(PaperRecordMergeRequestDAO.class);
         mockIdentifierSourceService = mock(IdentifierSourceService.class);
         mockPatientService = mock(PatientService.class);
@@ -129,7 +129,8 @@ public class PaperRecordServiceTest {
         when(mockEmrApiProperties.getPrimaryIdentifierType()).thenReturn(primaryIdentifierType);
 
         paperRecordService = new PaperRecordServiceStub(paperRecordIdentifierType);
-        paperRecordService.setPaperRecordRequestDAO(mockPaperRecordDAO);
+        paperRecordService.setPaperRecordDAO(mockPaperRecordDAO);
+        paperRecordService.setPaperRecordRequestDAO(mockPaperRecordRequestDAO);
         paperRecordService.setPaperRecordMergeRequestDAO(mockPaperRecordMergeRequestDAO);
         paperRecordService.setIdentifierSourceService(mockIdentifierSourceService);
         paperRecordService.setPatientService(mockPatientService);
@@ -229,15 +230,21 @@ public class PaperRecordServiceTest {
         Location medicalRecordLocation = createMedicalRecordLocation();
         Location requestLocation = createLocation(4, "Outpatient Clinic");
 
-        PatientIdentifier identifer = createIdentifier(medicalRecordLocation, "ABCZYX");
-        patient.addIdentifier(identifer);
+        PatientIdentifier identifier = createIdentifier(medicalRecordLocation, "ABCZYX");
+        patient.addIdentifier(identifier);
+
+        PaperRecord paperRecord = new PaperRecord();
+        paperRecord.setRecordLocation(medicalRecordLocation);
+        paperRecord.setPatientIdentifier(identifier);
+        when(mockPaperRecordDAO.findPaperRecords(patient, medicalRecordLocation)).thenReturn(Collections.singletonList(paperRecord));
 
         PaperRecordRequest expectedRequest = createPaperRecordRequest(patient, medicalRecordLocation, "ABCZYX");
         IsExpectedRequest expectedRequestMatcher = new IsExpectedRequest(expectedRequest);
 
-        PaperRecordRequest returnedRequest = paperRecordService.requestPaperRecord(patient, medicalRecordLocation, requestLocation);
-        verify(mockPaperRecordDAO).saveOrUpdate(argThat(expectedRequestMatcher));
-        expectedRequestMatcher.matches(returnedRequest);
+        List<PaperRecordRequest> returnedRequests = paperRecordService.requestPaperRecord(patient, medicalRecordLocation, requestLocation);
+        verify(mockPaperRecordRequestDAO).saveOrUpdate(argThat(expectedRequestMatcher));
+        assertThat(returnedRequests.size(), is(1));
+        expectedRequestMatcher.matches(returnedRequests.get(0));
     }
 
     private Location createMedicalRecordLocation() {
@@ -297,90 +304,44 @@ public class PaperRecordServiceTest {
         PatientIdentifier identifer = createIdentifier(medicalRecordLocation, "ABCZYX");
         patient.addIdentifier(identifer);
 
-        PaperRecordRequest expectedRequest = createPaperRecordRequest(patient, medicalRecordLocation, "ABCZYX");
+        PaperRecord paperRecord = new PaperRecord();
+        paperRecord.setPatientIdentifier(identifer);
+        paperRecord.setRecordLocation(medicalRecordLocation);
+        when(mockPaperRecordDAO.findPaperRecords(patient, medicalRecordLocation)).thenReturn(Collections.singletonList(paperRecord));
 
+        PaperRecordRequest expectedRequest = createPaperRecordRequest(patient, medicalRecordLocation, "ABCZYX");
         IsExpectedRequest expectedRequestMatcher = new IsExpectedRequest(expectedRequest);
 
-        PaperRecordRequest returnedRequest = paperRecordService.requestPaperRecord(patient, medicalRecordLocation, requestLocation);
-        verify(mockPaperRecordDAO).saveOrUpdate(argThat(expectedRequestMatcher));
-        expectedRequestMatcher.matches(returnedRequest);
+        List<PaperRecordRequest> returnedRequests = paperRecordService.requestPaperRecord(patient, medicalRecordLocation, requestLocation);
+        verify(mockPaperRecordRequestDAO).saveOrUpdate(argThat(expectedRequestMatcher));
+        assertThat(returnedRequests.size(), is(1));
+        expectedRequestMatcher.matches(returnedRequests.get(0));
     }
 
     @Test
-    public void testRequestPaperRecordWhenPatientHasNoValidIdentifier() throws Exception {
+    public void testRequestPaperRecordWhenPatientHasNoPaperRecordIdentifier() throws Exception {
 
-        MessageSourceService messageSourceService = mock(MessageSourceService.class);
-        when(messageSourceService.getMessage("emr.missingPaperRecordIdentifierCode")).thenReturn("UNKNOWN");
-        ((PaperRecordServiceImpl) paperRecordService).setMessageSourceService(messageSourceService);
+        String paperMedicalRecordNumberAsExpected = "A000001";
+        when(mockIdentifierSourceService.generateIdentifier(paperRecordIdentifierType, "generating a new dossier number")).thenReturn(paperMedicalRecordNumberAsExpected);
 
         Patient patient = new Patient();
         patient.setId(15);
 
         Location medicalRecordLocation = createMedicalRecordLocation();
-
         Location requestLocation = createLocation(4, "Outpatient Clinic");
 
-        PaperRecordRequest expectedRequest = createPaperRecordRequest(patient, medicalRecordLocation, null);
+        PaperRecordRequest expectedRequest = createPaperRecordRequest(patient, medicalRecordLocation, "A000001");
 
         IsExpectedRequest expectedRequestMatcher = new IsExpectedRequest(expectedRequest);
 
-        PaperRecordRequest returnedRequest = paperRecordService.requestPaperRecord(patient, medicalRecordLocation, requestLocation);
-        verify(mockPaperRecordDAO).saveOrUpdate(argThat(expectedRequestMatcher));
-        expectedRequestMatcher.matches(returnedRequest);
+        List<PaperRecordRequest> returnedRequests = paperRecordService.requestPaperRecord(patient, medicalRecordLocation, requestLocation);
+        verify(mockPaperRecordRequestDAO).saveOrUpdate(argThat(expectedRequestMatcher));
+        assertThat(returnedRequests.size(), is(1));
+        expectedRequestMatcher.matches(returnedRequests.get(0));
     }
 
     @Test
-    public void testAssignRequestsWithoutIdentifiers() throws Exception {
-
-        when(mockIdCardLabelTemplate.generateLabel(any(Patient.class), anyString())).thenReturn("some data");
-
-        Person assignTo = new Person(15);
-        Patient patient = new Patient();
-        Location location = new Location();
-
-        List<PaperRecordRequest> requests = new ArrayList<PaperRecordRequest>();
-        requests.add(buildPaperRecordRequestWithoutIdentifier(patient, location));
-        requests.add(buildPaperRecordRequestWithoutIdentifier(patient, location));
-        requests.add(buildPaperRecordRequestWithoutIdentifier(patient, location));
-
-        paperRecordService.assignRequests(requests, assignTo, null);
-
-        verify(mockPaperRecordDAO, times(3)).saveOrUpdate(argThat(new IsAssignedTo(assignTo, PaperRecordRequest.Status.ASSIGNED_TO_CREATE)));
-    }
-
-    @Test
-    public void testAssignRequestsWithoutIdentifiersShouldUpdateIdentifier() throws Exception {
-
-        Person assignTo = new Person(15);
-        Patient patient = new Patient();
-        Location location = new Location();
-
-        List<PaperRecordRequest> requests = new ArrayList<PaperRecordRequest>();
-        requests.add(buildPaperRecordRequestWithoutIdentifier(patient, location));
-        requests.add(buildPaperRecordRequestWithoutIdentifier(patient, location));
-        requests.add(buildPaperRecordRequestWithoutIdentifier(patient, location));
-
-        // even thought the requests don't have an identifier, give the patient one
-        PatientIdentifier identifier = new PatientIdentifier();
-        identifier.setPatient(patient);
-        identifier.setLocation(location);
-        identifier.setIdentifierType(paperRecordIdentifierType);
-        identifier.setIdentifier("ABC");
-        patient.addIdentifier(identifier);
-
-        paperRecordService.assignRequests(requests, assignTo, null);
-
-        // because the patient has an identifier, these should now be pull requests
-        verify(mockPaperRecordDAO, times(3)).saveOrUpdate(argThat(new IsAssignedTo(assignTo, PaperRecordRequest.Status.ASSIGNED_TO_PULL)));
-
-        for (PaperRecordRequest request : requests) {
-            assertThat(request.getIdentifier(), is("ABC"));
-        }
-    }
-
-
-    @Test
-    public void testAssignRequestsWithIdentifiers() throws Exception {
+    public void testAssignRequest() throws Exception {
 
         Person assignTo = new Person(15);
         Patient patient = new Patient(1);
@@ -402,39 +363,8 @@ public class PaperRecordServiceTest {
 
         assertThat(response.get("success").size(), is(3));
 
-        verify(mockPaperRecordDAO, times(3)).saveOrUpdate(argThat(new IsAssignedTo(assignTo, PaperRecordRequest.Status.ASSIGNED_TO_PULL)));
+        verify(mockPaperRecordRequestDAO, times(3)).saveOrUpdate(argThat(new IsAssignedTo(assignTo, Status.ASSIGNED)));
     }
-
-    @Test
-    public void testAssignRequestsWithIdentifiersShouldUpdateIdentifier() throws Exception {
-
-        Person assignTo = new Person(15);
-        Patient patient = new Patient(1);
-        Location location = new Location(1);
-
-        PatientIdentifier identifier = new PatientIdentifier();
-        identifier.setPatient(patient);
-        identifier.setLocation(location);
-        identifier.setIdentifierType(paperRecordIdentifierType);
-        identifier.setIdentifier("DEF");   // note that this is a different identifier from what we are assigning to the requests
-        patient.addIdentifier(identifier);
-
-        List<PaperRecordRequest> requests = new ArrayList<PaperRecordRequest>();
-        requests.add(buildPaperRecordRequestWithIdentifier(patient, location, "ABC"));
-        requests.add(buildPaperRecordRequestWithIdentifier(patient, location, "ABC"));
-        requests.add(buildPaperRecordRequestWithIdentifier(patient, location, "ABC"));
-
-        Map<String, List<String>> response = paperRecordService.assignRequests(requests, assignTo, null);
-
-        assertThat(response.get("success").size(), is(3));
-
-        verify(mockPaperRecordDAO, times(3)).saveOrUpdate(argThat(new IsAssignedTo(assignTo, PaperRecordRequest.Status.ASSIGNED_TO_PULL)));
-
-        for (PaperRecordRequest request : requests) {
-            assertThat(request.getIdentifier(), is("DEF"));
-        }
-    }
-
 
     @Test(expected = IllegalArgumentException.class)
     public void testAssignRequestsShouldFailIfRequestsNull() throws Exception {
@@ -464,9 +394,9 @@ public class PaperRecordServiceTest {
 
         Patient patient = new Patient();
 
-        PatientIdentifier identifier = new PatientIdentifier(paperMedicalRecordNumberAsExpected, paperRecordIdentifierType, createMedicalRecordLocation());
+        //PatientIdentifier identifier = new PatientIdentifier(paperMedicalRecordNumberAsExpected, paperRecordIdentifierType, createMedicalRecordLocation());
 
-        String paperMedicalRecordNumber = paperRecordService.createPaperMedicalRecordNumber(patient, createMedicalRecordLocation()).getIdentifier();
+        String paperMedicalRecordNumber = paperRecordService.assureHasPaperRecord(patient, createMedicalRecordLocation()).getPatientIdentifier().getIdentifier();
 
         // cannot compare using one identifier because the equals is not implemented correctly
         verify(mockPatientService).savePatientIdentifier(any(PatientIdentifier.class));
@@ -490,14 +420,15 @@ public class PaperRecordServiceTest {
         request.setRequestLocation(requestLocation);
         request.setDateCreated(new Date());
 
-        when(mockPaperRecordDAO.findPaperRecordRequests(argThat(new StatusListOf(PENDING_STATUSES)),
-                eq(patient), eq(medicalRecordLocation), argThat(new NullString()), argThat(new NullBoolean()))).thenReturn(Collections.singletonList(request));
+        when(mockPaperRecordRequestDAO.findPaperRecordRequests(argThat(new StatusListOf(PENDING_STATUSES)),
+                eq(patient), eq(medicalRecordLocation), argThat(new NullString()))).thenReturn(Collections.singletonList(request));
         IsExpectedRequest expectedRequestMatcher = new IsExpectedRequest(request);
 
         // the returned request should be the existing request
-        PaperRecordRequest returnedRequest = paperRecordService.requestPaperRecord(patient, medicalRecordLocation, requestLocation);
-        verify(mockPaperRecordDAO).saveOrUpdate(argThat(expectedRequestMatcher));
-        expectedRequestMatcher.matches(request);
+        List<PaperRecordRequest> returnedRequest = paperRecordService.requestPaperRecord(patient, medicalRecordLocation, requestLocation);
+        verify(mockPaperRecordRequestDAO).saveOrUpdate(argThat(expectedRequestMatcher));
+        assertThat(returnedRequest.size(), is(1));
+        expectedRequestMatcher.matches(returnedRequest.get(0));
 
     }
 
@@ -523,14 +454,14 @@ public class PaperRecordServiceTest {
         expectedRequest.setRequestLocation(newRequestLocation);
         expectedRequest.setDateCreated(new Date());
 
-        when(mockPaperRecordDAO.findPaperRecordRequests(argThat(new StatusListOf(PENDING_STATUSES)),
-                eq(patient), eq(medicalRecordLocation), argThat(new NullString()), argThat(new NullBoolean()))).thenReturn(Collections.singletonList(request));
+        when(mockPaperRecordRequestDAO.findPaperRecordRequests(argThat(new StatusListOf(PENDING_STATUSES)),
+                eq(patient), eq(medicalRecordLocation), argThat(new NullString()))).thenReturn(Collections.singletonList(request));
         IsExpectedRequest expectedRequestMatcher = new IsExpectedRequest(request);
 
         // the returned request should be the existing request
-        PaperRecordRequest returnedRequest = paperRecordService.requestPaperRecord(patient, medicalRecordLocation, newRequestLocation);
-        verify(mockPaperRecordDAO).saveOrUpdate(argThat(expectedRequestMatcher));
-        expectedRequestMatcher.matches(request);
+        List<PaperRecordRequest> returnedRequests = paperRecordService.requestPaperRecord(patient, medicalRecordLocation, newRequestLocation);
+        verify(mockPaperRecordRequestDAO).saveOrUpdate(argThat(expectedRequestMatcher));
+        expectedRequestMatcher.matches(returnedRequests.get(0));
 
     }
 
@@ -551,8 +482,8 @@ public class PaperRecordServiceTest {
         request.setDateCreated(new Date());
         request.updateStatus(Status.OPEN);
 
-        when(mockPaperRecordDAO.findPaperRecordRequests(argThat(new StatusListOf(PENDING_STATUSES)),
-                argThat(new NullPatient()), argThat(new NullLocation()), eq(identifier), argThat(new NullBoolean()))).thenReturn(Collections.singletonList(request));
+        when(mockPaperRecordRequestDAO.findPaperRecordRequests(argThat(new StatusListOf(PENDING_STATUSES)),
+                argThat(new NullPatient()), argThat(new NullLocation()), eq(identifier))).thenReturn(Collections.singletonList(request));
         IsExpectedRequest expectedRequestMatcher = new IsExpectedRequest(request);
 
         PaperRecordRequest returnedRequest = paperRecordService.getPendingPaperRecordRequestByIdentifier(identifier);
@@ -584,20 +515,19 @@ public class PaperRecordServiceTest {
         request.updateStatus(Status.OPEN);
 
         when(mockPatientService.getPatients(null, "Patient_ID", Collections.singletonList(primaryIdentifierType), true)).thenReturn(Collections.singletonList(patient));
-        when(mockPaperRecordDAO.findPaperRecordRequests(argThat(new StatusListOf(PENDING_STATUSES)),
-                eq(patient), argThat(new NullLocation()), argThat(new NullString()), argThat(new NullBoolean()))).thenReturn(Collections.singletonList(request));
+        when(mockPaperRecordRequestDAO.findPaperRecordRequests(argThat(new StatusListOf(PENDING_STATUSES)),
+                eq(patient), argThat(new NullLocation()), argThat(new NullString()))).thenReturn(Collections.singletonList(request));
         IsExpectedRequest expectedRequestMatcher = new IsExpectedRequest(request);
 
         PaperRecordRequest returnedRequest = paperRecordService.getPendingPaperRecordRequestByIdentifier("Patient_ID");
         expectedRequestMatcher.matches(returnedRequest);
-
     }
 
     @Test
     public void getPendingPaperRecordRequestByIdentifierShouldReturnNullIfNoActiveRequestWithThatIdentifier() {
         String identifier = "ABC123";
-        when(mockPaperRecordDAO.findPaperRecordRequests(argThat(new StatusListOf(PENDING_STATUSES)),
-                argThat(new NullPatient()), argThat(new NullLocation()), eq(identifier), argThat(new NullBoolean()))).thenReturn(null);
+        when(mockPaperRecordRequestDAO.findPaperRecordRequests(argThat(new StatusListOf(PENDING_STATUSES)),
+                argThat(new NullPatient()), argThat(new NullLocation()), eq(identifier))).thenReturn(null);
         assertNull(paperRecordService.getPendingPaperRecordRequestByIdentifier(identifier));
     }
 
@@ -616,15 +546,14 @@ public class PaperRecordServiceTest {
         request.setId(10);
         request.setRequestLocation(requestLocation);
         request.setDateCreated(new Date());
-        request.updateStatus(Status.ASSIGNED_TO_PULL);
+        request.updateStatus(Status.ASSIGNED);
 
-        when(mockPaperRecordDAO.findPaperRecordRequests(argThat(new StatusListOf(ASSIGNED_STATUSES)),
-                argThat(new NullPatient()), argThat(new NullLocation()), eq(identifier), argThat(new NullBoolean()))).thenReturn(Collections.singletonList(request));
+        when(mockPaperRecordRequestDAO.findPaperRecordRequests(argThat(new StatusListOf(Collections.singletonList(Status.ASSIGNED))),
+                argThat(new NullPatient()), argThat(new NullLocation()), eq(identifier))).thenReturn(Collections.singletonList(request));
         IsExpectedRequest expectedRequestMatcher = new IsExpectedRequest(request);
 
         PaperRecordRequest returnedRequest = paperRecordService.getAssignedPaperRecordRequestByIdentifier(identifier);
         expectedRequestMatcher.matches(returnedRequest);
-
     }
 
     @Test
@@ -648,11 +577,11 @@ public class PaperRecordServiceTest {
         request.setId(10);
         request.setRequestLocation(requestLocation);
         request.setDateCreated(new Date());
-        request.updateStatus(Status.ASSIGNED_TO_PULL);
+        request.updateStatus(Status.ASSIGNED);
 
         when(mockPatientService.getPatients(null, "Patient_ID", Collections.singletonList(primaryIdentifierType), true)).thenReturn(Collections.singletonList(patient));
-        when(mockPaperRecordDAO.findPaperRecordRequests(argThat(new StatusListOf(ASSIGNED_STATUSES)),
-                eq(patient), argThat(new NullLocation()), argThat(new NullString()), argThat(new NullBoolean()))).thenReturn(Collections.singletonList(request));
+        when(mockPaperRecordRequestDAO.findPaperRecordRequests(argThat(new StatusListOf(Collections.singletonList(Status.ASSIGNED))),
+                eq(patient), argThat(new NullLocation()), argThat(new NullString()))).thenReturn(Collections.singletonList(request));
         IsExpectedRequest expectedRequestMatcher = new IsExpectedRequest(request);
 
         PaperRecordRequest returnedRequest = paperRecordService.getAssignedPaperRecordRequestByIdentifier("Patient_ID");
@@ -663,8 +592,8 @@ public class PaperRecordServiceTest {
     @Test
     public void getAssignedPaperRecordRequestByIdentifierShouldReturnNullIfNoActiveRequestWithThatIdentifier() {
         String identifier = "ABC123";
-        when(mockPaperRecordDAO.findPaperRecordRequests(argThat(new StatusListOf(ASSIGNED_STATUSES)),
-                argThat(new NullPatient()), argThat(new NullLocation()), eq(identifier), argThat(new NullBoolean()))).thenReturn(null);
+        when(mockPaperRecordRequestDAO.findPaperRecordRequests(argThat(new StatusListOf(Collections.singletonList(Status.ASSIGNED))),
+                argThat(new NullPatient()), argThat(new NullLocation()), eq(identifier))).thenReturn(null);
         assertNull(paperRecordService.getAssignedPaperRecordRequestByIdentifier(identifier));
     }
 
@@ -684,8 +613,8 @@ public class PaperRecordServiceTest {
         request.setRequestLocation(requestLocation);
         request.setDateCreated(new Date());
 
-        when(mockPaperRecordDAO.findPaperRecordRequests(argThat(new StatusListOf(ASSIGNED_STATUSES)),
-                argThat(new NullPatient()), argThat(new NullLocation()), eq(identifier), argThat(new NullBoolean()))).thenReturn(Collections.singletonList(request));
+        when(mockPaperRecordRequestDAO.findPaperRecordRequests(argThat(new StatusListOf(Collections.singletonList(Status.ASSIGNED))),
+                argThat(new NullPatient()), argThat(new NullLocation()), eq(identifier))).thenReturn(Collections.singletonList(request));
 
         PaperRecordRequest returnedRequest = paperRecordService.getAssignedPaperRecordRequestByIdentifier(identifier);
         assertNull(returnedRequest);
@@ -712,8 +641,8 @@ public class PaperRecordServiceTest {
         request.setRequestLocation(requestLocation);
         request.setDateCreated(new Date());
 
-        when(mockPaperRecordDAO.findPaperRecordRequests(argThat(new StatusListOf(ASSIGNED_STATUSES)),
-                argThat(new NullPatient()), argThat(new NullLocation()), eq(identifier), argThat(new NullBoolean())))
+        when(mockPaperRecordRequestDAO.findPaperRecordRequests(argThat(new StatusListOf(Collections.singletonList(Status.ASSIGNED))),
+                argThat(new NullPatient()), argThat(new NullLocation()), eq(identifier)))
                 .thenReturn(Arrays.asList(request, anotherRequest));
         paperRecordService.getAssignedPaperRecordRequestByIdentifier(identifier);
     }
@@ -736,8 +665,8 @@ public class PaperRecordServiceTest {
         request.setDateCreated(new Date());
         request.updateStatus(Status.SENT);
 
-        when(mockPaperRecordDAO.findPaperRecordRequests(argThat(new StatusListOf(Collections.singletonList(Status.SENT))),
-                argThat(new NullPatient()), argThat(new NullLocation()), eq(identifier), argThat(new NullBoolean()))).thenReturn(Collections.singletonList(request));
+        when(mockPaperRecordRequestDAO.findPaperRecordRequests(argThat(new StatusListOf(Collections.singletonList(Status.SENT))),
+                argThat(new NullPatient()), argThat(new NullLocation()), eq(identifier))).thenReturn(Collections.singletonList(request));
         IsExpectedRequest expectedRequestMatcher = new IsExpectedRequest(request);
 
         List<PaperRecordRequest> returnedRequests = paperRecordService.getSentPaperRecordRequestByIdentifier(identifier);
@@ -749,8 +678,8 @@ public class PaperRecordServiceTest {
     @Test
     public void getSentPaperRecordRequestByIdentifierShouldReturnNullIfNoActiveRequestWithThatIdentifier() {
         String identifier = "ABC123";
-        when(mockPaperRecordDAO.findPaperRecordRequests(argThat(new StatusListOf(Collections.singletonList(Status.SENT))),
-                argThat(new NullPatient()), argThat(new NullLocation()), eq(identifier), argThat(new NullBoolean()))).thenReturn(null);
+        when(mockPaperRecordRequestDAO.findPaperRecordRequests(argThat(new StatusListOf(Collections.singletonList(Status.SENT))),
+                argThat(new NullPatient()), argThat(new NullLocation()), eq(identifier))).thenReturn(null);
         assertNull(paperRecordService.getSentPaperRecordRequestByIdentifier(identifier));
     }
 
@@ -779,8 +708,8 @@ public class PaperRecordServiceTest {
         request.updateStatus(Status.SENT);
 
         when(mockPatientService.getPatients(null, "Patient_ID", Collections.singletonList(primaryIdentifierType), true)).thenReturn(Collections.singletonList(patient));
-        when(mockPaperRecordDAO.findPaperRecordRequests(argThat(new StatusListOf(Collections.singletonList(Status.SENT))),
-                eq(patient), argThat(new NullLocation()), argThat(new NullString()), argThat(new NullBoolean()))).thenReturn(Collections.singletonList(request));
+        when(mockPaperRecordRequestDAO.findPaperRecordRequests(argThat(new StatusListOf(Collections.singletonList(Status.SENT))),
+                eq(patient), argThat(new NullLocation()), argThat(new NullString()))).thenReturn(Collections.singletonList(request));
 
         IsExpectedRequest expectedRequestMatcher = new IsExpectedRequest(request);
 
@@ -807,64 +736,12 @@ public class PaperRecordServiceTest {
         request.setDateCreated(new Date());
         request.updateStatus(Status.SENT);
 
-        when(mockPaperRecordDAO.findPaperRecordRequests(argThat(new StatusListOf(Collections.singletonList(Status.SENT))),
-                argThat(new NullPatient()), argThat(new NullLocation()), eq(identifier), argThat(new NullBoolean()))).thenReturn(Collections.singletonList(request));
+        when(mockPaperRecordRequestDAO.findPaperRecordRequests(argThat(new StatusListOf(Collections.singletonList(Status.SENT))),
+                argThat(new NullPatient()), argThat(new NullLocation()), eq(identifier))).thenReturn(Collections.singletonList(request));
         IsExpectedRequest expectedRequestMatcher = new IsExpectedRequest(request);
 
         List<PaperRecordRequest> returnedRequests = paperRecordService.getSentPaperRecordRequestByIdentifier(identifier);
         assertThat(returnedRequests.size(), is(0));
-    }
-
-    @Test
-    public void getMostRecentSentPaperRecordRequestByIdentifierShouldRetrieveMostRecentSentRequest() {
-
-        Patient patient = new Patient();
-        patient.setId(15);
-
-        Location medicalRecordLocation = createMedicalRecordLocation();
-        Location requestLocation = createLocation(4, "Outpatient Clinic");
-
-        // generate a few existing paper record request
-        String identifier = "ABC123";
-        PaperRecordRequest request = createPaperRecordRequest(patient, medicalRecordLocation, identifier);
-        request.setId(10);
-        request.setRequestLocation(requestLocation);
-        request.setDateCreated(new Date());
-        request.updateStatus(Status.SENT);
-
-        PaperRecordRequest anotherRequest = createPaperRecordRequest(patient, medicalRecordLocation, identifier);
-        anotherRequest.setId(11);
-        anotherRequest.setRequestLocation(requestLocation);
-        anotherRequest.setDateCreated(new Date());
-        anotherRequest.updateStatus(Status.SENT);
-
-        PaperRecordRequest yetAnotherRequest = createPaperRecordRequest(patient, medicalRecordLocation, identifier);
-        yetAnotherRequest.setId(12);
-        yetAnotherRequest.setRequestLocation(requestLocation);
-        yetAnotherRequest.setDateCreated(new Date());
-        yetAnotherRequest.updateStatus(Status.SENT);
-
-        when(mockPaperRecordDAO.findPaperRecordRequests(argThat(new StatusListOf(Collections.singletonList(Status.SENT))),
-                argThat(new NullPatient()), argThat(new NullLocation()), eq(identifier), argThat(new NullBoolean())))
-                .thenReturn(Arrays.asList(request, anotherRequest, yetAnotherRequest));
-
-        IsExpectedRequest expectedRequestMatcher = new IsExpectedRequest(yetAnotherRequest);
-
-        PaperRecordRequest returnedRequest = paperRecordService.getMostRecentSentPaperRecordRequestByPaperRecordIdentifier(identifier);
-        expectedRequestMatcher.matches(returnedRequest);
-    }
-
-    @Test
-    public void getMostRecentSentPaperRecordRequestByIdentifierShouldReturnNullIfNoSentRequests() {
-
-        String identifier = "ABC123";
-
-        when(mockPaperRecordDAO.findPaperRecordRequests(argThat(new StatusListOf(Collections.singletonList(Status.SENT))),
-                argThat(new NullPatient()), argThat(new NullLocation()), eq(identifier), argThat(new NullBoolean())))
-                .thenReturn(null);
-
-
-        assertNull(paperRecordService.getMostRecentSentPaperRecordRequestByPaperRecordIdentifier(identifier));
     }
 
     @Test
@@ -884,7 +761,7 @@ public class PaperRecordServiceTest {
 
         assertThat(request.getStatus(), is(PaperRecordRequest.Status.SENT));
         IsExpectedRequest expectedRequestMatcher = new IsExpectedRequest(request);
-        verify(mockPaperRecordDAO).saveOrUpdate(argThat(expectedRequestMatcher));
+        verify(mockPaperRecordRequestDAO).saveOrUpdate(argThat(expectedRequestMatcher));
     }
 
     @Test
@@ -904,7 +781,7 @@ public class PaperRecordServiceTest {
 
         assertThat(request.getStatus(), is(Status.CANCELLED));
         IsExpectedRequest expectedRequestMatcher = new IsExpectedRequest(request);
-        verify(mockPaperRecordDAO).saveOrUpdate(argThat(expectedRequestMatcher));
+        verify(mockPaperRecordRequestDAO).saveOrUpdate(argThat(expectedRequestMatcher));
     }
 
     @Test
@@ -1039,7 +916,7 @@ public class PaperRecordServiceTest {
         verify(mockPaperRecordMergeRequestDAO).saveOrUpdate(argThat(expectedMergeRequestMatcher));
     }
 
-    @Test
+   /* @Test
     public void testMarkPaperRecordsAsMergedShouldMergeExistingPendingPaperRecordRequests() throws Exception {
 
         Location medicalRecordLocation = createMedicalRecordLocation();
@@ -1066,10 +943,10 @@ public class PaperRecordServiceTest {
                 location2, Status.ASSIGNED_TO_PULL);
         request2.setDateCreated(new Date());
 
-        when(mockPaperRecordDAO.findPaperRecordRequests(PENDING_STATUSES, null, medicalRecordLocation, "XYZ", null))
+        when(mockPaperRecordRequestDAO.findPaperRecordRequests(PENDING_STATUSES, null, medicalRecordLocation, "XYZ", null))
                 .thenReturn(Collections.singletonList(request1));
 
-        when(mockPaperRecordDAO.findPaperRecordRequests(PENDING_STATUSES, null, medicalRecordLocation, "ABC", null))
+        when(mockPaperRecordRequestDAO.findPaperRecordRequests(PENDING_STATUSES, null, medicalRecordLocation, "ABC", null))
                 .thenReturn(Collections.singletonList(request2));
 
         paperRecordService.markPaperRecordsAsMerged(mergeRequest);
@@ -1085,7 +962,7 @@ public class PaperRecordServiceTest {
         expectedLosingRequest.setId(request1.getId());
 
         ArgumentCaptor<PaperRecordRequest> paperRecordRequestArgumentCaptor = ArgumentCaptor.forClass(PaperRecordRequest.class);
-        verify(mockPaperRecordDAO, times(2)).saveOrUpdate(paperRecordRequestArgumentCaptor.capture());
+        verify(mockPaperRecordRequestDAO, times(2)).saveOrUpdate(paperRecordRequestArgumentCaptor.capture());
 
         IsExpectedRequest expectedWinningRequestMatcher = new IsExpectedRequest(expectedWinningRequest);
         assertThat(paperRecordRequestArgumentCaptor.getAllValues().get(0), Is.is(expectedWinningRequestMatcher));
@@ -1118,7 +995,7 @@ public class PaperRecordServiceTest {
         request.setId(1);
         request.setDateCreated(new Date());
 
-        when(mockPaperRecordDAO.findPaperRecordRequests(PENDING_STATUSES, null, medicalRecordLocation, "XYZ", null))
+        when(mockPaperRecordRequestDAO.findPaperRecordRequests(PENDING_STATUSES, null, medicalRecordLocation, "XYZ", null))
                 .thenReturn(Collections.singletonList(request));
 
         paperRecordService.markPaperRecordsAsMerged(mergeRequest);
@@ -1129,10 +1006,10 @@ public class PaperRecordServiceTest {
         expectedRequest.setId(request.getId());
 
         IsExpectedRequest expectedRequestMatcher = new IsExpectedRequest(expectedRequest);
-        verify(mockPaperRecordDAO).saveOrUpdate(argThat(expectedRequestMatcher));
+        verify(mockPaperRecordRequestDAO).saveOrUpdate(argThat(expectedRequestMatcher));
     }
-
-    @Test
+*/
+   /* @Test
     public void testMarkPaperRecordsShouldMarkAnyNotPreferredRecordRequestsInSentStateAsReturned() throws Exception {
 
         Location medicalRecordLocation = createMedicalRecordLocation();
@@ -1156,7 +1033,7 @@ public class PaperRecordServiceTest {
         request.setId(1);
         request.setDateCreated(new Date());
 
-        when(mockPaperRecordDAO.findPaperRecordRequests(Collections.singletonList(Status.SENT),
+        when(mockPaperRecordRequestDAO.findPaperRecordRequests(Collections.singletonList(Status.SENT),
                 null, medicalRecordLocation, "XYZ", null)).thenReturn(Collections.singletonList(request));
 
         paperRecordService.markPaperRecordsAsMerged(mergeRequest);
@@ -1167,8 +1044,8 @@ public class PaperRecordServiceTest {
         expectedRequest.setId(request.getId());
 
         IsExpectedRequest expectedRequestMatcher = new IsExpectedRequest(expectedRequest);
-        verify(mockPaperRecordDAO).saveOrUpdate(argThat(expectedRequestMatcher));
-    }
+        verify(mockPaperRecordRequestDAO).saveOrUpdate(argThat(expectedRequestMatcher));
+    }*/
 
     @Test
     public void testPrintPaperRecordLabelShouldPrintSingleLabel() throws Exception {
@@ -1179,9 +1056,7 @@ public class PaperRecordServiceTest {
         when(mockPaperRecordLabelTemplate.generateLabel(patient, "ABC")).thenReturn("data\nlines\n");
         when(mockPaperRecordLabelTemplate.getEncoding()).thenReturn("UTF-8");
 
-        PaperRecordRequest request = new PaperRecordRequest();
-        request.setPatient(patient);
-        request.setIdentifier("ABC");
+        PaperRecordRequest request = buildPaperRecordRequestWithIdentifier(patient, location, "ABC");
 
         paperRecordService.printPaperRecordLabel(request, location);
 
@@ -1198,9 +1073,7 @@ public class PaperRecordServiceTest {
         when(mockPaperRecordLabelTemplate.generateLabel(patient, "ABC")).thenReturn("data\nlines\n");
         when(mockPaperRecordLabelTemplate.getEncoding()).thenReturn("UTF-8");
 
-        PaperRecordRequest request = new PaperRecordRequest();
-        request.setPatient(patient);
-        request.setIdentifier("ABC");
+        PaperRecordRequest request = buildPaperRecordRequestWithIdentifier(patient, location, "ABC");
 
         paperRecordService.printPaperRecordLabels(request, location, 3);
 
@@ -1238,9 +1111,7 @@ public class PaperRecordServiceTest {
         when(mockPaperFormLabelTemplate.generateLabel(patient, "ABC")).thenReturn("data\nlines\n");
         when(mockPaperFormLabelTemplate.getEncoding()).thenReturn("UTF-8");
 
-        PaperRecordRequest request = new PaperRecordRequest();
-        request.setPatient(patient);
-        request.setIdentifier("ABC");
+        PaperRecordRequest request = buildPaperRecordRequestWithIdentifier(patient, location, "ABC");
 
         paperRecordService.printPaperFormLabels(request, location, 3);
 
@@ -1317,11 +1188,11 @@ public class PaperRecordServiceTest {
         Location recordLocation = new Location(1);
 
         PaperRecordRequest request1 = createPaperRecordRequest(patient1, recordLocation, "ABC", requestLocation,
-                Status.ASSIGNED_TO_PULL);
+                Status.ASSIGNED);
         request1.setDateCreated(beforeExpireDate);
 
         PaperRecordRequest request2 = createPaperRecordRequest(patient2, recordLocation, "DEF", requestLocation,
-                Status.ASSIGNED_TO_PULL);
+                Status.ASSIGNED);
         request2.setDateCreated(afterExpireDate);
 
         PaperRecordRequest request3 = createPaperRecordRequest(patient3, recordLocation, "GHI", requestLocation,
@@ -1332,29 +1203,29 @@ public class PaperRecordServiceTest {
                 Status.OPEN);
         request4.setDateCreated(afterExpireDate);
 
-        when(mockPaperRecordDAO.findPaperRecordRequests(Collections.singletonList(Status.ASSIGNED_TO_PULL), null,
-                null, null, null)).thenReturn(Arrays.asList(request1, request2));
+        when(mockPaperRecordRequestDAO.findPaperRecordRequests(Collections.singletonList(Status.ASSIGNED), null,
+                null, null)).thenReturn(Arrays.asList(request1, request2));
 
-        when(mockPaperRecordDAO.findPaperRecordRequests(Collections.singletonList(Status.OPEN), null,
-                null, null, true)).thenReturn(Arrays.asList(request3, request4));
+        when(mockPaperRecordRequestDAO.findPaperRecordRequests(Collections.singletonList(Status.OPEN), null,
+                null, null)).thenReturn(Arrays.asList(request3, request4));
 
         paperRecordService.expirePendingPullRequests(expireDate);
 
-        verify(mockPaperRecordDAO).saveOrUpdate(request1);
-        verify(mockPaperRecordDAO).saveOrUpdate(request3);
+        verify(mockPaperRecordRequestDAO).saveOrUpdate(request1);
+        verify(mockPaperRecordRequestDAO).saveOrUpdate(request3);
 
-        verify(mockPaperRecordDAO, never()).saveOrUpdate(request2);
-        verify(mockPaperRecordDAO, never()).saveOrUpdate(request4);
+        verify(mockPaperRecordRequestDAO, never()).saveOrUpdate(request2);
+        verify(mockPaperRecordRequestDAO, never()).saveOrUpdate(request4);
 
         assertThat(request1.getStatus(), is(Status.CANCELLED));
         assertThat(request3.getStatus(), is(Status.CANCELLED));
 
-        assertThat(request2.getStatus(), is(Status.ASSIGNED_TO_PULL));
+        assertThat(request2.getStatus(), is(Status.ASSIGNED));
         assertThat(request4.getStatus(), is(Status.OPEN));
     }
 
     @Test
-    public void testExpirePullRequestsShouldoNotCancelCreateRequests() throws Exception {
+    public void testExpirePullRequestsShouldNotCancelRequestsPendingCreation() throws Exception {
 
         Calendar cal = Calendar.getInstance();
         cal.set(2012, 1, 22);
@@ -1371,25 +1242,25 @@ public class PaperRecordServiceTest {
         Location recordLocation = new Location(1);
 
         PaperRecordRequest request1 = createPaperRecordRequest(patient1, recordLocation, "ABC", requestLocation,
-                Status.ASSIGNED_TO_CREATE);
+                Status.ASSIGNED, PaperRecord.Status.PENDING_CREATION);
         request1.setDateCreated(beforeExpireDate);
 
         PaperRecordRequest request2 = createPaperRecordRequest(patient2, recordLocation, null, requestLocation,
-                Status.OPEN);
+                Status.OPEN, PaperRecord.Status.PENDING_CREATION);
         request2.setDateCreated(beforeExpireDate);
 
-        when(mockPaperRecordDAO.findPaperRecordRequests(Collections.singletonList(Status.ASSIGNED_TO_CREATE), null,
-                null, null, null)).thenReturn(Collections.singletonList(request1));
+        when(mockPaperRecordRequestDAO.findPaperRecordRequests(Collections.singletonList(Status.ASSIGNED), null,
+                null, null)).thenReturn(Collections.singletonList(request1));
 
-        when(mockPaperRecordDAO.findPaperRecordRequests(Collections.singletonList(Status.OPEN), null,
-                null, null, false)).thenReturn(Collections.singletonList(request2));
+        when(mockPaperRecordRequestDAO.findPaperRecordRequests(Collections.singletonList(Status.OPEN), null,
+                null, null)).thenReturn(Collections.singletonList(request2));
 
         paperRecordService.expirePendingPullRequests(expireDate);
 
-        verify(mockPaperRecordDAO, never()).saveOrUpdate(request1);
-        verify(mockPaperRecordDAO, never()).saveOrUpdate(request2);
+        verify(mockPaperRecordRequestDAO, never()).saveOrUpdate(request1);
+        verify(mockPaperRecordRequestDAO, never()).saveOrUpdate(request2);
 
-        assertThat(request1.getStatus(), is(Status.ASSIGNED_TO_CREATE));
+        assertThat(request1.getStatus(), is(Status.ASSIGNED));
         assertThat(request2.getStatus(), is(Status.OPEN));
     }
 
@@ -1418,39 +1289,39 @@ public class PaperRecordServiceTest {
         Location recordLocation = new Location(1);
 
         PaperRecordRequest request1 = createPaperRecordRequest(patient1, recordLocation, "ABC", requestLocation,
-                Status.ASSIGNED_TO_CREATE);
+                Status.ASSIGNED, PaperRecord.Status.PENDING_CREATION);
         request1.setDateCreated(beforeExpireDate);
 
         PaperRecordRequest request2 = createPaperRecordRequest(patient2, recordLocation, "DEF", requestLocation,
-                Status.ASSIGNED_TO_CREATE);
+                Status.ASSIGNED, PaperRecord.Status.PENDING_CREATION);
         request2.setDateCreated(afterExpireDate);
 
-        PaperRecordRequest request3 = createPaperRecordRequest(patient3, recordLocation, null, requestLocation,
-                Status.OPEN);
+        PaperRecordRequest request3 = createPaperRecordRequest(patient3, recordLocation, "GHI", requestLocation,
+                Status.OPEN, PaperRecord.Status.PENDING_CREATION);
         request3.setDateCreated(beforeExpireDate);
 
-        PaperRecordRequest request4 = createPaperRecordRequest(patient4, recordLocation, null, requestLocation,
-                Status.OPEN);
+        PaperRecordRequest request4 = createPaperRecordRequest(patient4, recordLocation, "KLM", requestLocation,
+                Status.OPEN, PaperRecord.Status.PENDING_CREATION);
         request4.setDateCreated(afterExpireDate);
 
-        when(mockPaperRecordDAO.findPaperRecordRequests(Collections.singletonList(Status.ASSIGNED_TO_CREATE), null,
-                null, null, null)).thenReturn(Arrays.asList(request1, request2));
+        when(mockPaperRecordRequestDAO.findPaperRecordRequests(Collections.singletonList(Status.ASSIGNED), null,
+                null, null)).thenReturn(Arrays.asList(request1, request2));
 
-        when(mockPaperRecordDAO.findPaperRecordRequests(Collections.singletonList(Status.OPEN), null,
-                null, null, false)).thenReturn(Arrays.asList(request3, request4));
+        when(mockPaperRecordRequestDAO.findPaperRecordRequests(Collections.singletonList(Status.OPEN), null,
+                null, null)).thenReturn(Arrays.asList(request3, request4));
 
         paperRecordService.expirePendingCreateRequests(expireDate);
 
-        verify(mockPaperRecordDAO).saveOrUpdate(request1);
-        verify(mockPaperRecordDAO).saveOrUpdate(request3);
+        verify(mockPaperRecordRequestDAO).saveOrUpdate(request1);
+        verify(mockPaperRecordRequestDAO).saveOrUpdate(request3);
 
-        verify(mockPaperRecordDAO, never()).saveOrUpdate(request2);
-        verify(mockPaperRecordDAO, never()).saveOrUpdate(request4);
+        verify(mockPaperRecordRequestDAO, never()).saveOrUpdate(request2);
+        verify(mockPaperRecordRequestDAO, never()).saveOrUpdate(request4);
 
         assertThat(request1.getStatus(), is(Status.CANCELLED));
         assertThat(request3.getStatus(), is(Status.CANCELLED));
 
-        assertThat(request2.getStatus(), is(Status.ASSIGNED_TO_CREATE));
+        assertThat(request2.getStatus(), is(Status.ASSIGNED));
         assertThat(request4.getStatus(), is(Status.OPEN));
     }
 
@@ -1473,25 +1344,25 @@ public class PaperRecordServiceTest {
         Location recordLocation = new Location(1);
 
         PaperRecordRequest request1 = createPaperRecordRequest(patient1, recordLocation, "ABC", requestLocation,
-                Status.ASSIGNED_TO_PULL);
+                Status.ASSIGNED, PaperRecord.Status.ACTIVE);
         request1.setDateCreated(beforeExpireDate);
 
         PaperRecordRequest request2 = createPaperRecordRequest(patient2, recordLocation, "DEF", requestLocation,
                 Status.OPEN);
         request2.setDateCreated(beforeExpireDate);
 
-        when(mockPaperRecordDAO.findPaperRecordRequests(Collections.singletonList(Status.ASSIGNED_TO_PULL), null,
-                null, null, null)).thenReturn(Collections.singletonList(request1));
+        when(mockPaperRecordRequestDAO.findPaperRecordRequests(Collections.singletonList(Status.ASSIGNED), null,
+                null, null)).thenReturn(Collections.singletonList(request1));
 
-        when(mockPaperRecordDAO.findPaperRecordRequests(Collections.singletonList(Status.OPEN), null,
-                null, null, true)).thenReturn(Collections.singletonList(request2));
+        when(mockPaperRecordRequestDAO.findPaperRecordRequests(Collections.singletonList(Status.OPEN), null,
+                null, null)).thenReturn(Collections.singletonList(request2));
 
         paperRecordService.expirePendingCreateRequests(expireDate);
 
-        verify(mockPaperRecordDAO, never()).saveOrUpdate(request1);
-        verify(mockPaperRecordDAO, never()).saveOrUpdate(request2);
+        verify(mockPaperRecordRequestDAO, never()).saveOrUpdate(request1);
+        verify(mockPaperRecordRequestDAO, never()).saveOrUpdate(request2);
 
-        assertThat(request1.getStatus(), is(Status.ASSIGNED_TO_PULL));
+        assertThat(request1.getStatus(), is(Status.ASSIGNED));
         assertThat(request2.getStatus(), is(Status.OPEN));
     }
 
@@ -1508,7 +1379,7 @@ public class PaperRecordServiceTest {
 
         when(mockIdentifierSourceService.generateIdentifier(paperRecordIdentifierType, "generating a new dossier number")).thenReturn("A00001", "A00002");
 
-        PatientIdentifier paperMedicalRecordIdentifier = paperRecordService.createPaperMedicalRecordNumber(new Patient(), medicalRecordLocation);
+        PatientIdentifier paperMedicalRecordIdentifier = paperRecordService.assureHasPaperRecord(new Patient(), medicalRecordLocation).getPatientIdentifier();
 
         assertThat(paperMedicalRecordIdentifier.getIdentifier(), is("A00002"));
     }
@@ -1529,15 +1400,33 @@ public class PaperRecordServiceTest {
     }
 
     private PaperRecordRequest createPaperRecordRequest(Patient patient, Location medicalRecordLocation, String identifier,
-                                                        Location requestLocation, Status status) {
+                                                        Location requestLocation, PaperRecordRequest.Status paperRecordRequestStatus) {
+
+        return createPaperRecordRequest(patient, medicalRecordLocation, identifier, requestLocation, paperRecordRequestStatus, PaperRecord.Status.ACTIVE);
+    }
+
+    private PaperRecordRequest createPaperRecordRequest(Patient patient, Location medicalRecordLocation, String identifier,
+                                                    Location requestLocation, PaperRecordRequest.Status paperRecordRequestStatus,
+                                                    PaperRecord.Status paperRecordStatus) {
+
+        PatientIdentifier patientIdentifier = new PatientIdentifier();
+        patientIdentifier.setIdentifierType(paperRecordIdentifierType);
+        patientIdentifier.setIdentifier(identifier);
+        patient.addIdentifier(patientIdentifier);
+
+        PaperRecord paperRecord = new PaperRecord();
+        paperRecord.setRecordLocation(medicalRecordLocation);
+        paperRecord.updateStatus(paperRecordStatus);
+        paperRecord.setPatientIdentifier(patientIdentifier);
+
         PaperRecordRequest expectedRequest = new PaperRecordRequest();
         expectedRequest.setAssignee(null);
         expectedRequest.setCreator(authenticatedUser);
-        expectedRequest.setIdentifier(identifier);
+        expectedRequest.setPaperRecord(paperRecord);
         expectedRequest.setRequestLocation(requestLocation);
         expectedRequest.setRecordLocation(medicalRecordLocation);
         expectedRequest.setPatient(patient);
-        expectedRequest.updateStatus(status);
+        expectedRequest.updateStatus(paperRecordRequestStatus);
         return expectedRequest;
     }
 
@@ -1560,6 +1449,7 @@ public class PaperRecordServiceTest {
         return expectedMergeRequest;
     }
 
+    // TODO: can we get rid of these and just use the create methods
     private PaperRecordRequest buildPaperRecordRequestWithoutIdentifier(Patient patient, Location location) {
         PaperRecordRequest request = new PaperRecordRequest();
         request.setPatient(patient);
@@ -1569,15 +1459,22 @@ public class PaperRecordServiceTest {
     }
 
     private PaperRecordRequest buildPaperRecordRequestWithIdentifier(Patient patient, Location location, String identifier) {
+
         PatientIdentifier patientIdentifier = new PatientIdentifier();
         patientIdentifier.setIdentifierType(paperRecordIdentifierType);
         patientIdentifier.setIdentifier("ABC");
         patient.addIdentifier(patientIdentifier);
+
+        PaperRecord paperRecord = new PaperRecord();
+        paperRecord.setPatientIdentifier(patientIdentifier);
+        paperRecord.setRecordLocation(location);
+        paperRecord.updateStatus(PaperRecord.Status.ACTIVE);
+
         PaperRecordRequest request = new PaperRecordRequest();
         request.setPatient(patient);
         request.updateStatus(PaperRecordRequest.Status.OPEN);
         request.setRecordLocation(location);
-        request.setIdentifier(identifier);
+        request.setPaperRecord(paperRecord);
         return request;
     }
 
@@ -1651,7 +1548,7 @@ public class PaperRecordServiceTest {
             assertThat(request.getAssignee(), is(shouldBeAssignedTo));
 
             if (identifier != null) {
-                assertThat(request.getIdentifier(), is(identifier));
+                assertThat(request.getPaperRecord().getPatientIdentifier().getIdentifier(), is(identifier));
             }
 
             return true;

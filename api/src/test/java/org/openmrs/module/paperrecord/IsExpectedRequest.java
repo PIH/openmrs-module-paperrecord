@@ -15,7 +15,6 @@
 package org.openmrs.module.paperrecord;
 
 import org.mockito.ArgumentMatcher;
-import org.openmrs.Patient;
 
 import static org.hamcrest.Matchers.notNullValue;
 import static org.hamcrest.core.Is.is;
@@ -29,13 +28,6 @@ public class IsExpectedRequest extends ArgumentMatcher<PaperRecordRequest> {
         this.expectedRequest = expectedRequest;
     }
 
-    public IsExpectedRequest(Patient patient, PaperRecordRequest.Status status, String identifier) {
-        expectedRequest = new PaperRecordRequest();
-        expectedRequest.setPatient(patient);
-        expectedRequest.setIdentifier(identifier);
-        expectedRequest.updateStatus(status);
-    }
-
     @Override
     public boolean matches(Object o) {
 
@@ -44,10 +36,10 @@ public class IsExpectedRequest extends ArgumentMatcher<PaperRecordRequest> {
         assertThat(actualRequest.getId(), is(expectedRequest.getId()));
         assertThat(actualRequest.getAssignee(), is(expectedRequest.getAssignee()));
         assertThat(actualRequest.getCreator(), is(expectedRequest.getCreator()));
-        assertThat(actualRequest.getIdentifier(), is(expectedRequest.getIdentifier()));
         assertThat(actualRequest.getRecordLocation(), is(expectedRequest.getRecordLocation()));
         assertThat(actualRequest.getPatient(), is(expectedRequest.getPatient()));
         assertThat(actualRequest.getStatus(), is(expectedRequest.getStatus()));
+        assertThat(actualRequest.getPaperRecord().getPatientIdentifier().getIdentifier(), is(expectedRequest.getPaperRecord().getPatientIdentifier().getIdentifier()));
         if (expectedRequest.getDateCreated() != null) {
             assertThat(actualRequest.getDateCreated(), notNullValue());
         }

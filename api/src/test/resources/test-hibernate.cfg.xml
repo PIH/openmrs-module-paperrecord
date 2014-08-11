@@ -6,6 +6,7 @@
 
 <hibernate-configuration>
     <session-factory>
+        <mapping resource="PaperRecord.hbm.xml"/>
         <mapping resource="PaperRecordRequest.hbm.xml"/>
         <mapping resource="PaperRecordMergeRequest.hbm.xml"/>
 

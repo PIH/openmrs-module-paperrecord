@@ -10,6 +10,13 @@
         </property>
         <property name="target">
             <bean class="org.openmrs.module.paperrecord.PaperRecordServiceImpl">
+                <property name="paperRecordDAO">
+                    <bean class="${project.parent.groupId}.${project.parent.artifactId}.db.HibernatePaperRecordDAO">
+                        <property name="sessionFactory">
+                            <ref bean="sessionFactory"/>
+                        </property>
+                    </bean>
+                </property>
                 <property name="paperRecordRequestDAO">
                     <bean class="${project.parent.groupId}.${project.parent.artifactId}.db.HibernatePaperRecordRequestDAO">
                         <property name="sessionFactory">
@@ -24,9 +31,7 @@
                         </property>
                     </bean>
                 </property>
-                <property name="administrationService" ref="adminService"/>
                 <property name="patientService" ref="patientService"/>
-                <property name="messageSourceService" ref="messageSourceService"/>
                 <property name="identifierSourceService" ref="baseIdentifierSourceService"/>
                 <property name="printerService" ref="printerService"/>
                 <property name="emrApiProperties" ref="emrApiProperties"/>

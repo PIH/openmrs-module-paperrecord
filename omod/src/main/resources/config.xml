@@ -33,6 +33,7 @@
 
     <!-- Maps hibernate file's, if present -->
     <mappingFiles>
+        PaperRecord.hbm.xml
         PaperRecordRequest.hbm.xml
         PaperRecordMergeRequest.hbm.xml
     </mappingFiles>

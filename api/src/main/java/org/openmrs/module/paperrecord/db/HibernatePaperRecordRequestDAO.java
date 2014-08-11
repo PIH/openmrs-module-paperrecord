@@ -21,6 +21,7 @@ import org.hibernate.criterion.Restrictions;
 import org.openmrs.Location;
 import org.openmrs.Patient;
 import org.openmrs.module.emrapi.db.HibernateSingleClassDAO;
+import org.openmrs.module.paperrecord.PaperRecord;
 import org.openmrs.module.paperrecord.PaperRecordRequest;
 
 import java.util.List;
@@ -32,9 +33,9 @@ public class HibernatePaperRecordRequestDAO extends HibernateSingleClassDAO<Pape
     }
 
     @Override
-    public List<PaperRecordRequest> findPaperRecordRequests(List<PaperRecordRequest.Status> statusList, Patient patient, Location recordLocation, String identifier, Boolean hasIdentifier) {
+    public List<PaperRecordRequest> findPaperRecordRequests(List<PaperRecordRequest.Status> statusList, Patient patient, Location recordLocation, String identifier) {
 
-        Criteria criteria = createPaperRecordCriteria();
+        Criteria criteria = createPaperRecordRequestCriteria();
 
         if (statusList != null) {
             addStatusDisjunctionRestriction(criteria, statusList);
@@ -48,12 +49,9 @@ public class HibernatePaperRecordRequestDAO extends HibernateSingleClassDAO<Pape
             addRecordLocationRestriction(criteria, recordLocation);
         }
 
+        // **note that as the code stands now, this restriction must be added last, since it creates sub-criteria on the paper record & patient identifier tables**
         if (identifier != null) {
             addIdentifierRestriction(criteria, identifier);
-        }
-
-        if (hasIdentifier != null) {
-            addHasIdentifierRestriction(criteria, hasIdentifier);
         }
 
         addOrderByDateCreated(criteria);
@@ -61,7 +59,23 @@ public class HibernatePaperRecordRequestDAO extends HibernateSingleClassDAO<Pape
         return (List<PaperRecordRequest>) criteria.list();
     }
 
-    private Criteria createPaperRecordCriteria() {
+    @Override
+    public List<PaperRecordRequest> findPaperRecordRequests(List<PaperRecordRequest.Status> statusList, PaperRecord paperRecord) {
+
+        Criteria criteria = createPaperRecordRequestCriteria();
+
+        if (statusList != null) {
+            addStatusDisjunctionRestriction(criteria, statusList);
+        }
+
+        if (paperRecord != null) {
+            addPaperRecordRestriction(criteria, paperRecord);
+        }
+
+        return (List<PaperRecordRequest>) criteria.list();
+    }
+
+    private Criteria createPaperRecordRequestCriteria() {
         return sessionFactory.getCurrentSession().createCriteria(PaperRecordRequest.class);
     }
 
@@ -89,16 +103,13 @@ public class HibernatePaperRecordRequestDAO extends HibernateSingleClassDAO<Pape
 
     }
 
-    private void addIdentifierRestriction(Criteria criteria, String identifier) {
-        criteria.add(Restrictions.eq("identifier", identifier));
+    private void addPaperRecordRestriction(Criteria criteria, PaperRecord paperRecord) {
+        criteria.add(Restrictions.eq("paperRecord", paperRecord));
     }
 
-    private void addHasIdentifierRestriction(Criteria criteria, boolean hasIdentifier) {
-        if (hasIdentifier) {
-            criteria.add(Restrictions.isNotNull("identifier"));
-        } else {
-            criteria.add(Restrictions.isNull("identifier"));
-        }
+
+    private void addIdentifierRestriction(Criteria criteria, String identifier) {
+        criteria.createCriteria("paperRecord").createCriteria("patientIdentifier").add(Restrictions.eq("identifier", identifier));
     }
 
     private void addOrderByDateCreated(Criteria criteria) {

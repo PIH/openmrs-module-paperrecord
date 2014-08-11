@@ -89,7 +89,7 @@ public class PaperRecordRequest extends BaseOpenmrsObject {
 
     private Patient patient;
 
-    private List<PaperRecord> paperRecords;
+    private PaperRecord paperRecord;
 
     private Location recordLocation;
 
@@ -156,12 +156,12 @@ public class PaperRecordRequest extends BaseOpenmrsObject {
         this.patient = patient;
     }
 
-    public List<PaperRecord> getPaperRecords() {
-        return paperRecords;
+    public PaperRecord getPaperRecord() {
+        return paperRecord;
     }
 
-    public void setPaperRecords(List<PaperRecord> paperRecords) {
-        this.paperRecords = paperRecords;
+    public void setPaperRecord(PaperRecord paperRecord) {
+        this.paperRecord = paperRecord;
     }
 
     public Location getRecordLocation() {

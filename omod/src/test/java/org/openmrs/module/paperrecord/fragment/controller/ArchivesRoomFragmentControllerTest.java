@@ -11,6 +11,7 @@ import org.openmrs.PersonName;
 import org.openmrs.User;
 import org.openmrs.module.appui.UiSessionContext;
 import org.openmrs.module.emrapi.EmrApiProperties;
+import org.openmrs.module.paperrecord.PaperRecord;
 import org.openmrs.module.paperrecord.PaperRecordRequest;
 import org.openmrs.module.paperrecord.PaperRecordService;
 import org.openmrs.ui.framework.SimpleObject;
@@ -30,7 +31,6 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.Matchers.containsString;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.mock;
@@ -56,6 +56,9 @@ public class ArchivesRoomFragmentControllerTest {
     private Location sessionLocation;
 
     private PatientIdentifierType patientIdentifierType = new PatientIdentifierType();
+
+    private PatientIdentifierType paperRecordIdentifierType = new PatientIdentifierType();
+
 
     @Before
     public void setup() {
@@ -94,11 +97,18 @@ public class ArchivesRoomFragmentControllerTest {
     @Test
     public void testControllerShouldReturnFailureResultIfRecordAlreadySent() throws Exception {
 
+        PatientIdentifier identifier = new PatientIdentifier();
+        identifier.setIdentifier("123");
+
+        PaperRecord paperRecord = new PaperRecord();
+        paperRecord.setPatientIdentifier(identifier);
+        paperRecord.updateStatus(PaperRecord.Status.ACTIVE);
+
         PaperRecordRequest request = new PaperRecordRequest();
         Location location = new Location();
         location.setName("Test location");
         request.setRequestLocation(location);
-        request.setIdentifier("123");
+        request.setPaperRecord(paperRecord);
 
         when(paperRecordService.getAssignedPaperRecordRequestByIdentifier(eq("123"))).thenReturn(null);
         when(paperRecordService.getSentPaperRecordRequestByIdentifier(eq("123"))).thenReturn(Collections.singletonList(request));
@@ -114,13 +124,20 @@ public class ArchivesRoomFragmentControllerTest {
     @Test
     public void testControllerShouldMarkRecordAsSent() throws Exception {
 
+        PatientIdentifier identifier = new PatientIdentifier();
+        identifier.setIdentifier("123");
+
+        PaperRecord paperRecord = new PaperRecord();
+        paperRecord.setPatientIdentifier(identifier);
+        paperRecord.updateStatus(PaperRecord.Status.ACTIVE);
+
         PaperRecordRequest request = new PaperRecordRequest();
         Location location = new Location();
         location.setName("Test location");
         request.setRequestLocation(location);
-        request.setIdentifier("123");
+        request.setPaperRecord(paperRecord);
         request.setDateCreated(new Date());
-        request.updateStatus(PaperRecordRequest.Status.ASSIGNED_TO_PULL);
+        request.updateStatus(PaperRecordRequest.Status.ASSIGNED);
 
         when(paperRecordService.getPendingPaperRecordRequestByIdentifier(eq("123"))).thenReturn(request);
 
@@ -136,11 +153,18 @@ public class ArchivesRoomFragmentControllerTest {
     @Test
     public void testControllerShouldMarkRecordAsReturned() throws Exception {
 
+        PatientIdentifier identifier = new PatientIdentifier();
+        identifier.setIdentifier("123");
+
+        PaperRecord paperRecord = new PaperRecord();
+        paperRecord.setPatientIdentifier(identifier);
+        paperRecord.updateStatus(PaperRecord.Status.ACTIVE);
+
         PaperRecordRequest request = new PaperRecordRequest();
         Location location = new Location();
         location.setName("Test location");
         request.setRequestLocation(location);
-        request.setIdentifier("123");
+        request.setPaperRecord(paperRecord);
         request.setDateCreated(new Date());
         request.updateStatus(PaperRecordRequest.Status.SENT);
 
@@ -156,11 +180,18 @@ public class ArchivesRoomFragmentControllerTest {
     @Test
     public void testControllerShouldMarkRecordAsCancelled() throws Exception {
 
+        PatientIdentifier identifier = new PatientIdentifier();
+        identifier.setIdentifier("123");
+
+        PaperRecord paperRecord = new PaperRecord();
+        paperRecord.setPatientIdentifier(identifier);
+        paperRecord.updateStatus(PaperRecord.Status.ACTIVE);
+
         PaperRecordRequest request = new PaperRecordRequest();
         Location location = new Location();
         location.setName("Test location");
         request.setRequestLocation(location);
-        request.setIdentifier("123");
+        request.setPaperRecord(paperRecord);
         request.setDateCreated(new Date());
         request.updateStatus(PaperRecordRequest.Status.OPEN);
 
@@ -176,7 +207,7 @@ public class ArchivesRoomFragmentControllerTest {
         List<PaperRecordRequest> requests = createSamplePullPaperRecordRequestList();
 
         when(paperRecordService.getOpenPaperRecordRequestsToPull()).thenReturn(requests);
-        when(paperRecordService.getMostRecentSentPaperRecordRequestByPaperRecordIdentifier("123")).thenReturn(createSampleSentRequest());
+        when(paperRecordService.getMostRecentSentPaperRecordRequest(requests.get(0).getPaperRecord())).thenReturn(createSampleSentRequest());
         when(emrApiProperties.getPrimaryIdentifierType()).thenReturn(patientIdentifierType);
 
         List<SimpleObject> results = controller.getOpenRecordsToPull(paperRecordService, emrApiProperties, ui);
@@ -203,7 +234,7 @@ public class ArchivesRoomFragmentControllerTest {
         List<PaperRecordRequest> requests = createSamplePullPaperRecordRequestList();
 
         when(paperRecordService.getAssignedPaperRecordRequestsToPull()).thenReturn(requests);
-        when(paperRecordService.getMostRecentSentPaperRecordRequestByPaperRecordIdentifier("123")).thenReturn(createSampleSentRequest());
+        when(paperRecordService.getMostRecentSentPaperRecordRequest(requests.get(0).getPaperRecord())).thenReturn(createSampleSentRequest());
         when(emrApiProperties.getPrimaryIdentifierType()).thenReturn(patientIdentifierType);
 
         List<SimpleObject> results = controller.getAssignedRecordsToPull(paperRecordService, emrApiProperties, ui);
@@ -248,16 +279,26 @@ public class ArchivesRoomFragmentControllerTest {
         patientIdentifier.setIdentifierType(patientIdentifierType);
         patient.addIdentifier(patientIdentifier);
 
+        PatientIdentifier paperRecordIdentifier = new PatientIdentifier();
+        paperRecordIdentifier.setIdentifier("123");
+        paperRecordIdentifier.setIdentifierType(paperRecordIdentifierType);
+        patient.addIdentifier(paperRecordIdentifier);
+
         Patient patient2 = new Patient();
         name = new PersonName();
         name.setFamilyName("Wallace");
         name.setGivenName("Mike");
         patient2.addName(name);
 
-        patientIdentifier = new PatientIdentifier();
-        patientIdentifier.setIdentifier("763");
-        patientIdentifier.setIdentifierType(patientIdentifierType);
-        patient2.addIdentifier(patientIdentifier);
+        PatientIdentifier patientIdentifier2 = new PatientIdentifier();
+        patientIdentifier2.setIdentifier("763");
+        patientIdentifier2.setIdentifierType(patientIdentifierType);
+        patient2.addIdentifier(patientIdentifier2);
+
+        PatientIdentifier paperRecordIdentifier2 = new PatientIdentifier();
+        paperRecordIdentifier2.setIdentifier("ABC");
+        paperRecordIdentifier2.setIdentifierType(paperRecordIdentifierType);
+        patient2.addIdentifier(paperRecordIdentifier2);
 
         Location location = new Location();
         location.setName("Test location");
@@ -268,21 +309,30 @@ public class ArchivesRoomFragmentControllerTest {
         Calendar calendar = Calendar.getInstance();
         calendar.set(2012, 2, 22, 11, 10);
 
+        PaperRecord paperRecord = new PaperRecord();
+        paperRecord.setPatientIdentifier(paperRecordIdentifier);
+        paperRecord.updateStatus(PaperRecord.Status.PENDING_CREATION);
+
         PaperRecordRequest request = new PaperRecordRequest();
         request.setId(1);
+        request.setPaperRecord(paperRecord);
         request.setRequestLocation(location);
         request.setDateCreated(calendar.getTime());
         request.setPatient(patient);
         request.updateStatus(PaperRecordRequest.Status.OPEN);
 
+        PaperRecord paperRecord2 = new PaperRecord();
+        paperRecord2.setPatientIdentifier(paperRecordIdentifier2);
+        paperRecord2.updateStatus(PaperRecord.Status.PENDING_CREATION);
+
         PaperRecordRequest request2 = new PaperRecordRequest();
         request2.setId(2);
-        request2.setIdentifier("ABC");
+        request2.setPaperRecord(paperRecord2);
         request2.setRequestLocation(location2);
         calendar.set(2012,2,22,12, 11);
         request2.setDateCreated(calendar.getTime());
         request2.setPatient(patient2);
-        request2.updateStatus(PaperRecordRequest.Status.ASSIGNED_TO_CREATE);
+        request2.updateStatus(PaperRecordRequest.Status.ASSIGNED);
 
         List<PaperRecordRequest> requests = new ArrayList<PaperRecordRequest>();
         requests.add(request);
@@ -304,16 +354,26 @@ public class ArchivesRoomFragmentControllerTest {
         patientIdentifier.setIdentifierType(patientIdentifierType);
         patient.addIdentifier(patientIdentifier);
 
+        PatientIdentifier paperRecordIdentifier = new PatientIdentifier();
+        paperRecordIdentifier.setIdentifier("123");
+        paperRecordIdentifier.setIdentifierType(paperRecordIdentifierType);
+        patient.addIdentifier(paperRecordIdentifier);
+
         Patient patient2 = new Patient();
         name = new PersonName();
         name.setFamilyName("Wallace");
         name.setGivenName("Mike");
         patient2.addName(name);
 
-        patientIdentifier = new PatientIdentifier();
-        patientIdentifier.setIdentifier("763");
-        patientIdentifier.setIdentifierType(patientIdentifierType);
-        patient2.addIdentifier(patientIdentifier);
+        PatientIdentifier patientIdentifier2 = new PatientIdentifier();
+        patientIdentifier2.setIdentifier("763");
+        patientIdentifier2.setIdentifierType(patientIdentifierType);
+        patient2.addIdentifier(patientIdentifier2);
+
+        PatientIdentifier paperRecordIdentifier2 = new PatientIdentifier();
+        paperRecordIdentifier2.setIdentifier("ABC");
+        paperRecordIdentifier2.setIdentifierType(paperRecordIdentifierType);
+        patient2.addIdentifier(paperRecordIdentifier2);
 
         Location location = new Location();
         location.setName("Test location");
@@ -324,22 +384,30 @@ public class ArchivesRoomFragmentControllerTest {
         Calendar calendar = Calendar.getInstance();
         calendar.set(2012, 2, 22, 11, 10);
 
+        PaperRecord paperRecord = new PaperRecord();
+        paperRecord.setPatientIdentifier(paperRecordIdentifier);
+        paperRecord.updateStatus(PaperRecord.Status.ACTIVE);
+
         PaperRecordRequest request = new PaperRecordRequest();
         request.setId(1);
-        request.setIdentifier("123");
+        request.setPaperRecord(paperRecord);
         request.setRequestLocation(location);
         request.setDateCreated(calendar.getTime());
         request.setPatient(patient);
         request.updateStatus(PaperRecordRequest.Status.OPEN);
 
+        PaperRecord paperRecord2 = new PaperRecord();
+        paperRecord2.setPatientIdentifier(paperRecordIdentifier2);
+        paperRecord2.updateStatus(PaperRecord.Status.ACTIVE);
+
         PaperRecordRequest request2 = new PaperRecordRequest();
         request2.setId(2);
-        request2.setIdentifier("ABC");
+        request2.setPaperRecord(paperRecord2);
         request2.setRequestLocation(location2);
         calendar.set(2012,2,22,12, 11);
         request2.setDateCreated(calendar.getTime());
         request2.setPatient(patient2);
-        request2.updateStatus(PaperRecordRequest.Status.ASSIGNED_TO_PULL);
+        request2.updateStatus(PaperRecordRequest.Status.ASSIGNED);
 
         List<PaperRecordRequest> requests = new ArrayList<PaperRecordRequest>();
         requests.add(request);
@@ -362,15 +430,24 @@ public class ArchivesRoomFragmentControllerTest {
         patientIdentifier.setIdentifierType(patientIdentifierType);
         patient.addIdentifier(patientIdentifier);
 
+        PatientIdentifier paperRecordIdentifier = new PatientIdentifier();
+        paperRecordIdentifier.setIdentifier("123");
+        paperRecordIdentifier.setIdentifierType(paperRecordIdentifierType);
+        patient.addIdentifier(paperRecordIdentifier);
+
         Location location = new Location();
         location.setName("Previously sent location");
 
         Calendar calendar = Calendar.getInstance();
         calendar.set(2012, 2, 22, 11, 10);
 
+        PaperRecord paperRecord = new PaperRecord();
+        paperRecord.setPatientIdentifier(paperRecordIdentifier);
+        paperRecord.updateStatus(PaperRecord.Status.ACTIVE);
+
         PaperRecordRequest request = new PaperRecordRequest();
         request.setId(3);
-        request.setIdentifier("123");
+        request.setPaperRecord(paperRecord);
         request.setRequestLocation(location);
         request.setDateCreated(calendar.getTime());
         request.setPatient(patient);
@@ -386,7 +463,7 @@ public class ArchivesRoomFragmentControllerTest {
         SimpleObject result = results.get(0);
         assertThat((Integer) result.get("requestId"), is(1));
         assertThat((String) result.get("requestLocation"), is("Test location"));
-        assertNull(result.get("identifier"));
+        assertThat((String) result.get("identifier"), is("123"));
         assertThat((String) result.get("patient"), is("Tom Jones"));
         assertThat((String) result.get("patientIdentifier"), is("987"));
         assertThat((String) result.get("dateCreated"), is("11:10 22/03"));
@@ -422,7 +499,7 @@ public class ArchivesRoomFragmentControllerTest {
         SimpleObject result2 = results.get(1);
         assertThat((Integer) result2.get("requestId"), is(2));
         assertThat((String) result2.get("requestLocation"), is("Another location"));
-        assertThat((String) result2.get("identifier"), is("ABC"));
+       assertThat((String) result2.get("identifier"), is("ABC"));
         assertThat((String) result2.get("patient"), is("Mike Wallace"));
         assertThat((String) result2.get("patientIdentifier"), is("763"));
         assertThat((String) result2.get("dateCreated"), is("12:11 22/03"));

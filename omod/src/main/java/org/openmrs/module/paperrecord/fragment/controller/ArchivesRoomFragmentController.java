@@ -1,6 +1,5 @@
 package org.openmrs.module.paperrecord.fragment.controller;
 
-import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.openmrs.Person;
@@ -23,7 +22,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 
 public class ArchivesRoomFragmentController {
@@ -173,7 +171,7 @@ public class ArchivesRoomFragmentController {
                                                              UiUtils ui) {
 
         try {
-            // fetch the pending request associated with this message
+            // fetch the pending request associated with this identifier
             PaperRecordRequest paperRecordRequest = paperRecordService.getPendingPaperRecordRequestByIdentifier(identifier);
 
             if (paperRecordRequest == null) {
@@ -185,7 +183,7 @@ public class ArchivesRoomFragmentController {
                 else {
                     // note that if for some reason there are multiple sent requests, we just return the identifier of
                     // the last request in the list (under the possibly faulty assumption that this is the most recent)
-                    return new FailureResult(ui.message("paperrecord.archivesRoom.error.paperRecordAlreadySent", createFormattedPaperRecordIdentifierString(sentRequests.get(sentRequests.size() - 1), ui),
+                    return new FailureResult(ui.message("paperrecord.archivesRoom.error.paperRecordAlreadySent", ui.format(sentRequests.get(sentRequests.size() - 1).getPaperRecord().getPatientIdentifier().getIdentifier()),
                             ui.format(sentRequests.get(sentRequests.size() - 1).getRequestLocation()), ui.format(sentRequests.get(sentRequests.size() - 1).getDateStatusChanged())));
                 }
             }
@@ -201,7 +199,7 @@ public class ArchivesRoomFragmentController {
                                 "</span>" +
                                 ui.message("paperrecord.archivesRoom.recordNumber.label") +
                                 "<span class=\"toast-record-id\">" +
-                                createFormattedPaperRecordIdentifierString(paperRecordRequest, ui) +
+                                ui.format(paperRecordRequest.getPaperRecord().getPatientIdentifier().getIdentifier()) +
                                 "</span>" +
                                 "</span>");
             }
@@ -241,7 +239,7 @@ public class ArchivesRoomFragmentController {
             }
 
             return new SuccessResult(ui.message("paperrecord.archivesRoom.recordReturned.message") + "<br/><br/>"
-                    + ui.message("paperrecord.archivesRoom.recordNumber.label") + " " + createFormattedPaperRecordIdentifierString(sentRequests.get(0), ui));
+                    + ui.message("paperrecord.archivesRoom.recordNumber.label") + " " + ui.format(sentRequests.get(0).getPaperRecord().getPatientIdentifier().getIdentifier()));
         }
         catch (Exception e) {
             // generic catch-all
@@ -273,7 +271,7 @@ public class ArchivesRoomFragmentController {
 
         try {
             paperRecordService.printPaperFormLabels(request, sessionContext.getSessionLocation(), 1);
-            return new SuccessResult(ui.message("paperrecord.archivesRoom.printedLabel.message", createFormattedPaperRecordIdentifierString(request, ui)));
+            return new SuccessResult(ui.message("paperrecord.archivesRoom.printedLabel.message", request.getPaperRecord().getPatientIdentifier().getIdentifier()));
         }
         catch (UnableToPrintLabelException e) {
             log.warn("User " + sessionContext.getCurrentUser() + " unable to print paper record label at location "
@@ -291,7 +289,7 @@ public class ArchivesRoomFragmentController {
 
         try {
             paperRecordService.printPaperRecordLabelSet(request, sessionContext.getSessionLocation());
-            return new SuccessResult(ui.message("paperrecord.archivesRoom.printedLabels.message", createFormattedPaperRecordIdentifierString(request, ui)));
+            return new SuccessResult(ui.message("paperrecord.archivesRoom.printedLabels.message", request.getPaperRecord().getPatientIdentifier().getIdentifier()));
         }
         catch (UnableToPrintLabelException e) {
             log.warn("User " + sessionContext.getCurrentUser() + " unable to print paper record label at location "
@@ -309,18 +307,19 @@ public class ArchivesRoomFragmentController {
         List<SimpleObject> results = new ArrayList<SimpleObject>();
 
         for (PaperRecordRequest request : requests) {
-             SimpleObject result = SimpleObject.fromObject(request, ui, "requestId", "patient", "identifier", "requestLocation");
+             SimpleObject result = SimpleObject.fromObject(request, ui, "requestId", "patient", "requestLocation");
 
-            // manually add the date and patient identifier
+            // manually add the date, paper record identifier, and patient identifier
+            result.put("identifier", ui.format(request.getPaperRecord().getPatientIdentifier().getIdentifier()));
             result.put("dateCreated", timeAndDateFormat.format(request.getDateCreated()));
             result.put("dateCreatedSortable", request.getDateCreated()) ;
             result.put("patientIdentifier", ui.format(request.getPatient().getPatientIdentifier(emrApiProperties.getPrimaryIdentifierType()).getIdentifier()));
 
             // add the last sent and last sent date to any pending pull requests
-            if (PaperRecordRequest.PENDING_STATUSES.contains(request.getStatus()) && request.getPaperRecords() != null && request.getPaperRecords().size() > 01) {
+            if (PaperRecordRequest.PENDING_STATUSES.contains(request.getStatus()) && !request.getPaperRecord().getStatus().equals(PaperRecord.Status.PENDING_CREATION)) {
 
-                // TODO: create this method.. note that we are just using this first paper in the case of multiple paper records
-                PaperRecordRequest lastSentRequest = paperRecordService.getMostRecentSentPaperRecordRequest(request.getPaperRecords().get(0));
+                // note that we are just using this first paper in the case of multiple paper records
+                PaperRecordRequest lastSentRequest = paperRecordService.getMostRecentSentPaperRecordRequest(request.getPaperRecord());
 
                 // the second check here, where we confirm that the last send request is not equal to the request we are trying to display,
                 // is a hack to work around some transactional issues we were seeing: sometimes we were finding that a request was changed to "sent"
@@ -376,22 +375,6 @@ public class ArchivesRoomFragmentController {
         preferredPatient.setPatient(request.getPreferredPatient());
 
         result.put("preferredName", preferredPatient.getFormattedName());
-    }
-
-    private String createFormattedPaperRecordIdentifierString(PaperRecordRequest paperRecordRequest, UiUtils ui) {
-
-        StringBuffer paperRecordIdentifiers = new StringBuffer();
-
-        Iterator<PaperRecord> i = paperRecordRequest.getPaperRecords().iterator();
-
-        while (i.hasNext()) {
-            paperRecordIdentifiers.append(ui.format(i.next().getPatientIdentifier().getIdentifier()));
-            if (i.hasNext()) {
-                paperRecordIdentifiers.append(" ");
-            }
-        }
-
-        return paperRecordIdentifiers.toString();
     }
 
 }

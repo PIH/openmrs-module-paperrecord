@@ -4,8 +4,8 @@
         "http://www.hibernate.org/dtd/hibernate-mapping-3.0.dtd">
 <hibernate-mapping>
 
-    <class name="org.openmrs.module.paperrecord.PaperRecordRequest" table="emr_paper_record_request">
-        <id name="requestId" type="int" column="request_id" unsaved-value="0">
+    <class name="org.openmrs.module.paperrecord.PaperRecord" table="paperrecord_paper_record">
+        <id name="recordId" type="int" column="record_id" unsaved-value="0">
             <generator class="native"/>
         </id>
 
@@ -19,28 +19,16 @@
         <!-- we use field access here so that we can remove getter and force the use of the update status message -->
         <property name="status" column="status" length="50" not-null="true" access="field">
             <type name="org.openmrs.util.HibernateEnumType">
-                <param name="enumClassName">org.openmrs.module.paperrecord.PaperRecordRequest$Status</param>
+                <param name="enumClassName">org.openmrs.module.paperrecord.PaperRecord$Status</param>
             </type>
         </property>
 
-        <many-to-one name="paperRecord" class="org.openmrs.module.paperrecord.PaperRecord">
-            <column name="paper_record"/>
-        </many-to-one>
-
-        <many-to-one name="assignee" class="org.openmrs.Person">
-            <column name="assignee"/>
+        <many-to-one name="patientIdentifier" class="org.openmrs.PatientIdentifier" not-null="true">
+            <column name="patient_identifier"/>
         </many-to-one>
 
         <many-to-one name="creator" class="org.openmrs.User" not-null="true">
             <column name="creator"/>
-        </many-to-one>
-
-        <many-to-one name="patient" class="org.openmrs.Patient" not-null="true">
-            <column name="patient_id"/>
-        </many-to-one>
-
-        <many-to-one name="requestLocation" class="org.openmrs.Location" not-null="true">
-            <column name="request_location"/>
         </many-to-one>
 
         <many-to-one name="recordLocation" class="org.openmrs.Location" not-null="true">

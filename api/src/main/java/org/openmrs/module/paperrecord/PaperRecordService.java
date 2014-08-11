@@ -20,6 +20,7 @@ import org.openmrs.PatientIdentifier;
 import org.openmrs.Person;
 import org.openmrs.annotation.Authorized;
 import org.openmrs.api.OpenmrsService;
+import org.openmrs.module.idgen.service.IdentifierSourceService;
 import org.openmrs.module.printer.PrinterService;
 
 import java.util.Date;
@@ -63,6 +64,9 @@ public interface PaperRecordService extends OpenmrsService {
      */
     @Authorized(PaperRecordConstants.PRIVILEGE_PAPER_RECORDS_REQUEST_RECORDS)
     boolean paperRecordExistsForPatientWithIdentifier(String patientIdentifier, Location location);
+
+
+    // TODO: update tour dates
     /**
      * Creates a paper medical record number for the given patient at the specified medical record location
      *
@@ -71,7 +75,7 @@ public interface PaperRecordService extends OpenmrsService {
      * @return the Patient identifier created
      */
     @Authorized(PaperRecordConstants.PRIVILEGE_PAPER_RECORDS_MANAGE_REQUESTS)
-    PatientIdentifier createPaperMedicalRecordNumber(Patient patient, Location medicalRecordLocation);
+    PaperRecord assureHasPaperRecord(Patient patient, Location medicalRecordLocation);
 
 
     /**
@@ -111,7 +115,11 @@ public interface PaperRecordService extends OpenmrsService {
      * @param requestLocation the location where the record is to be sent
      */
     @Authorized(PaperRecordConstants.PRIVILEGE_PAPER_RECORDS_REQUEST_RECORDS)
-    PaperRecordRequest requestPaperRecord(Patient patient, Location recordLocation, Location requestLocation);
+    List<PaperRecordRequest> requestPaperRecord(Patient patient, Location recordLocation, Location requestLocation);
+
+    // TODO: javadoc
+    @Authorized(PaperRecordConstants.PRIVILEGE_PAPER_RECORDS_REQUEST_RECORDS)
+    List<PaperRecordRequest> getOpenPaperRecordRequests();
 
     /**
      * Retrieves all records that are open (ie, have yet to be assigned to an archivist for retrieval)
@@ -162,6 +170,10 @@ public interface PaperRecordService extends OpenmrsService {
      */
     @Authorized(PaperRecordConstants.PRIVILEGE_PAPER_RECORDS_MANAGE_REQUESTS)
     Map<String, List<String>> assignRequestsInternal(List<PaperRecordRequest> requests, Person assignee, Location location) throws UnableToPrintLabelException;
+
+    // TODO: javaadoc
+    @Authorized(PaperRecordConstants.PRIVILEGE_PAPER_RECORDS_MANAGE_REQUESTS)
+    List<PaperRecordRequest> getAssignedPaperRecordRequests();
 
     /**
      * Retrieves all records that have been assigned and need to be pulled
@@ -219,14 +231,14 @@ public interface PaperRecordService extends OpenmrsService {
 
 
     /**
-     * Returns the most recent "sent" paper record request (if any) for the record with the specified identifier
+     * Returns the most recent "sent" paper record request (if any) for the record
      * "Most Recent" is the one with the most recent dateStatusChanged field
      *
-     * @param identifier the paper record identifier
+     * @param the paper record
      * @return returns the most recent "sent" paper record request (if any) for the record with specified identifier
      */
     @Authorized(PaperRecordConstants.PRIVILEGE_PAPER_RECORDS_MANAGE_REQUESTS)
-    PaperRecordRequest getMostRecentSentPaperRecordRequestByPaperRecordIdentifier(String identifier);
+    PaperRecordRequest getMostRecentSentPaperRecordRequest(PaperRecord paperRecord);
 
     /**
      * Marks the specified paper record request as "sent"
@@ -351,6 +363,19 @@ public interface PaperRecordService extends OpenmrsService {
     // TODO: authorized, javadoc
     List<PaperRecord> getPaperRecords(Patient patient, Location paperRecordLocation);
 
+    // TODO: authorized, javadoc
+    PaperRecord getPaperRecord(PatientIdentifier patientIdentifier, Location paperRecordLocation);
+
+    /**
+     * Creates or updates a Paper Record Request
+     *
+     * @return
+     */
+    // TODO: authorized, javadoc
+    @Authorized(PaperRecordConstants.PRIVILEGE_PAPER_RECORDS_MANAGE_REQUESTS)
+    PaperRecord savePaperRecord(PaperRecord paperRecord);
+
+
     /**
      * Expires all pending pull requests (ie, those pull requests with status OPEN or ASSIGNED_TO_PULL) that
      * have a date_created before the specified expire date; Expires requests by setting the status
@@ -373,5 +398,9 @@ public interface PaperRecordService extends OpenmrsService {
      */
     void setPrinterService(PrinterService printerService);
 
+    /**
+     * Hack to bring this up to the interface level to allow us to stub out the template in component tests
+     */
+    void setIdentifierSourceService(IdentifierSourceService identifierSourceService);
 }
 

@@ -52,11 +52,10 @@ public class RequestPaperRecordFragmentController {
                                             UiSessionContext uiSessionContext) throws UnableToPrintLabelException {
 
 
-        // TODO: change this to assureHasPaperMedicalRecordNumber?
-        service.createPaperMedicalRecordNumber(patient, location);
+        service.assureHasPaperRecord(patient, location);
 
-        // TODO: add create paper record method here?
-        // TODO: the create record will call the assure has paper medical record number
+        // TODO: add a method here to mark the paper record as created-- should only if the print completes!
+
         // TODO: should this fail if the patient already has a paper record "please place a request?"
 
         try {

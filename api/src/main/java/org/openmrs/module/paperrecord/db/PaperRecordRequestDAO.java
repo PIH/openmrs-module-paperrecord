@@ -17,13 +17,12 @@ package org.openmrs.module.paperrecord.db;
 import org.openmrs.Location;
 import org.openmrs.Patient;
 import org.openmrs.module.emrapi.db.SingleClassDAO;
+import org.openmrs.module.paperrecord.PaperRecord;
 import org.openmrs.module.paperrecord.PaperRecordRequest;
 
 import java.util.List;
 
 public interface PaperRecordRequestDAO extends SingleClassDAO<PaperRecordRequest> {
-
-    // TODO: change implementation to work properly!
 
     /**
      * Returns all the paper record requests for the given patient and given location with ANY of the specified statuses
@@ -32,10 +31,11 @@ public interface PaperRecordRequestDAO extends SingleClassDAO<PaperRecordRequest
      * @param patient
      * @param recordLocation
      * @param identifier
-     * @param hasPaperRecords  restricts whether there are one or more paper records associatd with this request
      * @return the paper record requests for the given patient and given record location with ANY of the specified statuses
      */
     List<PaperRecordRequest> findPaperRecordRequests(List<PaperRecordRequest.Status> statusList, Patient patient,
-                                                     Location recordLocation, String identifier, Boolean hasPaperRecords);
+                                                     Location recordLocation, String identifier);
+
+    List<PaperRecordRequest> findPaperRecordRequests(List<PaperRecordRequest.Status> statusList, PaperRecord paperRecord);
 
 }
