@@ -341,6 +341,7 @@ public interface PaperRecordService extends OpenmrsService {
     @Authorized(PaperRecordConstants.PRIVILEGE_PAPER_RECORDS_MANAGE_REQUESTS)
     void printPaperRecordLabelSet(PaperRecordRequest paperRecordRequest, Location location) throws UnableToPrintLabelException;
 
+    // TODO: fix javadoc
     /**
      * Creates a request to merge two paper records
      *
@@ -348,7 +349,7 @@ public interface PaperRecordService extends OpenmrsService {
      * @param notPreferredIdentifier the identifier of the non-preferred paper record
      */
     @Authorized(PaperRecordConstants.PRIVILEGE_PAPER_RECORDS_REQUEST_RECORDS)
-    void markPaperRecordsForMerge(PatientIdentifier preferredIdentifier, PatientIdentifier notPreferredIdentifier);
+    void markPaperRecordsForMerge(PaperRecord preferredPaperRecord, PaperRecord notPreferredPaperRecord);
 
     /**
      * Marks that the paper record merge request has been completed
@@ -363,6 +364,9 @@ public interface PaperRecordService extends OpenmrsService {
      */
     @Authorized(PaperRecordConstants.PRIVILEGE_PAPER_RECORDS_MANAGE_REQUESTS)
     List<PaperRecordMergeRequest> getOpenPaperRecordMergeRequests();
+
+    // TODO: authorized, javadoc
+    List<PaperRecord> getPaperRecords(Patient patient);
 
     // TODO: authorized, javadoc
     List<PaperRecord> getPaperRecords(Patient patient, Location paperRecordLocation);

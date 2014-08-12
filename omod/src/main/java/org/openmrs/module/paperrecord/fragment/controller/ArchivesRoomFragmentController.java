@@ -365,14 +365,14 @@ public class ArchivesRoomFragmentController {
 
     private void putDataFromNonPreferredPatient(PaperRecordMergeRequest request, SimpleObject result) {
         PatientDomainWrapper notPreferredPatient = new PatientDomainWrapper();
-        notPreferredPatient.setPatient(request.getNotPreferredPatient());
+        notPreferredPatient.setPatient(request.getNotPreferredPaperRecord().getPatientIdentifier().getPatient());
 
         result.put("notPreferredName", notPreferredPatient.getFormattedName());
     }
 
     private void putDataFromPreferredPatient(PaperRecordMergeRequest request, SimpleObject result) {
         PatientDomainWrapper preferredPatient = new PatientDomainWrapper();
-        preferredPatient.setPatient(request.getPreferredPatient());
+        preferredPatient.setPatient(request.getPreferredPaperRecord().getPatientIdentifier().getPatient());
 
         result.put("preferredName", preferredPatient.getFormattedName());
     }

@@ -797,7 +797,6 @@ public class PaperRecordServiceTest {
         assertThat(request.getStatus(), is(Status.RETURNED));
     }
 
-
     @Test
     public void testMarkPapersRecordForMergeShouldCreatePaperRecordMergeRequest() throws Exception {
 
@@ -807,15 +806,21 @@ public class PaperRecordServiceTest {
         Patient patient2 = new Patient();
 
         PatientIdentifier identifier1 = createIdentifier(medicalRecordLocation, "ABC");
+        PaperRecord paperRecord1 = new PaperRecord();
+        paperRecord1.setRecordLocation(medicalRecordLocation);
+        paperRecord1.setPatientIdentifier(identifier1);
+
         PatientIdentifier identifier2 = createIdentifier(medicalRecordLocation, "EFG");
+        PaperRecord paperRecord2 = new PaperRecord();
+        paperRecord2.setRecordLocation(medicalRecordLocation);
+        paperRecord2.setPatientIdentifier(identifier2);
 
         patient1.addIdentifier(identifier1);
         patient2.addIdentifier(identifier2);
 
-        paperRecordService.markPaperRecordsForMerge(identifier1, identifier2);
+        paperRecordService.markPaperRecordsForMerge(paperRecord1, paperRecord2);
 
-        IsExpectedMergeRequest expectedMergeRequestMatcher = new IsExpectedMergeRequest(createExpectedMergeRequest(patient1,
-                patient2, identifier1.getIdentifier(), identifier2.getIdentifier(), medicalRecordLocation));
+        IsExpectedMergeRequest expectedMergeRequestMatcher = new IsExpectedMergeRequest(createExpectedMergeRequest(paperRecord1, paperRecord2));
 
         verify(mockPaperRecordMergeRequestDAO).saveOrUpdate(argThat(expectedMergeRequestMatcher));
         verify(mockPatientService).voidPatientIdentifier(identifier2, "voided during paper record merge");
@@ -831,51 +836,20 @@ public class PaperRecordServiceTest {
         Patient patient2 = new Patient();
 
         PatientIdentifier identifier1 = createIdentifier(medicalRecordLocation, "ABC");
+        PaperRecord paperRecord1 = new PaperRecord();
+        paperRecord1.setRecordLocation(medicalRecordLocation);
+        paperRecord1.setPatientIdentifier(identifier1);
+
         PatientIdentifier identifier2 = createIdentifier(anotherLocation, "EFG");
+        PaperRecord paperRecord2 = new PaperRecord();
+        paperRecord2.setRecordLocation(anotherLocation);
+        paperRecord2.setPatientIdentifier(identifier2);
 
         patient1.addIdentifier(identifier1);
         patient2.addIdentifier(identifier2);
 
-        paperRecordService.markPaperRecordsForMerge(identifier1, identifier2);
+        paperRecordService.markPaperRecordsForMerge(paperRecord1, paperRecord2);
 
-    }
-
-    @Test(expected = IllegalArgumentException.class)
-    public void testMarkPaperRecordsForMergeShouldFailIfFirstIdentifierNotProperType() throws Exception {
-
-        Location medicalRecordLocation = createMedicalRecordLocation();
-        PatientIdentifierType someOtherIdentifierType = new PatientIdentifierType();
-
-        Patient patient1 = new Patient();
-        Patient patient2 = new Patient();
-
-        PatientIdentifier identifier1 = createIdentifier(medicalRecordLocation, "ABC");
-        identifier1.setIdentifierType(someOtherIdentifierType);
-        PatientIdentifier identifier2 = createIdentifier(medicalRecordLocation, "EFG");
-
-        patient1.addIdentifier(identifier1);
-        patient2.addIdentifier(identifier2);
-
-        paperRecordService.markPaperRecordsForMerge(identifier1, identifier2);
-    }
-
-    @Test(expected = IllegalArgumentException.class)
-    public void testMarkPaperRecordsForMergeShouldFailIfSecondIdentifierNotProperType() throws Exception {
-
-        Location medicalRecordLocation = createMedicalRecordLocation();
-        PatientIdentifierType someOtherIdentifierType = new PatientIdentifierType();
-
-        Patient patient1 = new Patient();
-        Patient patient2 = new Patient();
-
-        PatientIdentifier identifier1 = createIdentifier(medicalRecordLocation, "ABC");
-        PatientIdentifier identifier2 = createIdentifier(medicalRecordLocation, "EFG");
-        identifier2.setIdentifierType(someOtherIdentifierType);
-
-        patient1.addIdentifier(identifier1);
-        patient2.addIdentifier(identifier2);
-
-        paperRecordService.markPaperRecordsForMerge(identifier1, identifier2);
     }
 
     @Test
@@ -887,16 +861,21 @@ public class PaperRecordServiceTest {
         Patient patient2 = new Patient();
 
         PatientIdentifier identifier1 = createIdentifier(medicalRecordLocation, "ABC");
+        PaperRecord paperRecord1 = new PaperRecord();
+        paperRecord1.setRecordLocation(medicalRecordLocation);
+        paperRecord1.setPatientIdentifier(identifier1);
+
         PatientIdentifier identifier2 = createIdentifier(medicalRecordLocation, "EFG");
+        PaperRecord paperRecord2 = new PaperRecord();
+        paperRecord2.setRecordLocation(medicalRecordLocation);
+        paperRecord2.setPatientIdentifier(identifier2);
 
         patient1.addIdentifier(identifier1);
         patient2.addIdentifier(identifier2);
 
         PaperRecordMergeRequest mergeRequest = new PaperRecordMergeRequest();
-        mergeRequest.setPreferredPatient(patient1);
-        mergeRequest.setNotPreferredPatient(patient2);
-        mergeRequest.setPreferredIdentifier(identifier1.getIdentifier());
-        mergeRequest.setNotPreferredIdentifier(identifier2.getIdentifier());
+        mergeRequest.setPreferredPaperRecord(paperRecord1);
+        mergeRequest.setNotPreferredPaperRecord(paperRecord2);
         mergeRequest.setDateCreated(new Date());
         paperRecordService.markPaperRecordsAsMerged(mergeRequest);
 
@@ -905,135 +884,389 @@ public class PaperRecordServiceTest {
         verify(mockPaperRecordMergeRequestDAO).saveOrUpdate(argThat(expectedMergeRequestMatcher));
     }
 
+
     @Test
-    public void testMarkPaperRecordsAsMergedShouldMergeExistingPendingPaperRecordRequests() throws Exception {
+    public void mergingPatientsShouldCancelOpenRequestForPreferredPatient() {
 
         Location medicalRecordLocation = createMedicalRecordLocation();
-        Location location1 = new Location(1);
-        Location location2 = new Location(2);
 
-        Patient patient = new Patient();
-        Patient notPreferredPatient = new Patient();
+        Patient patient1 = new Patient();
+        Patient patient2 = new Patient();
 
-        // create the merge request
-        PaperRecordMergeRequest mergeRequest = new PaperRecordMergeRequest();
-        mergeRequest.setPreferredPatient(patient);
-        mergeRequest.setNotPreferredPatient(notPreferredPatient);
-        mergeRequest.setPreferredIdentifier("ABC");
-        mergeRequest.setNotPreferredIdentifier("XYZ");
-        mergeRequest.setRecordLocation(medicalRecordLocation);
-        mergeRequest.setDateCreated(new Date());
+        PatientIdentifier identifier1 = createIdentifier(medicalRecordLocation, "ABC");
+        PaperRecord paperRecord1 = new PaperRecord();
+        paperRecord1.setRecordLocation(medicalRecordLocation);
+        paperRecord1.setPatientIdentifier(identifier1);
 
-        // create some existing paper record requests (all should be for the preferred patient at this point)
-        PaperRecordRequest request1 = createPaperRecordRequest(patient, medicalRecordLocation, "XYZ",
-                location1, Status.OPEN);
-        request1.setDateCreated(new Date());
-        PaperRecordRequest request2 = createPaperRecordRequest(patient, medicalRecordLocation, "ABC",
-                location2, Status.ASSIGNED_TO_PULL);
-        request2.setDateCreated(new Date());
+        PatientIdentifier identifier2 = createIdentifier(medicalRecordLocation, "EFG");
+        PaperRecord paperRecord2 = new PaperRecord();
+        paperRecord2.setRecordLocation(medicalRecordLocation);
+        paperRecord2.setPatientIdentifier(identifier2);
 
-        when(mockPaperRecordRequestDAO.findPaperRecordRequests(PENDING_STATUSES, null, medicalRecordLocation, "XYZ", null))
-                .thenReturn(Collections.singletonList(request1));
+        patient1.addIdentifier(identifier1);
+        patient2.addIdentifier(identifier2);
 
-        when(mockPaperRecordRequestDAO.findPaperRecordRequests(PENDING_STATUSES, null, medicalRecordLocation, "ABC", null))
-                .thenReturn(Collections.singletonList(request2));
+        PaperRecordRequest paperRecordRequest = new PaperRecordRequest();
+        paperRecordRequest.setPaperRecord(paperRecord1);
+        paperRecordRequest.updateStatus(Status.OPEN);
 
-        paperRecordService.markPaperRecordsAsMerged(mergeRequest);
+        when(mockPaperRecordRequestDAO.findPaperRecordRequests(PENDING_STATUSES, paperRecord1)).thenReturn(Collections.singletonList(paperRecordRequest));
 
-        // the "winning" request should be the request with the preferred identifier, but should be updated with
-        // the more recent request location
-        PaperRecordRequest expectedWinningRequest = createPaperRecordRequest(patient, medicalRecordLocation, "ABC",
-                location2, Status.ASSIGNED_TO_PULL);
-        expectedWinningRequest.setId(request2.getId());
+        paperRecordService.markPaperRecordsForMerge(paperRecord1, paperRecord2);
 
-        PaperRecordRequest expectedLosingRequest = createPaperRecordRequest(patient, medicalRecordLocation, "XYZ",
-                location1, Status.CANCELLED);
-        expectedLosingRequest.setId(request1.getId());
+        assertThat(paperRecordRequest.getStatus(), is(Status.CANCELLED));
 
-        ArgumentCaptor<PaperRecordRequest> paperRecordRequestArgumentCaptor = ArgumentCaptor.forClass(PaperRecordRequest.class);
-        verify(mockPaperRecordRequestDAO, times(2)).saveOrUpdate(paperRecordRequestArgumentCaptor.capture());
+    }
 
-        IsExpectedRequest expectedWinningRequestMatcher = new IsExpectedRequest(expectedWinningRequest);
-        assertThat(paperRecordRequestArgumentCaptor.getAllValues().get(0), Is.is(expectedWinningRequestMatcher));
 
-        IsExpectedRequest expectedLosingRequestMatcher = new IsExpectedRequest(expectedLosingRequest);
-        assertThat(paperRecordRequestArgumentCaptor.getAllValues().get(1), Is.is(expectedLosingRequestMatcher));
+    @Test
+    public void mergingPatientsShouldCancelAssignedRequestForPreferredPatient() {
+
+        Location medicalRecordLocation = createMedicalRecordLocation();
+
+        Patient patient1 = new Patient();
+        Patient patient2 = new Patient();
+
+        PatientIdentifier identifier1 = createIdentifier(medicalRecordLocation, "ABC");
+        PaperRecord paperRecord1 = new PaperRecord();
+        paperRecord1.setRecordLocation(medicalRecordLocation);
+        paperRecord1.setPatientIdentifier(identifier1);
+
+        PatientIdentifier identifier2 = createIdentifier(medicalRecordLocation, "EFG");
+        PaperRecord paperRecord2 = new PaperRecord();
+        paperRecord2.setRecordLocation(medicalRecordLocation);
+        paperRecord2.setPatientIdentifier(identifier2);
+
+        patient1.addIdentifier(identifier1);
+        patient2.addIdentifier(identifier2);
+
+        PaperRecordRequest paperRecordRequest = new PaperRecordRequest();
+        paperRecordRequest.setPaperRecord(paperRecord1);
+        paperRecordRequest.updateStatus(Status.ASSIGNED);
+
+        when(mockPaperRecordRequestDAO.findPaperRecordRequests(PENDING_STATUSES, paperRecord1)).thenReturn(Collections.singletonList(paperRecordRequest));
+
+        paperRecordService.markPaperRecordsForMerge(paperRecord1, paperRecord2);
+
+        assertThat(paperRecordRequest.getStatus(), is(Status.CANCELLED));
+    }
+
+
+     @Test
+    public void mergingPatientsShouldNotCancelSentRequestForPreferredPatient() {
+
+      Location medicalRecordLocation = createMedicalRecordLocation();
+
+      Patient patient1 = new Patient();
+      Patient patient2 = new Patient();
+
+      PatientIdentifier identifier1 = createIdentifier(medicalRecordLocation, "ABC");
+      PaperRecord paperRecord1 = new PaperRecord();
+      paperRecord1.setRecordLocation(medicalRecordLocation);
+      paperRecord1.setPatientIdentifier(identifier1);
+
+      PatientIdentifier identifier2 = createIdentifier(medicalRecordLocation, "EFG");
+      PaperRecord paperRecord2 = new PaperRecord();
+      paperRecord2.setRecordLocation(medicalRecordLocation);
+      paperRecord2.setPatientIdentifier(identifier2);
+
+      patient1.addIdentifier(identifier1);
+      patient2.addIdentifier(identifier2);
+
+      PaperRecordRequest paperRecordRequest = new PaperRecordRequest();
+      paperRecordRequest.setPaperRecord(paperRecord1);
+      paperRecordRequest.updateStatus(Status.SENT);
+
+      when(mockPaperRecordRequestDAO.findPaperRecordRequests(Collections.singletonList(Status.SENT), paperRecord1)).thenReturn(Collections.singletonList(paperRecordRequest));
+
+      paperRecordService.markPaperRecordsForMerge(paperRecord1, paperRecord2);
+
+      assertThat(paperRecordRequest.getStatus(), is(Status.SENT));
+
     }
 
     @Test
-    public void testMarkPaperRecordsAsMergedShouldUpdatePendingRecordRequestForNotPreferredRecord() throws Exception {
+    public void mergingPatientsShouldNotCancelReturnedRequestForPreferredPatient() {
 
         Location medicalRecordLocation = createMedicalRecordLocation();
-        Location location1 = new Location(1);
 
-        Patient patient = new Patient();
-        Patient notPreferredPatient = new Patient();
+        Patient patient1 = new Patient();
+        Patient patient2 = new Patient();
 
-        // create the merge request
-        PaperRecordMergeRequest mergeRequest = new PaperRecordMergeRequest();
-        mergeRequest.setPreferredPatient(patient);
-        mergeRequest.setNotPreferredPatient(notPreferredPatient);
-        mergeRequest.setPreferredIdentifier("ABC");
-        mergeRequest.setNotPreferredIdentifier("XYZ");
-        mergeRequest.setRecordLocation(medicalRecordLocation);
-        mergeRequest.setDateCreated(new Date());
+        PatientIdentifier identifier1 = createIdentifier(medicalRecordLocation, "ABC");
+        PaperRecord paperRecord1 = new PaperRecord();
+        paperRecord1.setRecordLocation(medicalRecordLocation);
+        paperRecord1.setPatientIdentifier(identifier1);
 
-        // create some existing paper record request for the "non-preferred" identifier
-        PaperRecordRequest request = createPaperRecordRequest(patient, medicalRecordLocation, "XYZ",
-                location1, Status.OPEN);
-        request.setId(1);
-        request.setDateCreated(new Date());
+        PatientIdentifier identifier2 = createIdentifier(medicalRecordLocation, "EFG");
+        PaperRecord paperRecord2 = new PaperRecord();
+        paperRecord2.setRecordLocation(medicalRecordLocation);
+        paperRecord2.setPatientIdentifier(identifier2);
 
-        when(mockPaperRecordRequestDAO.findPaperRecordRequests(PENDING_STATUSES, null, medicalRecordLocation, "XYZ", null))
-                .thenReturn(Collections.singletonList(request));
+        patient1.addIdentifier(identifier1);
+        patient2.addIdentifier(identifier2);
 
-        paperRecordService.markPaperRecordsAsMerged(mergeRequest);
+        PaperRecordRequest paperRecordRequest = new PaperRecordRequest();
+        paperRecordRequest.setPaperRecord(paperRecord1);
+        paperRecordRequest.updateStatus(Status.CANCELLED);
 
-        // the request should be updated with the preferred identifier
-        PaperRecordRequest expectedRequest = createPaperRecordRequest(patient, medicalRecordLocation, "ABC",
-                location1, Status.OPEN);
-        expectedRequest.setId(request.getId());
+        paperRecordService.markPaperRecordsForMerge(paperRecord1, paperRecord2);
 
-        IsExpectedRequest expectedRequestMatcher = new IsExpectedRequest(expectedRequest);
-        verify(mockPaperRecordRequestDAO).saveOrUpdate(argThat(expectedRequestMatcher));
-     }
+        assertThat(paperRecordRequest.getStatus(), is(Status.CANCELLED));
 
-   @Test
-    public void testMarkPaperRecordsShouldMarkAnyNotPreferredRecordRequestsInSentStateAsReturned() throws Exception {
+    }
+
+    @Test
+    public void mergingPatientsShouldCancelOpenRequestNotForPreferredPatient() {
 
         Location medicalRecordLocation = createMedicalRecordLocation();
-        Location location1 = new Location(1);
 
-        Patient patient = new Patient();
-        Patient notPreferredPatient = new Patient();
+        Patient patient1 = new Patient();
+        Patient patient2 = new Patient();
 
-        // create the merge request
-        PaperRecordMergeRequest mergeRequest = new PaperRecordMergeRequest();
-        mergeRequest.setPreferredPatient(patient);
-        mergeRequest.setNotPreferredPatient(notPreferredPatient);
-        mergeRequest.setPreferredIdentifier("ABC");
-        mergeRequest.setNotPreferredIdentifier("XYZ");
-        mergeRequest.setRecordLocation(medicalRecordLocation);
-        mergeRequest.setDateCreated(new Date());
+        PatientIdentifier identifier1 = createIdentifier(medicalRecordLocation, "ABC");
+        PaperRecord paperRecord1 = new PaperRecord();
+        paperRecord1.setRecordLocation(medicalRecordLocation);
+        paperRecord1.setPatientIdentifier(identifier1);
 
-        // create some existing paper record request for the "non-preferred" identifier
-        PaperRecordRequest request = createPaperRecordRequest(patient, medicalRecordLocation, "XYZ",
-                location1, Status.SENT);
-        request.setId(1);
-        request.setDateCreated(new Date());
+        PatientIdentifier identifier2 = createIdentifier(medicalRecordLocation, "EFG");
+        PaperRecord paperRecord2 = new PaperRecord();
+        paperRecord2.setRecordLocation(medicalRecordLocation);
+        paperRecord2.setPatientIdentifier(identifier2);
 
-        when(mockPaperRecordRequestDAO.findPaperRecordRequests(Collections.singletonList(Status.SENT),
-                null, medicalRecordLocation, "XYZ", null)).thenReturn(Collections.singletonList(request));
+        patient1.addIdentifier(identifier1);
+        patient2.addIdentifier(identifier2);
 
-        paperRecordService.markPaperRecordsAsMerged(mergeRequest);
+        PaperRecordRequest paperRecordRequest = new PaperRecordRequest();
+        paperRecordRequest.setPaperRecord(paperRecord2);
+        paperRecordRequest.updateStatus(Status.OPEN);
 
-        // the request should be marked as returned with the preferred identifier
-        PaperRecordRequest expectedRequest = createPaperRecordRequest(patient, medicalRecordLocation, "XYZ",
-                location1, Status.RETURNED);
-        expectedRequest.setId(request.getId());
+        when(mockPaperRecordRequestDAO.findPaperRecordRequests(PENDING_STATUSES, paperRecord2)).thenReturn(Collections.singletonList(paperRecordRequest));
 
-        IsExpectedRequest expectedRequestMatcher = new IsExpectedRequest(expectedRequest);
-        verify(mockPaperRecordRequestDAO).saveOrUpdate(argThat(expectedRequestMatcher));
+        paperRecordService.markPaperRecordsForMerge(paperRecord1, paperRecord2);
+
+        assertThat(paperRecordRequest.getStatus(), is(Status.CANCELLED));
+
+    }
+
+    @Test
+    public void mergingPatientsShouldCancelAssignedRequestForNotPreferredPatient() {
+
+        Location medicalRecordLocation = createMedicalRecordLocation();
+
+        Patient patient1 = new Patient();
+        Patient patient2 = new Patient();
+
+        PatientIdentifier identifier1 = createIdentifier(medicalRecordLocation, "ABC");
+        PaperRecord paperRecord1 = new PaperRecord();
+        paperRecord1.setRecordLocation(medicalRecordLocation);
+        paperRecord1.setPatientIdentifier(identifier1);
+
+        PatientIdentifier identifier2 = createIdentifier(medicalRecordLocation, "EFG");
+        PaperRecord paperRecord2 = new PaperRecord();
+        paperRecord2.setRecordLocation(medicalRecordLocation);
+        paperRecord2.setPatientIdentifier(identifier2);
+
+        patient1.addIdentifier(identifier1);
+        patient2.addIdentifier(identifier2);
+
+        PaperRecordRequest paperRecordRequest = new PaperRecordRequest();
+        paperRecordRequest.setPaperRecord(paperRecord2);
+        paperRecordRequest.updateStatus(Status.ASSIGNED);
+
+        when(mockPaperRecordRequestDAO.findPaperRecordRequests(PENDING_STATUSES, paperRecord2)).thenReturn(Collections.singletonList(paperRecordRequest));
+
+        paperRecordService.markPaperRecordsForMerge(paperRecord1, paperRecord2);
+
+        assertThat(paperRecordRequest.getStatus(), is(Status.CANCELLED));
+    }
+
+
+    @Test
+    public void mergingPatientsShouldNotCancelSentRequestForNotPreferredPatient() {
+
+        Location medicalRecordLocation = createMedicalRecordLocation();
+
+        Patient patient1 = new Patient();
+        Patient patient2 = new Patient();
+
+        PatientIdentifier identifier1 = createIdentifier(medicalRecordLocation, "ABC");
+        PaperRecord paperRecord1 = new PaperRecord();
+        paperRecord1.setRecordLocation(medicalRecordLocation);
+        paperRecord1.setPatientIdentifier(identifier1);
+
+        PatientIdentifier identifier2 = createIdentifier(medicalRecordLocation, "EFG");
+        PaperRecord paperRecord2 = new PaperRecord();
+        paperRecord2.setRecordLocation(medicalRecordLocation);
+        paperRecord2.setPatientIdentifier(identifier2);
+
+        patient1.addIdentifier(identifier1);
+        patient2.addIdentifier(identifier2);
+
+        PaperRecordRequest paperRecordRequest = new PaperRecordRequest();
+        paperRecordRequest.setPaperRecord(paperRecord2);
+        paperRecordRequest.updateStatus(Status.SENT);
+
+        when(mockPaperRecordRequestDAO.findPaperRecordRequests(Collections.singletonList(Status.SENT), paperRecord2)).thenReturn(Collections.singletonList(paperRecordRequest));
+
+        paperRecordService.markPaperRecordsForMerge(paperRecord1, paperRecord2);
+
+        assertThat(paperRecordRequest.getStatus(), is(Status.SENT));
+
+    }
+
+    @Test
+    public void mergingPatientsShouldMoveAllSentPaperRecordRequestsToPreferredPatient() {
+
+        Location medicalRecordLocation = createMedicalRecordLocation();
+        Location recordLocation = new Location();
+        Location requestLocation = new Location();
+
+        Patient preferred = new Patient();
+        Patient notPreferred = new Patient();
+
+        PatientIdentifier preferredIdentifier = createIdentifier(medicalRecordLocation, "ABC");
+        PaperRecord preferredPaperRecord = new PaperRecord();
+        preferredPaperRecord.setRecordLocation(medicalRecordLocation);
+        preferredPaperRecord.setPatientIdentifier(preferredIdentifier);
+
+        PatientIdentifier nonPreferredIdentifier = createIdentifier(medicalRecordLocation, "EFG");
+        PaperRecord nonPreferredPaperRecord = new PaperRecord();
+        nonPreferredPaperRecord.setRecordLocation(medicalRecordLocation);
+        nonPreferredPaperRecord.setPatientIdentifier(nonPreferredIdentifier);
+
+        preferred.addIdentifier(preferredIdentifier);
+        notPreferred.addIdentifier(nonPreferredIdentifier);
+
+        PaperRecordRequest preferredRequest = new PaperRecordRequest();
+        preferredRequest.setPaperRecord(preferredPaperRecord);
+        preferredRequest.setPatient(preferred);
+        preferredRequest.setRecordLocation(recordLocation);
+        preferredRequest.setRequestLocation(requestLocation);
+        preferredRequest.updateStatus(Status.SENT);
+
+        PaperRecordRequest nonPreferredRequest = new PaperRecordRequest();
+        nonPreferredRequest.setPaperRecord(nonPreferredPaperRecord);
+        nonPreferredRequest.setPatient(notPreferred);
+        nonPreferredRequest.setRecordLocation(recordLocation);
+        nonPreferredRequest.setRequestLocation(requestLocation);
+        nonPreferredRequest.updateStatus(Status.SENT);
+
+        // we are expecting that the non-preferred request is now associated with the the preferred patient
+        PaperRecordRequest expectedRequest = new PaperRecordRequest();
+        expectedRequest.setPaperRecord(preferredPaperRecord);
+        expectedRequest.setPatient(preferred);
+        expectedRequest.setRecordLocation(recordLocation);
+        expectedRequest.setRequestLocation(requestLocation);
+        expectedRequest.updateStatus(Status.SENT);
+
+        when(mockPaperRecordRequestDAO.findPaperRecordRequests(Collections.singletonList(Status.SENT), nonPreferredPaperRecord)).thenReturn(Collections.singletonList(nonPreferredRequest));
+
+        paperRecordService.markPaperRecordsForMerge(preferredPaperRecord, nonPreferredPaperRecord);
+
+        assertThat(nonPreferredRequest, is(new IsExpectedRequest(expectedRequest)));
+    }
+
+    public void mergingPatientsShouldNotMoveReturnedPaperRecordRequestsToPreferredPatient() {
+
+        Location medicalRecordLocation = createMedicalRecordLocation();
+        Location recordLocation = new Location();
+        Location requestLocation = new Location();
+
+        Patient preferred = new Patient();
+        Patient notPreferred = new Patient();
+
+        PatientIdentifier preferredIdentifier = createIdentifier(medicalRecordLocation, "ABC");
+        PaperRecord preferredPaperRecord = new PaperRecord();
+        preferredPaperRecord.setRecordLocation(medicalRecordLocation);
+        preferredPaperRecord.setPatientIdentifier(preferredIdentifier);
+
+        PatientIdentifier nonPreferredIdentifier = createIdentifier(medicalRecordLocation, "EFG");
+        PaperRecord nonPreferredPaperRecord = new PaperRecord();
+        nonPreferredPaperRecord.setRecordLocation(medicalRecordLocation);
+        nonPreferredPaperRecord.setPatientIdentifier(nonPreferredIdentifier);
+
+        preferred.addIdentifier(preferredIdentifier);
+        notPreferred.addIdentifier(nonPreferredIdentifier);
+
+        PaperRecordRequest preferredRequest = new PaperRecordRequest();
+        preferredRequest.setPaperRecord(preferredPaperRecord);
+        preferredRequest.setPatient(preferred);
+        preferredRequest.setRecordLocation(recordLocation);
+        preferredRequest.setRequestLocation(requestLocation);
+        preferredRequest.updateStatus(Status.RETURNED);
+
+        PaperRecordRequest nonPreferredRequest = new PaperRecordRequest();
+        nonPreferredRequest.setPaperRecord(nonPreferredPaperRecord);
+        nonPreferredRequest.setPatient(notPreferred);
+        nonPreferredRequest.setRecordLocation(recordLocation);
+        nonPreferredRequest.setRequestLocation(requestLocation);
+        nonPreferredRequest.updateStatus(Status.RETURNED);
+
+        // should be same original
+        PaperRecordRequest expectedRequest = new PaperRecordRequest();
+        expectedRequest.setPaperRecord(nonPreferredPaperRecord);
+        expectedRequest.setPatient(notPreferred);
+        expectedRequest.setRecordLocation(recordLocation);
+        expectedRequest.setRequestLocation(requestLocation);
+        expectedRequest.updateStatus(Status.RETURNED);
+
+        when(mockPaperRecordRequestDAO.findPaperRecordRequests(Collections.singletonList(Status.SENT), nonPreferredPaperRecord)).thenReturn(Collections.singletonList(nonPreferredRequest));
+
+        paperRecordService.markPaperRecordsForMerge(preferredPaperRecord, nonPreferredPaperRecord);
+
+        assertThat(nonPreferredRequest, is(new IsExpectedRequest(expectedRequest)));
+    }
+
+    public void mergingPatientsShouldNotMoveCancelledPaperRecordRequestsToPreferredPatient() {
+
+        Location medicalRecordLocation = createMedicalRecordLocation();
+        Location recordLocation = new Location();
+        Location requestLocation = new Location();
+
+        Patient preferred = new Patient();
+        Patient notPreferred = new Patient();
+
+        PatientIdentifier preferredIdentifier = createIdentifier(medicalRecordLocation, "ABC");
+        PaperRecord preferredPaperRecord = new PaperRecord();
+        preferredPaperRecord.setRecordLocation(medicalRecordLocation);
+        preferredPaperRecord.setPatientIdentifier(preferredIdentifier);
+
+        PatientIdentifier nonPreferredIdentifier = createIdentifier(medicalRecordLocation, "EFG");
+        PaperRecord nonPreferredPaperRecord = new PaperRecord();
+        nonPreferredPaperRecord.setRecordLocation(medicalRecordLocation);
+        nonPreferredPaperRecord.setPatientIdentifier(nonPreferredIdentifier);
+
+        preferred.addIdentifier(preferredIdentifier);
+        notPreferred.addIdentifier(nonPreferredIdentifier);
+
+        PaperRecordRequest preferredRequest = new PaperRecordRequest();
+        preferredRequest.setPaperRecord(preferredPaperRecord);
+        preferredRequest.setPatient(preferred);
+        preferredRequest.setRecordLocation(recordLocation);
+        preferredRequest.setRequestLocation(requestLocation);
+        preferredRequest.updateStatus(Status.CANCELLED);
+
+        PaperRecordRequest nonPreferredRequest = new PaperRecordRequest();
+        nonPreferredRequest.setPaperRecord(nonPreferredPaperRecord);
+        nonPreferredRequest.setPatient(notPreferred);
+        nonPreferredRequest.setRecordLocation(recordLocation);
+        nonPreferredRequest.setRequestLocation(requestLocation);
+        nonPreferredRequest.updateStatus(Status.CANCELLED);
+
+        // should be same original
+        PaperRecordRequest expectedRequest = new PaperRecordRequest();
+        expectedRequest.setPaperRecord(nonPreferredPaperRecord);
+        expectedRequest.setPatient(notPreferred);
+        expectedRequest.setRecordLocation(recordLocation);
+        expectedRequest.setRequestLocation(requestLocation);
+        expectedRequest.updateStatus(Status.CANCELLED);
+
+        when(mockPaperRecordRequestDAO.findPaperRecordRequests(Collections.singletonList(Status.SENT), nonPreferredPaperRecord)).thenReturn(Collections.singletonList(nonPreferredRequest));
+
+        paperRecordService.markPaperRecordsForMerge(preferredPaperRecord, nonPreferredPaperRecord);
+
+        assertThat(nonPreferredRequest, is(new IsExpectedRequest(expectedRequest)));
     }
 
     @Test
@@ -1424,17 +1657,12 @@ public class PaperRecordServiceTest {
         return createPaperRecordRequest(patient, medicalRecordLocation, identifier, null, Status.OPEN);
     }
 
-    private PaperRecordMergeRequest createExpectedMergeRequest(Patient preferredPatient, Patient notPreferredPatient,
-                                                               String preferredIdentifier, String notPreferredIdentifier,
-                                                               Location recordLocation) {
+    private PaperRecordMergeRequest createExpectedMergeRequest(PaperRecord preferredPaperRecord, PaperRecord notPreferredPaperRecord) {
         PaperRecordMergeRequest expectedMergeRequest = new PaperRecordMergeRequest();
-        expectedMergeRequest.setPreferredPatient(preferredPatient);
-        expectedMergeRequest.setNotPreferredPatient(notPreferredPatient);
-        expectedMergeRequest.setPreferredIdentifier(preferredIdentifier);
-        expectedMergeRequest.setNotPreferredIdentifier(notPreferredIdentifier);
+        expectedMergeRequest.setPreferredPaperRecord(preferredPaperRecord);
+        expectedMergeRequest.setNotPreferredPaperRecord(notPreferredPaperRecord);
         expectedMergeRequest.setStatus(PaperRecordMergeRequest.Status.OPEN);
         expectedMergeRequest.setCreator(authenticatedUser);
-        expectedMergeRequest.setRecordLocation(recordLocation);
         return expectedMergeRequest;
     }
 
@@ -1497,12 +1725,9 @@ public class PaperRecordServiceTest {
             PaperRecordMergeRequest actualRequest = (PaperRecordMergeRequest) o;
 
             assertThat(actualRequest.getId(), is(expectedRequest.getId()));
-            assertThat(actualRequest.getPreferredPatient(), is(expectedRequest.getPreferredPatient()));
-            assertThat(actualRequest.getNotPreferredPatient(), is(expectedRequest.getNotPreferredPatient()));
-            assertThat(actualRequest.getPreferredIdentifier(), is(expectedRequest.getPreferredIdentifier()));
-            assertThat(actualRequest.getNotPreferredIdentifier(), is(expectedRequest.getNotPreferredIdentifier()));
+            assertThat(actualRequest.getPreferredPaperRecord(), is(expectedRequest.getPreferredPaperRecord()));
+            assertThat(actualRequest.getNotPreferredPaperRecord(), is(expectedRequest.getNotPreferredPaperRecord()));
             assertThat(actualRequest.getStatus(), is(expectedRequest.getStatus()));
-            assertThat(actualRequest.getRecordLocation(), is(expectedRequest.getRecordLocation()));
             assertThat(actualRequest.getCreator(), is(expectedRequest.getCreator()));
             assertNotNull(actualRequest.getDateCreated());
 

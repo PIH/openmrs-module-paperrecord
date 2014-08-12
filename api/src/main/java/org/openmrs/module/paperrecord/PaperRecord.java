@@ -13,6 +13,7 @@ public class PaperRecord extends BaseOpenmrsObject {
     // TODO: record is in/out of the archive; until then, I've created the ACTIVE state to cover any state other than PENDING_CREATION
     // TODO: I'm not a huge fan of the "ACTIVE" name and tried to use it minimally, so it can be removed/changed as necessary
     public static enum Status {PENDING_CREATION, ACTIVE}
+    // TODO: we are going to have to rework significantly based on new status, unfortunately!
 
     private Integer recordId;
 

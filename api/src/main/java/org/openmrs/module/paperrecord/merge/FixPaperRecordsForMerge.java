@@ -1,22 +1,23 @@
 package org.openmrs.module.paperrecord.merge;
 
-import java.util.List;
-
 import org.apache.commons.collections.ListUtils;
 import org.openmrs.Patient;
 import org.openmrs.PatientIdentifier;
 import org.openmrs.module.emrapi.merge.PatientMergeAction;
+import org.openmrs.module.paperrecord.PaperRecord;
 import org.openmrs.module.paperrecord.PaperRecordProperties;
 import org.openmrs.module.paperrecord.PaperRecordRequest;
 import org.openmrs.module.paperrecord.PaperRecordService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import java.util.List;
+
 /**
  *
  */
-@Component("fixPaperRecordRequestsForMerge")
-public class FixPaperRecordRequestsForMerge implements PatientMergeAction {
+@Component("fixPaperRecordsForMerge")
+public class FixPaperRecordsForMerge implements PatientMergeAction {
 
     @Autowired
     PaperRecordService paperRecordService;
@@ -34,31 +35,15 @@ public class FixPaperRecordRequestsForMerge implements PatientMergeAction {
 
     @Override
     public void beforeMergingPatients(Patient preferred, Patient notPreferred) {
-        List<PaperRecordRequest> requestsForPreferred = paperRecordService.getPaperRecordRequestsByPatient(preferred);
-        List<PaperRecordRequest> requestsForNotPreferred = paperRecordService.getPaperRecordRequestsByPatient(notPreferred);
-        List<PaperRecordRequest> allRequests = ListUtils.union(requestsForPreferred, requestsForNotPreferred);
-
-        // for now, we will just cancel any pending paper record requests for the preferred patient and non-preferred patient
-        for (PaperRecordRequest request : allRequests) {
-            if (PaperRecordRequest.PENDING_STATUSES.contains(request.getStatus())) {
-                paperRecordService.markPaperRecordRequestAsCancelled(request);
-            }
-        }
-
-        // also copy over all the non-preferred patient requests to the new patient
-        for (PaperRecordRequest request : requestsForNotPreferred) {
-            request.setPatient(preferred);
-            paperRecordService.savePaperRecordRequest(request);
-        }
 
         // see if we need to create any requests to merge paper records (look for paper record identifiers at the same location)
-        List<PatientIdentifier> preferredPaperRecordIdentifiers = preferred.getPatientIdentifiers(paperRecordProperties.getPaperRecordIdentifierType());
-        List<PatientIdentifier> notPreferredPaperRecordIdentifiers = notPreferred.getPatientIdentifiers(paperRecordProperties.getPaperRecordIdentifierType());
+        List<PaperRecord> preferredPaperRecords = paperRecordService.getPaperRecords(preferred);
+        List<PaperRecord> notPreferredPaperRecords = paperRecordService.getPaperRecords(notPreferred);
 
-        for (PatientIdentifier preferredPaperRecordIdentifier : preferredPaperRecordIdentifiers) {
-            for (PatientIdentifier notPreferredPaperRecordIdentifier : notPreferredPaperRecordIdentifiers) {
-                if (preferredPaperRecordIdentifier.getLocation().equals(notPreferredPaperRecordIdentifier.getLocation())) {
-                    paperRecordService.markPaperRecordsForMerge(preferredPaperRecordIdentifier, notPreferredPaperRecordIdentifier);
+        for (PaperRecord preferredPaperRecord : preferredPaperRecords) {
+            for (PaperRecord notPreferredPaperRecord : notPreferredPaperRecords) {
+                if (preferredPaperRecord.getRecordLocation().equals(notPreferredPaperRecord.getRecordLocation())) {
+                    paperRecordService.markPaperRecordsForMerge(preferredPaperRecord, notPreferredPaperRecord);
                 }
             }
         }

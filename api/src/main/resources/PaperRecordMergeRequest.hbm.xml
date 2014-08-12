@@ -11,12 +11,6 @@
 
         <property name="uuid" type="java.lang.String" column="uuid" length="38" unique="true"/>
 
-        <property name="preferredIdentifier" type="java.lang.String" column="preferred_identifier" not-null="true"
-                  length="50"/>
-
-        <property name="notPreferredIdentifier" type="java.lang.String" column="not_preferred_identifier"
-                  not-null="true" length="50"/>
-
         <property name="dateCreated" type="java.util.Date" column="date_created"/>
 
         <property name="status" column="status" length="50" not-null="true">
@@ -25,22 +19,18 @@
             </type>
         </property>
 
+        <many-to-one name="notPreferredPaperRecord" class="org.openmrs.module.paperrecord.PaperRecord" not-null="true">
+            <column name="not_preferred_paper_record"/>
+        </many-to-one>
+
+        <many-to-one name="preferredPaperRecord" class="org.openmrs.module.paperrecord.PaperRecord" not-null="true">
+            <column name="preferred_paper_record"/>
+        </many-to-one>
 
         <many-to-one name="creator" class="org.openmrs.User" not-null="true">
             <column name="creator"/>
         </many-to-one>
 
-        <many-to-one name="preferredPatient" class="org.openmrs.Patient" not-null="true">
-            <column name="preferred_patient"/>
-        </many-to-one>
-
-        <many-to-one name="notPreferredPatient" class="org.openmrs.Patient" not-null="true">
-            <column name="not_preferred_patient"/>
-        </many-to-one>
-
-        <many-to-one name="recordLocation" class="org.openmrs.Location" not-null="true">
-            <column name="record_location"/>
-        </many-to-one>
 
     </class>
 

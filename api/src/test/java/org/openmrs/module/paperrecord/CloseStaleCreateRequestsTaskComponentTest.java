@@ -153,6 +153,4 @@ public class CloseStaleCreateRequestsTaskComponentTest extends BaseModuleContext
         assertThat(requests.get(0), is(afterExpireDate));
     }
 
-
-
 }

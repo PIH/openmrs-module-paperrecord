@@ -19,6 +19,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.openmrs.Location;
 import org.openmrs.Patient;
+import org.openmrs.PatientIdentifier;
 import org.openmrs.Person;
 import org.openmrs.api.LocationService;
 import org.openmrs.api.PatientService;
@@ -675,37 +676,45 @@ public class PaperRecordServiceComponentTest extends BaseModuleContextSensitiveT
     @Test
     public void testMarkPapersRecordForMergeShouldCreatePaperRecordMergeRequest() throws Exception {
 
-        // retrieve a couple patient identifiers from the standard test dataset
-        PatientIdentifier preferredIdentifier = patientService.getPatient(2).getPatientIdentifier(paperRecordProperties.getPaperRecordIdentifierType());
-        PatientIdentifier notPreferredIdentifier = patientService.getPatient(999).getPatientIdentifier(paperRecordProperties.getPaperRecordIdentifierType());
+        Patient patient1 = patientService.getPatient(2);
+        Patient patient2 = patientService.getPatient(6);
 
-        paperRecordService.markPaperRecordsForMerge(preferredIdentifier, notPreferredIdentifier);
+        Location paperRecordLocation = locationService.getLocation(1);
+
+        // create a couple paper records
+        PaperRecord paperRecord1 = paperRecordService.createPaperRecord(patient1, paperRecordLocation);
+        PaperRecord paperRecord2 = paperRecordService.createPaperRecord(patient2, paperRecordLocation);
+
+        paperRecordService.markPaperRecordsForMerge(paperRecord1, paperRecord2);
 
         Assert.assertEquals(1, paperRecordService.getOpenPaperRecordMergeRequests().size());
         PaperRecordMergeRequest request = paperRecordService.getOpenPaperRecordMergeRequests().get(0);
 
-        Assert.assertEquals(preferredIdentifier.getIdentifier(), request.getPreferredIdentifier());
-        Assert.assertEquals(notPreferredIdentifier.getIdentifier(), request.getNotPreferredIdentifier());
-        Assert.assertEquals(preferredIdentifier.getPatient(), request.getPreferredPatient());
-        Assert.assertEquals(notPreferredIdentifier.getPatient(), request.getNotPreferredPatient());
-        Assert.assertEquals(preferredIdentifier.getLocation(), request.getRecordLocation());
+        Assert.assertEquals(paperRecord1, request.getPreferredPaperRecord());
+        Assert.assertEquals(paperRecord2, request.getNotPreferredPaperRecord());
         Assert.assertEquals(PaperRecordMergeRequest.Status.OPEN, request.getStatus());
         Assert.assertNotNull(request.getDateCreated());
         Assert.assertEquals(Context.getAuthenticatedUser(), request.getCreator());
 
-        Assert.assertTrue(notPreferredIdentifier.isVoided());
+        Assert.assertFalse(paperRecord1.getPatientIdentifier().isVoided());
+        Assert.assertTrue(paperRecord2.getPatientIdentifier().isVoided());
     }
 
     @Test
     public void testMarkPaperRecordsAsMergedShouldMarkPaperRecordsAsMerged() throws Exception {
 
-        // first, create the merge request
-        PatientIdentifier preferredIdentifier = patientService.getPatient(2).getPatientIdentifier(paperRecordProperties.getPaperRecordIdentifierType());
-        PatientIdentifier notPreferredIdentifier = patientService.getPatient(999).getPatientIdentifier(paperRecordProperties.getPaperRecordIdentifierType());
+        Patient patient1 = patientService.getPatient(2);
+        Patient patient2 = patientService.getPatient(6);
 
-        paperRecordService.markPaperRecordsForMerge(preferredIdentifier, notPreferredIdentifier);
+        Location paperRecordLocation = locationService.getLocation(1);
 
-        Assert.assertEquals(1, paperRecordService.getOpenPaperRecordMergeRequests().size()); // sanity check
+        // create a couple paper records
+        PaperRecord paperRecord1 = paperRecordService.createPaperRecord(patient1, paperRecordLocation);
+        PaperRecord paperRecord2 = paperRecordService.createPaperRecord(patient2, paperRecordLocation);
+
+        paperRecordService.markPaperRecordsForMerge(paperRecord1, paperRecord2);
+
+        Assert.assertEquals(1, paperRecordService.getOpenPaperRecordMergeRequests().size());  // sanity check
         PaperRecordMergeRequest request = paperRecordService.getOpenPaperRecordMergeRequests().get(0);
 
         paperRecordService.markPaperRecordsAsMerged(request);
@@ -726,28 +735,36 @@ public class PaperRecordServiceComponentTest extends BaseModuleContextSensitiveT
         Location someLocation = locationService.getLocation(2);
         Location anotherLocation = locationService.getLocation(3);
 
-        PatientIdentifier preferredIdentifier = patientService.getPatient(2).getPatientIdentifier(paperRecordProperties.getPaperRecordIdentifierType());
-        PatientIdentifier notPreferredIdentifier = patientService.getPatient(999).getPatientIdentifier(paperRecordProperties.getPaperRecordIdentifierType());
+        Patient patient1 = patientService.getPatient(2);
+        Patient patient2 = patientService.getPatient(6);
+
+        // create a couple paper records
+        PaperRecord paperRecord1 = paperRecordService.createPaperRecord(patient1, paperRecordLocation);
+        PaperRecord paperRecord2 = paperRecordService.createPaperRecord(patient2, paperRecordLocation);
 
         // first, create a couple record requests
-        paperRecordService.requestPaperRecord(preferredIdentifier.getPatient(), paperRecordLocation, someLocation);
-        paperRecordService.requestPaperRecord(notPreferredIdentifier.getPatient(), paperRecordLocation, anotherLocation);
-        Assert.assertEquals(2, paperRecordService.getOpenPaperRecordRequestsToPull().size());   // sanity check
+        PaperRecordRequest request1 = paperRecordService.requestPaperRecord(patient1, paperRecordLocation, someLocation).get(0);
+        PaperRecordRequest request2 = paperRecordService.requestPaperRecord(patient2, paperRecordLocation, anotherLocation).get(0);
+        request2.updateStatus(PaperRecordRequest.Status.SENT);
+        paperRecordService.savePaperRecordRequest(request2);
+        PaperRecordRequest request3 = paperRecordService.requestPaperRecord(patient2, paperRecordLocation, anotherLocation).get(0);
 
+
+        Assert.assertEquals(2, paperRecordService.getOpenPaperRecordRequestsToCreate().size());   // sanity checks
+        Assert.assertNull(paperRecordService.getMostRecentSentPaperRecordRequest(paperRecord1));
+        Assert.assertNotNull(paperRecordService.getMostRecentSentPaperRecordRequest(paperRecord2));
 
         // now create the merge request & then mark it as merged
-        paperRecordService.markPaperRecordsForMerge(preferredIdentifier, notPreferredIdentifier);
+        paperRecordService.markPaperRecordsForMerge(paperRecord1, paperRecord2);
         PaperRecordMergeRequest mergeRequest = paperRecordService.getOpenPaperRecordMergeRequests().get(0);
         paperRecordService.markPaperRecordsAsMerged(mergeRequest);
 
-        // now there should be only one outstanding paper record request
-        Assert.assertEquals(1, paperRecordService.getOpenPaperRecordRequestsToPull().size());
+        // there should be no outstanding cretae requests (since we just cancel them)
+        Assert.assertEquals(0, paperRecordService.getOpenPaperRecordRequestsToCreate().size());
 
-        PaperRecordRequest request = paperRecordService.getOpenPaperRecordRequestsToPull().get(0);
-
-        Assert.assertEquals(preferredIdentifier.getIdentifier(), request.getPaperRecord().getPatientIdentifier().getIdentifier()));
-        Assert.assertEquals(preferredIdentifier.getPatient(), request.getPatient());
-        Assert.assertEquals(anotherLocation, request.getRequestLocation());  // since the last requested location wins
+        // the sent request should have been moved to the other paper record
+        Assert.assertNotNull(paperRecordService.getMostRecentSentPaperRecordRequest(paperRecord1));
+        Assert.assertNull(paperRecordService.getMostRecentSentPaperRecordRequest(paperRecord2));
 
     }
 

@@ -15,6 +15,7 @@
 package org.openmrs.module.paperrecord;
 
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.collections.ListUtils;
 import org.apache.commons.collections.Predicate;
 import org.apache.commons.lang.StringUtils;
 import org.openmrs.Location;
@@ -57,10 +58,11 @@ import static org.openmrs.module.paperrecord.PaperRecordRequest.Status;
 
 public class PaperRecordServiceImpl extends BaseOpenmrsService implements PaperRecordService {
 
-    // TODO: **don't forget to handle merging**--normal and component tests
-    // TODO: add additional tests to test new functional, including paper record exists!
-    // TODO: db file--> migrate to just paperrecord??
+    // TODO: various component tests for merge
+    // TODO: remove patient from paper record request?
+    // TODO: db file--> migrate paper record, and merge and request
     // TODO: data migration!  just based on pending requests...  test against 1.9 dataabase
+
     // TODO: will assureHasPaperRecordIdentifier need to be added to PatientRegistration and Mirebalais modules
     // TODO: feature toggles?
     // TODO: changing the request record functionality as part of the new and old workflow in Mirebalais!
@@ -68,13 +70,15 @@ public class PaperRecordServiceImpl extends BaseOpenmrsService implements PaperR
     // TODO: mirebalais IT test
     // TODO: review to dos
 
+    // TODO: no longer need to display other patient identifier on pull page?
+    // TODO: review all todos
+    // TODO: add additional tests to test new functional
     // TODO: make sure creator and date created are updated
     // TODO: better way to mark record as created?
     // TODO: document!
     // TODO: think about all the duplicate/transactonal cases we need to handle
     // TODO: make sure we mark the record as created in the create method, when created outside of the archives
-    // TODO: status rename?
-    // TODO: no longer need to display other patient identifier on pull page?
+    // TODO: merging paper records, documentation
 
     private final Logger log = LoggerFactory.getLogger(getClass());
 
@@ -628,32 +632,36 @@ public class PaperRecordServiceImpl extends BaseOpenmrsService implements PaperR
         }
     }
 
-
-    // TODO: this will need a total rework
-
     @Override
     @Transactional
-    public void markPaperRecordsForMerge(PatientIdentifier preferredIdentifier, PatientIdentifier notPreferredIdentifier) {
+    public void markPaperRecordsForMerge(PaperRecord preferredPaperRecord, PaperRecord notPreferredPaperRecord) {
 
-        if (!preferredIdentifier.getIdentifierType().equals(paperRecordProperties.getPaperRecordIdentifierType())
-                || !notPreferredIdentifier.getIdentifierType().equals(paperRecordProperties.getPaperRecordIdentifierType())) {
-            throw new IllegalArgumentException("One of the passed identifiers is not a paper record identifier: "
-                    + preferredIdentifier + ", " + notPreferredIdentifier);
+        if (!preferredPaperRecord.getRecordLocation().equals(notPreferredPaperRecord.getRecordLocation())) {
+            throw new IllegalArgumentException("Cannot merge two records from different locations: "
+                    + preferredPaperRecord + ", " + notPreferredPaperRecord);
         }
 
-        if (!preferredIdentifier.getLocation().equals(notPreferredIdentifier.getLocation())) {
-            throw new IllegalArgumentException("Cannot merge two records from different locations: "
-                    + preferredIdentifier + ", " + notPreferredIdentifier);
+        List<PaperRecordRequest> pendingRequests = ListUtils.union(paperRecordRequestDAO.findPaperRecordRequests(PENDING_STATUSES, preferredPaperRecord),
+                paperRecordRequestDAO.findPaperRecordRequests(PENDING_STATUSES, notPreferredPaperRecord));
+
+        // for now, we will just cancel any pending paper record requests for the preferred patient and non-preferred patient
+        for (PaperRecordRequest request : pendingRequests) {
+            markPaperRecordRequestAsCancelled(request);
+        }
+
+        // also copy over all the non-preferred patient SENT requests to the new patient
+        // (this probably isn't exactly right, but it should prevent an error from being thrown one of these charts is returned to the archives room)
+        for (PaperRecordRequest request : paperRecordRequestDAO.findPaperRecordRequests(Collections.singletonList(Status.SENT), notPreferredPaperRecord)) {
+            request.setPaperRecord(preferredPaperRecord);
+            request.setPatient(preferredPaperRecord.getPatientIdentifier().getPatient());
+            savePaperRecordRequest(request);
         }
 
         // create the request
         PaperRecordMergeRequest mergeRequest = new PaperRecordMergeRequest();
         mergeRequest.setStatus(PaperRecordMergeRequest.Status.OPEN);
-        mergeRequest.setPreferredPatient(preferredIdentifier.getPatient());
-        mergeRequest.setNotPreferredPatient(notPreferredIdentifier.getPatient());
-        mergeRequest.setPreferredIdentifier(preferredIdentifier.getIdentifier());
-        mergeRequest.setNotPreferredIdentifier(notPreferredIdentifier.getIdentifier());
-        mergeRequest.setRecordLocation(preferredIdentifier.getLocation());
+        mergeRequest.setPreferredPaperRecord(preferredPaperRecord);
+        mergeRequest.setNotPreferredPaperRecord(notPreferredPaperRecord);
         mergeRequest.setCreator(Context.getAuthenticatedUser());
         mergeRequest.setDateCreated(new Date());
 
@@ -661,22 +669,12 @@ public class PaperRecordServiceImpl extends BaseOpenmrsService implements PaperR
 
         // void the non-preferred identifier; we do this now (instead of when the merge is confirmed)
         // so that all new requests for records for this patient use the right identifier
-        patientService.voidPatientIdentifier(notPreferredIdentifier, "voided during paper record merge");
+        patientService.voidPatientIdentifier(notPreferredPaperRecord.getPatientIdentifier(), "voided during paper record merge");
     }
-
-    // TODO: this will need a total rework
 
     @Override
     @Transactional
     public void markPaperRecordsAsMerged(PaperRecordMergeRequest mergeRequest) {
-
-        // merge any pending paper record requests associated with the two records we are merging
-        mergePendingPaperRecordRequests(mergeRequest);
-
-        // if the archivist has just merged the records, we should be able to safely close out
-        // any request for the not preferred record, as this record should no longer exist
-        closeOutSentPaperRecordRequestsForNotPreferredRecord(mergeRequest);
-
         // then just mark the request as merged
         mergeRequest.setStatus(PaperRecordMergeRequest.Status.MERGED);
         paperRecordMergeRequestDAO.saveOrUpdate(mergeRequest);
@@ -779,6 +777,13 @@ public class PaperRecordServiceImpl extends BaseOpenmrsService implements PaperR
         return paperRecord;
     }
 
+
+    @Override
+    @Transactional
+    public List<PaperRecord> getPaperRecords(Patient patient) {
+        return paperRecordDAO.findPaperRecords(patient, null);
+    }
+
     @Override
     @Transactional
     public List<PaperRecord> getPaperRecords(Patient patient, Location paperRecordLocation) {
@@ -816,19 +821,21 @@ public class PaperRecordServiceImpl extends BaseOpenmrsService implements PaperR
         return paperRecordIdentifier;
     }
 
-    private void mergePendingPaperRecordRequests(PaperRecordMergeRequest mergeRequest) {
+
+    // TODO: old, more complex merge functionality that we are ignoring for now
+/*    private void mergePendingPaperRecordRequests(PaperRecordMergeRequest mergeRequest) {
 
         // (note that we are not searching by patient here because the patient may have been changed during the merge)
         List<PaperRecordRequest> preferredRequests = paperRecordRequestDAO.findPaperRecordRequests(PENDING_STATUSES,
-                null, mergeRequest.getRecordLocation(), mergeRequest.getPreferredIdentifier());
+                mergeRequest.getPreferredPaperRecord());
 
         if (preferredRequests.size() > 1) {
             throw new IllegalStateException(
-                    "Duplicate pending record requests exist with identifier " + mergeRequest.getPreferredIdentifier());
+                    "Duplicate pending record requests exist with identifier " + mergeRequest.getPreferredPaperRecord().getPatientIdentifier());
         }
 
         List<PaperRecordRequest> notPreferredRequests = paperRecordRequestDAO.findPaperRecordRequests(PENDING_STATUSES,
-                null, mergeRequest.getRecordLocation(), mergeRequest.getNotPreferredIdentifier());
+                mergeRequest.getNotPreferredPaperRecord()));
 
         if (notPreferredRequests.size() > 1) {
             throw new IllegalStateException(
@@ -868,17 +875,16 @@ public class PaperRecordServiceImpl extends BaseOpenmrsService implements PaperR
             paperRecordRequestDAO.saveOrUpdate(notPreferredRequest);
         }
 
-    }
+    }*/
 
-    private void closeOutSentPaperRecordRequestsForNotPreferredRecord(PaperRecordMergeRequest mergeRequest) {
+  /*  private void closeOutSentPaperRecordRequestsForNotPreferredRecord(PaperRecordMergeRequest mergeRequest) {
         List<PaperRecordRequest> notPreferredRequests = paperRecordRequestDAO.findPaperRecordRequests(
-                Collections.singletonList(Status.SENT), null,
-                mergeRequest.getRecordLocation(), mergeRequest.getNotPreferredIdentifier());
+                Collections.singletonList(Status.SENT), mergeRequest.getNotPreferredPaperRecord());
 
         for (PaperRecordRequest notPreferredRequest : notPreferredRequests) {
             notPreferredRequest.updateStatus(Status.RETURNED);
             paperRecordRequestDAO.saveOrUpdate(notPreferredRequest);
         }
-    }
+    }*/
 
 }

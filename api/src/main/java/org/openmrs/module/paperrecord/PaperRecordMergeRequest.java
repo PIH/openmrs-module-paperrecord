@@ -3,6 +3,7 @@ package org.openmrs.module.paperrecord;
 import org.openmrs.BaseOpenmrsObject;
 import org.openmrs.Location;
 import org.openmrs.Patient;
+import org.openmrs.PatientIdentifier;
 import org.openmrs.User;
 
 import java.util.Date;
@@ -14,17 +15,11 @@ public class PaperRecordMergeRequest extends BaseOpenmrsObject {
 
     public enum Status {OPEN, MERGED}
 
-    private Integer mergeRequestId;
+    private Integer mergeRequestId;;
 
-    Patient preferredPatient;
+    PaperRecord preferredPaperRecord;
 
-    Patient notPreferredPatient;
-
-    String preferredIdentifier;
-
-    String notPreferredIdentifier;
-
-    Location recordLocation;
+    PaperRecord notPreferredPaperRecord;
 
     Status status = Status.OPEN;
 
@@ -51,44 +46,20 @@ public class PaperRecordMergeRequest extends BaseOpenmrsObject {
         this.mergeRequestId = mergeRequestId;
     }
 
-    public Patient getPreferredPatient() {
-        return preferredPatient;
+    public PaperRecord getPreferredPaperRecord() {
+        return preferredPaperRecord;
     }
 
-    public void setPreferredPatient(Patient preferredPatient) {
-        this.preferredPatient = preferredPatient;
+    public void setPreferredPaperRecord(PaperRecord preferredPaperRecord) {
+        this.preferredPaperRecord = preferredPaperRecord;
     }
 
-    public Patient getNotPreferredPatient() {
-        return notPreferredPatient;
+    public PaperRecord getNotPreferredPaperRecord() {
+        return notPreferredPaperRecord;
     }
 
-    public void setNotPreferredPatient(Patient notPreferredPatient) {
-        this.notPreferredPatient = notPreferredPatient;
-    }
-
-    public String getPreferredIdentifier() {
-        return preferredIdentifier;
-    }
-
-    public void setPreferredIdentifier(String preferredIdentifier) {
-        this.preferredIdentifier = preferredIdentifier;
-    }
-
-    public String getNotPreferredIdentifier() {
-        return notPreferredIdentifier;
-    }
-
-    public void setNotPreferredIdentifier(String notPreferredIdentifier) {
-        this.notPreferredIdentifier = notPreferredIdentifier;
-    }
-
-    public Location getRecordLocation() {
-        return recordLocation;
-    }
-
-    public void setRecordLocation(Location recordLocation) {
-        this.recordLocation = recordLocation;
+    public void setNotPreferredPaperRecord(PaperRecord notPreferredPaperRecord) {
+        this.notPreferredPaperRecord = notPreferredPaperRecord;
     }
 
     public Status getStatus() {
