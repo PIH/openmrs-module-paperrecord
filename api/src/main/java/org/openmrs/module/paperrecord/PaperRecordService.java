@@ -32,6 +32,10 @@ import java.util.Map;
  */
 public interface PaperRecordService extends OpenmrsService {
 
+    // TODO: javadocs and test
+    @Authorized(PaperRecordConstants.PRIVILEGE_PAPER_RECORDS_REQUEST_RECORDS)
+    boolean paperRecordIdentifierInUse(String identifier, Location location);
+
     /**
      * Returns true/false if a paper medical record exist at the specified location with the specified identifier
      * (We assume a record exists if the specified identifier has been assigned to a patient at the
@@ -63,7 +67,7 @@ public interface PaperRecordService extends OpenmrsService {
      * @return
      */
     @Authorized(PaperRecordConstants.PRIVILEGE_PAPER_RECORDS_REQUEST_RECORDS)
-    boolean paperRecordExistsForPatientWithIdentifier(String patientIdentifier, Location location);
+    boolean paperRecordExistsForPatientWithPrimaryIdentifier(String patientIdentifier, Location location);
 
 
     // TODO: update tour dates
@@ -75,7 +79,7 @@ public interface PaperRecordService extends OpenmrsService {
      * @return the Patient identifier created
      */
     @Authorized(PaperRecordConstants.PRIVILEGE_PAPER_RECORDS_MANAGE_REQUESTS)
-    PaperRecord assureHasPaperRecord(Patient patient, Location medicalRecordLocation);
+    PaperRecord createPaperRecord(Patient patient, Location medicalRecordLocation);
 
 
     /**

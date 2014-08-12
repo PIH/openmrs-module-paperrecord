@@ -47,6 +47,12 @@ public class PaperRecord extends BaseOpenmrsObject {
         this.recordId = recordId;
     }
 
+    // TODO is this bad?
+    // note that we tie whether or not a paper record is voided to whether or not the associated patient identifier is voided
+    public boolean getVoided() {
+        return patientIdentifier == null ? false : patientIdentifier.getVoided();
+    }
+
     public PatientIdentifier getPatientIdentifier() {
         return patientIdentifier;
     }

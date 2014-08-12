@@ -57,16 +57,16 @@ import static org.openmrs.module.paperrecord.PaperRecordRequest.Status;
 
 public class PaperRecordServiceImpl extends BaseOpenmrsService implements PaperRecordService {
 
-    // TODO: review fix/remove the paper record exists (how do we use this, and what exactly to we want it to do) functionality and the by identifier and status functionality?
     // TODO: **don't forget to handle merging**--normal and component tests
-    // TODO: add additional tests to test new functional!
+    // TODO: add additional tests to test new functional, including paper record exists!
     // TODO: db file--> migrate to just paperrecord??
     // TODO: data migration!  just based on pending requests...  test against 1.9 dataabase
     // TODO: will assureHasPaperRecordIdentifier need to be added to PatientRegistration and Mirebalais modules
-
     // TODO: feature toggles?
     // TODO: changing the request record functionality as part of the new and old workflow in Mirebalais!
     // TODO: create patient identifier in registration? or when printing wristband
+    // TODO: mirebalais IT test
+    // TODO: review to dos
 
     // TODO: make sure creator and date created are updated
     // TODO: better way to mark record as created?
@@ -146,11 +146,9 @@ public class PaperRecordServiceImpl extends BaseOpenmrsService implements PaperR
         this.identifierSourceService = identifierSourceService;
     }
 
-    // TODO: this needs to be reworked
     @Override
     @Transactional(readOnly = true)
-    public boolean paperRecordExistsWithIdentifier(String identifier, Location location) {
-
+    public boolean paperRecordIdentifierInUse(String identifier, Location location) {
         List<PatientIdentifier> identifiers = patientService.getPatientIdentifiers(identifier,
                 Collections.singletonList(paperRecordProperties.getPaperRecordIdentifierType()),
                 Collections.singletonList(getMedicalRecordLocationAssociatedWith(location)), null, null);
@@ -158,10 +156,15 @@ public class PaperRecordServiceImpl extends BaseOpenmrsService implements PaperR
         return identifiers != null && identifiers.size() > 0 ? true : false;
     }
 
-    // TODO: this needs to be reworked
     @Override
     @Transactional(readOnly = true)
-    public boolean paperRecordExistsForPatientWithIdentifier(String patientIdentifier, Location location) {
+    public boolean paperRecordExistsWithIdentifier(String identifier, Location location) {
+        return paperRecordDAO.findPaperRecord(identifier, getMedicalRecordLocationAssociatedWith(location)) != null;
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public boolean paperRecordExistsForPatientWithPrimaryIdentifier(String patientIdentifier, Location location) {
 
         List<Patient> patients = patientService.getPatients(null, patientIdentifier, Collections.singletonList(emrApiProperties.getPrimaryIdentifierType()), true);
 
@@ -175,19 +178,14 @@ public class PaperRecordServiceImpl extends BaseOpenmrsService implements PaperR
         } else {
            return paperRecordExistsForPatient(patients.get(0), location);
         }
+
     }
 
-    // TODO: this needs to be reworked
     @Override
     @Transactional(readOnly = true)
     public boolean paperRecordExistsForPatient(Patient patient, Location location) {
-
-        List<PatientIdentifier> identifiers = patientService.getPatientIdentifiers(null,
-                Collections.singletonList(paperRecordProperties.getPaperRecordIdentifierType()),
-                Collections.singletonList(getMedicalRecordLocationAssociatedWith(location)), Collections.singletonList(patient), null);
-
-        return identifiers != null && identifiers.size() > 0 ? true : false;
-
+        List<PaperRecord> paperRecords = paperRecordDAO.findPaperRecords(patient, getMedicalRecordLocationAssociatedWith(location));
+        return paperRecords != null && paperRecords.size() > 0 ? true : false;
     }
 
     @Override
@@ -250,12 +248,13 @@ public class PaperRecordServiceImpl extends BaseOpenmrsService implements PaperR
 
             requests = new ArrayList<PaperRecordRequest>();
 
-            // assure that the patient has a paper record at this location
-            PaperRecord newPaperRecord = assureHasPaperRecord(patient, recordLocation);
+            // get records to create requests for
+            List<PaperRecord> paperRecords = getPaperRecords(patient, recordLocation);
 
-           // if we've just created a new paper record, just create a request for that, otherwise fetch existing paper records
-            List<PaperRecord> paperRecords = newPaperRecord != null ? Collections.singletonList(newPaperRecord)
-                    : getPaperRecords(patient, recordLocation);
+           // if no record, create one
+            if (paperRecords == null || paperRecords.size() == 0) {
+                paperRecords.add(createPaperRecord(patient, recordLocation));
+            }
 
             for (PaperRecord paperRecord : paperRecords) {
 
@@ -731,8 +730,7 @@ public class PaperRecordServiceImpl extends BaseOpenmrsService implements PaperR
 
     @Override
     @Transactional
-    // TODO: document this only returns a patient record if it needs to create one!
-    public PaperRecord assureHasPaperRecord(Patient patient, Location location) {
+    public PaperRecord createPaperRecord(Patient patient, Location location) {
         if (patient == null) {
             throw new IllegalArgumentException("Patient shouldn't be null");
         }
@@ -753,7 +751,7 @@ public class PaperRecordServiceImpl extends BaseOpenmrsService implements PaperR
                     "generating a new dossier number");
 
             // double check to make sure this identifier is not in use
-            while (paperRecordExistsWithIdentifier(paperRecordId, medicalRecordLocation)) {
+            while (paperRecordIdentifierInUse(paperRecordId, medicalRecordLocation)) {
                 log.error("Attempted to generate duplicate paper record identifier " + paperRecordId );
                 paperRecordId = identifierSourceService.generateIdentifier(paperRecordIdentifierType,
                         "generating a new dossier number");
@@ -767,18 +765,18 @@ public class PaperRecordServiceImpl extends BaseOpenmrsService implements PaperR
         }
 
         PaperRecord paperRecord = getPaperRecord(paperRecordIdentifier, medicalRecordLocation);
-
-        // create paper record if necessary
-        if (paperRecord == null) {
+        if (paperRecord != null) {
+            log.error("createPaperRecord called for patient " + paperRecordIdentifier + " who already has record at " + medicalRecordLocation);
+        }
+        else {
             paperRecord = new PaperRecord();
             paperRecord.updateStatus(PaperRecord.Status.PENDING_CREATION);
             paperRecord.setPatientIdentifier(paperRecordIdentifier);
             paperRecord.setRecordLocation(medicalRecordLocation);
             savePaperRecord(paperRecord);   // TODO: proxy issues here?
-            return paperRecord;
         }
 
-        return null;
+        return paperRecord;
     }
 
     @Override

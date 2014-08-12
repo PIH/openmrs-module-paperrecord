@@ -1,11 +1,46 @@
 package org.openmrs.module.paperrecord.merge;
 
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
+import org.openmrs.Location;
+import org.openmrs.Patient;
+import org.openmrs.PatientIdentifier;
+import org.openmrs.PatientIdentifierType;
+import org.openmrs.Person;
+import org.openmrs.PersonName;
+import org.openmrs.Provider;
+import org.openmrs.User;
+import org.openmrs.api.EncounterService;
+import org.openmrs.api.PatientService;
+import org.openmrs.api.ProviderService;
+import org.openmrs.api.VisitService;
+import org.openmrs.api.context.Context;
+import org.openmrs.api.context.UserContext;
+import org.openmrs.module.emrapi.EmrApiProperties;
+import org.openmrs.module.emrapi.adt.AdtServiceImpl;
+import org.openmrs.module.emrapi.merge.PatientMergeAction;
+import org.openmrs.module.paperrecord.IsExpectedRequest;
+import org.openmrs.module.paperrecord.PaperRecordProperties;
+import org.openmrs.module.paperrecord.PaperRecordRequest;
+import org.openmrs.module.paperrecord.PaperRecordService;
+
+import java.util.Arrays;
+import java.util.Collections;
+
+import static org.mockito.Matchers.argThat;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+import static org.openmrs.module.paperrecord.PaperRecordRequest.Status;
+
 /**
  *
  */
 public class FixPaperRecordRequestsForMergeTest {
 
-  /*  private AdtServiceImpl service;
+    private AdtServiceImpl service;
 
     VisitService mockVisitService;
     PaperRecordService mockPaperRecordService;
@@ -387,7 +422,7 @@ public class FixPaperRecordRequestsForMergeTest {
         service.mergePatients(preferred, notPreferred);
 
         verify(mockPaperRecordService).savePaperRecordRequest(argThat(new IsExpectedRequest(expectedRequestToSave)));
-    }*/
+    }
 
     // TODO: all these tests are to test improved handling of pending paper record requests when merging two patient records
     // TODO: right now we are just keeping it simple and cancelling and reissuing all requests

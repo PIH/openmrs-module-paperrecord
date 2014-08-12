@@ -16,8 +16,6 @@ public class HibernatePaperRecordDAO  extends HibernateSingleClassDAO<PaperRecor
         super(PaperRecord.class);
     }
 
-    // TODO: implement these!
-
     @Override
     public List<PaperRecord> findPaperRecords(Patient patient, Location paperRecordLocation) {
 
@@ -31,6 +29,8 @@ public class HibernatePaperRecordDAO  extends HibernateSingleClassDAO<PaperRecor
             addRecordLocationRestriction(criteria, paperRecordLocation);
         }
 
+        addExcludeVoidedRestriction(criteria);
+
         return (List<PaperRecord>)  criteria.list();
     }
 
@@ -41,33 +41,60 @@ public class HibernatePaperRecordDAO  extends HibernateSingleClassDAO<PaperRecor
         Criteria criteria = createPaperRecordCriteria();
 
         if (paperRecordIdentifier != null) {
-            addPatientIdentifierRestriction(criteria, paperRecordIdentifier);
+            addPatientIdentifierAsStringRestriction(criteria, paperRecordIdentifier);
         }
 
         if (paperRecordLocation != null) {
             addRecordLocationRestriction(criteria, paperRecordLocation);
         }
 
+        addExcludeVoidedRestriction(criteria);
+
         // TODO: how do we assure that duplicate records don't get created?
         return (PaperRecord)  criteria.uniqueResult();
     }
 
+    @Override
+    public PaperRecord findPaperRecord(String paperRecordIdentifier, Location paperRecordLocation) {
+
+        Criteria criteria = createPaperRecordCriteria();
+
+        if (paperRecordIdentifier != null) {
+            addPatientIdentifierAsStringRestriction(criteria, paperRecordIdentifier);
+        }
+
+        if (paperRecordLocation != null) {
+            addRecordLocationRestriction(criteria, paperRecordLocation);
+        }
+
+        addExcludeVoidedRestriction(criteria);
+        // TODO: how do we assure that duplicate records don't get created?
+        return (PaperRecord)  criteria.uniqueResult();
+    }
 
     private Criteria createPaperRecordCriteria() {
-        return sessionFactory.getCurrentSession().createCriteria(PaperRecord.class);
+        return sessionFactory.getCurrentSession().createCriteria(PaperRecord.class)
+                .createAlias("patientIdentifier", "pi");
     }
-
 
     private void addPatientRestriction(Criteria criteria, Patient patient) {
-        criteria.createCriteria("patientIdentifier", "pi").add(Restrictions.eq("pi.patient", patient));
+        criteria.add(Restrictions.eq("pi.patient", patient));
     }
 
-    private void addPatientIdentifierRestriction(Criteria criteria, PatientIdentifier patientIdentifier) {
+    private void addPatientIdentifierAsStringRestriction(Criteria criteria, PatientIdentifier patientIdentifier) {
         criteria.add(Restrictions.eq("patientIdentifier", patientIdentifier));
+    }
+
+    private void addPatientIdentifierAsStringRestriction(Criteria criteria, String patientIdentifier) {
+        criteria.add(Restrictions.eq("pi.identifier", patientIdentifier));
     }
 
     private void addRecordLocationRestriction(Criteria criteria, Location paperRecordLocation) {
         criteria.add(Restrictions.eq("recordLocation", paperRecordLocation));
     }
 
+    // note that we tie whether or not a paper record is voided to whether or not the associated patient identifier is voided
+    private void addExcludeVoidedRestriction(Criteria criteria) {
+        criteria.add(Restrictions.eq("pi.voided", false));
+    }
 }

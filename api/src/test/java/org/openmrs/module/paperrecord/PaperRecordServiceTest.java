@@ -148,26 +148,16 @@ public class PaperRecordServiceTest {
 
     @Test
     public void testPaperRecordExistsWithIdentifierShouldReturnTrueIfPaperMedicalRecordExists() {
-
         Location medicalRecordLocation = createMedicalRecordLocation();
-        PatientIdentifier identifier = createIdentifier(medicalRecordLocation, "ABCZYX");
-
-        when(mockPatientService.getPatientIdentifiers("ABCZYX", Collections.singletonList(paperRecordIdentifierType),
-                Collections.singletonList(medicalRecordLocation), null, null))
-                .thenReturn(Collections.singletonList(identifier));
-
+        PaperRecord paperRecord = new PaperRecord();
+        when(mockPaperRecordDAO.findPaperRecord("ABCZYX", medicalRecordLocation)).thenReturn(paperRecord);
         assertTrue(paperRecordService.paperRecordExistsWithIdentifier("ABCZYX", medicalRecordLocation));
     }
 
     @Test
     public void testPaperRecordExistsWithIdentifierShouldReturnFalseIfPaperMedicalRecordDoesNotExist() {
-
         Location medicalRecordLocation = createMedicalRecordLocation();
-
-        when(mockPatientService.getPatientIdentifiers("ABCZYX", Collections.singletonList(paperRecordIdentifierType),
-                Collections.singletonList(medicalRecordLocation), null, null))
-                .thenReturn(new ArrayList<PatientIdentifier>());
-
+        when(mockPaperRecordDAO.findPaperRecord("ABCZYX", medicalRecordLocation)).thenReturn(null);
         assertFalse(paperRecordService.paperRecordExistsWithIdentifier("ABCZYX", medicalRecordLocation));
     }
 
@@ -187,10 +177,9 @@ public class PaperRecordServiceTest {
         patient.addIdentifier(paperRecordIdentifier);
 
         when(mockPatientService.getPatients(null, "ABC123", Collections.singletonList(primaryIdentifierType), true)).thenReturn(Collections.singletonList(patient));
-        when(mockPatientService.getPatientIdentifiers(null, Collections.singletonList(paperRecordIdentifierType),
-                Collections.singletonList(medicalRecordLocation), Collections.singletonList(patient), null)).thenReturn(Collections.singletonList(paperRecordIdentifier));
-
-        assertTrue(paperRecordService.paperRecordExistsForPatientWithIdentifier("ABC123", medicalRecordLocation));
+        PaperRecord paperRecord = new PaperRecord();
+        when(mockPaperRecordDAO.findPaperRecords(patient, medicalRecordLocation)).thenReturn(Collections.singletonList(paperRecord));
+        assertTrue(paperRecordService.paperRecordExistsForPatientWithPrimaryIdentifier("ABC123", medicalRecordLocation));
     }
 
     @Test
@@ -206,8 +195,8 @@ public class PaperRecordServiceTest {
         patient.addIdentifier(primaryIdentifier);
 
         when(mockPatientService.getPatients(null, "ABC123", Collections.singletonList(primaryIdentifierType), true)).thenReturn(Collections.singletonList(patient));
-
-        assertFalse(paperRecordService.paperRecordExistsForPatientWithIdentifier("ABC123", medicalRecordLocation));
+        when(mockPaperRecordDAO.findPaperRecords(patient, medicalRecordLocation)).thenReturn(null);
+        assertFalse(paperRecordService.paperRecordExistsForPatientWithPrimaryIdentifier("ABC123", medicalRecordLocation));
     }
 
     @Test
@@ -218,7 +207,7 @@ public class PaperRecordServiceTest {
         Patient patient = new Patient();
         patient.setId(2);
 
-        assertFalse(paperRecordService.paperRecordExistsForPatientWithIdentifier("ABC123", medicalRecordLocation));
+        assertFalse(paperRecordService.paperRecordExistsForPatientWithPrimaryIdentifier("ABC123", medicalRecordLocation));
     }
 
     @Test
@@ -396,7 +385,7 @@ public class PaperRecordServiceTest {
 
         //PatientIdentifier identifier = new PatientIdentifier(paperMedicalRecordNumberAsExpected, paperRecordIdentifierType, createMedicalRecordLocation());
 
-        String paperMedicalRecordNumber = paperRecordService.assureHasPaperRecord(patient, createMedicalRecordLocation()).getPatientIdentifier().getIdentifier();
+        String paperMedicalRecordNumber = paperRecordService.createPaperRecord(patient, createMedicalRecordLocation()).getPatientIdentifier().getIdentifier();
 
         // cannot compare using one identifier because the equals is not implemented correctly
         verify(mockPatientService).savePatientIdentifier(any(PatientIdentifier.class));
@@ -916,7 +905,7 @@ public class PaperRecordServiceTest {
         verify(mockPaperRecordMergeRequestDAO).saveOrUpdate(argThat(expectedMergeRequestMatcher));
     }
 
-   /* @Test
+    @Test
     public void testMarkPaperRecordsAsMergedShouldMergeExistingPendingPaperRecordRequests() throws Exception {
 
         Location medicalRecordLocation = createMedicalRecordLocation();
@@ -1007,9 +996,9 @@ public class PaperRecordServiceTest {
 
         IsExpectedRequest expectedRequestMatcher = new IsExpectedRequest(expectedRequest);
         verify(mockPaperRecordRequestDAO).saveOrUpdate(argThat(expectedRequestMatcher));
-    }
-*/
-   /* @Test
+     }
+
+   @Test
     public void testMarkPaperRecordsShouldMarkAnyNotPreferredRecordRequestsInSentStateAsReturned() throws Exception {
 
         Location medicalRecordLocation = createMedicalRecordLocation();
@@ -1045,7 +1034,7 @@ public class PaperRecordServiceTest {
 
         IsExpectedRequest expectedRequestMatcher = new IsExpectedRequest(expectedRequest);
         verify(mockPaperRecordRequestDAO).saveOrUpdate(argThat(expectedRequestMatcher));
-    }*/
+    }
 
     @Test
     public void testPrintPaperRecordLabelShouldPrintSingleLabel() throws Exception {
@@ -1379,7 +1368,7 @@ public class PaperRecordServiceTest {
 
         when(mockIdentifierSourceService.generateIdentifier(paperRecordIdentifierType, "generating a new dossier number")).thenReturn("A00001", "A00002");
 
-        PatientIdentifier paperMedicalRecordIdentifier = paperRecordService.assureHasPaperRecord(new Patient(), medicalRecordLocation).getPatientIdentifier();
+        PatientIdentifier paperMedicalRecordIdentifier = paperRecordService.createPaperRecord(new Patient(), medicalRecordLocation).getPatientIdentifier();
 
         assertThat(paperMedicalRecordIdentifier.getIdentifier(), is("A00002"));
     }

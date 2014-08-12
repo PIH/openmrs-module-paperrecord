@@ -225,7 +225,7 @@ public class ArchivesRoomFragmentController {
             if (sentRequests == null || sentRequests.size() == 0) {
                 // as long as this identifier exists, we can return a success message (no error if they mistakenly scan a record twice)
                 if (paperRecordService.paperRecordExistsWithIdentifier(identifier, sessionContext.getSessionLocation())
-                        || paperRecordService.paperRecordExistsForPatientWithIdentifier(identifier, sessionContext.getSessionLocation()) ) {
+                        || paperRecordService.paperRecordExistsForPatientWithPrimaryIdentifier(identifier, sessionContext.getSessionLocation()) ) {
                     return new SuccessResult(ui.message("paperrecord.archivesRoom.recordReturned.message"));
                 }
                 else {

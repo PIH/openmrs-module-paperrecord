@@ -13,4 +13,6 @@ public interface PaperRecordDAO extends SingleClassDAO<PaperRecord> {
     List<PaperRecord> findPaperRecords(Patient patient, Location paperRecordLocation);
 
     PaperRecord findPaperRecord(PatientIdentifier paperRecordIdentifier, Location paperRecordLocation);
+
+    PaperRecord findPaperRecord(String paperRecordIdentifier, Location paperRecordLocation);
 }

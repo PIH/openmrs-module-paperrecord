@@ -18,7 +18,7 @@
 
     <patient_identifier patient_identifier_id="2002" patient_id="8" identifier="DOGBALL" identifier_type="2"
                         preferred="0" location_id="1" creator="1" date_created="2005-09-22 00:00:00.0"
-                        voided="false" void_reason="" uuid="7777928c-3bca-48d9-a4dc-9198f6b2873b"/>
+                        voided="true" void_reason="void for test purposes" uuid="7777928c-3bca-48d9-a4dc-9198f6b2873b"/>
 
     <paperrecord_paper_record record_id="1" patient_identifier="2001" record_location="1" status="ACTIVE"
                         date_created="2006-01-18 00:00:00.0" uuid="888cb3c3-9e66-42c6-8f03-2a0c1e9ca2a8"/>

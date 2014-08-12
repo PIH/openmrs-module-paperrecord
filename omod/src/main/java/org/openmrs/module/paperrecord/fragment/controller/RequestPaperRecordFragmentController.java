@@ -5,11 +5,12 @@ import org.apache.commons.logging.LogFactory;
 import org.openmrs.Location;
 import org.openmrs.Patient;
 import org.openmrs.module.appui.UiSessionContext;
-import org.openmrs.module.printer.Printer;
-import org.openmrs.module.printer.PrinterService;
+import org.openmrs.module.paperrecord.PaperRecord;
 import org.openmrs.module.paperrecord.PaperRecordConstants;
 import org.openmrs.module.paperrecord.PaperRecordService;
 import org.openmrs.module.paperrecord.UnableToPrintLabelException;
+import org.openmrs.module.printer.Printer;
+import org.openmrs.module.printer.PrinterService;
 import org.openmrs.ui.framework.SimpleObject;
 import org.openmrs.ui.framework.UiUtils;
 import org.openmrs.ui.framework.annotation.SpringBean;
@@ -51,26 +52,30 @@ public class RequestPaperRecordFragmentController {
                                             @SpringBean("printerService") PrinterService printerService,
                                             UiSessionContext uiSessionContext) throws UnableToPrintLabelException {
 
+        if (service.paperRecordExistsForPatient(patient, location)) {
+            // TODO: return error message "please place a request?"
+            return null;
+        }
 
-        service.assureHasPaperRecord(patient, location);
-
-        // TODO: add a method here to mark the paper record as created-- should only if the print completes!
-
-        // TODO: should this fail if the patient already has a paper record "please place a request?"
+        PaperRecord paperRecord = service.createPaperRecord(patient, location);
 
         try {
             service.printPaperRecordLabels(patient, location, 1);       // label for the paper record itself
             service.printPaperFormLabels(patient, location, PaperRecordConstants.NUMBER_OF_FORM_LABELS_TO_PRINT);    // labels for individual paper forms
             service.printIdCardLabel(patient, location);
-
-            Printer printer = printerService.getDefaultPrinter(location, Printer.Type.LABEL);
-
-            return SimpleObject.create("success", true, "message", ui.message("paperrecord.patientDashBoard.printLabels.successMessage") + " " + printer.getPhysicalLocation().getName());
-        } catch (UnableToPrintLabelException e) {
+         } catch (UnableToPrintLabelException e) {
             log.warn("User " + uiSessionContext.getCurrentUser() + " unable to print paper record label at location "
                     + uiSessionContext.getSessionLocation(), e);
             return SimpleObject.create("success", false, "message", ui.message("paperrecord.archivesRoom.error.unableToPrintLabel"));
         }
+
+        // mark this record as "ACTIVE" (ie, it has been created)
+        paperRecord.updateStatus(PaperRecord.Status.ACTIVE);
+        service.savePaperRecord(paperRecord);
+
+        Printer printer = printerService.getDefaultPrinter(location, Printer.Type.LABEL);
+        return SimpleObject.create("success", true, "message", ui.message("paperrecord.patientDashBoard.printLabels.successMessage") + " " + printer.getPhysicalLocation().getName());
+
     }
 
 
