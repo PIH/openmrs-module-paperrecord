@@ -19,7 +19,6 @@ import org.junit.Before;
 import org.junit.Test;
 import org.openmrs.Location;
 import org.openmrs.Patient;
-import org.openmrs.PatientIdentifier;
 import org.openmrs.Person;
 import org.openmrs.api.LocationService;
 import org.openmrs.api.PatientService;
@@ -679,8 +678,8 @@ public class PaperRecordServiceComponentTest extends BaseModuleContextSensitiveT
         Location paperRecordLocation = locationService.getLocation(1);
 
         // create a couple paper records
-        PaperRecord paperRecord1 = paperRecordService.createPaperRecord(patient1, paperRecordLocation);
-        PaperRecord paperRecord2 = paperRecordService.createPaperRecord(patient2, paperRecordLocation);
+        PaperRecord paperRecord1 = paperRecordService.createPaperRecordStub(patient1, paperRecordLocation);
+        PaperRecord paperRecord2 = paperRecordService.createPaperRecordStub(patient2, paperRecordLocation);
 
         paperRecordService.markPaperRecordsForMerge(paperRecord1, paperRecord2);
 
@@ -706,8 +705,8 @@ public class PaperRecordServiceComponentTest extends BaseModuleContextSensitiveT
         Location paperRecordLocation = locationService.getLocation(1);
 
         // create a couple paper records
-        PaperRecord paperRecord1 = paperRecordService.createPaperRecord(patient1, paperRecordLocation);
-        PaperRecord paperRecord2 = paperRecordService.createPaperRecord(patient2, paperRecordLocation);
+        PaperRecord paperRecord1 = paperRecordService.createPaperRecordStub(patient1, paperRecordLocation);
+        PaperRecord paperRecord2 = paperRecordService.createPaperRecordStub(patient2, paperRecordLocation);
 
         paperRecordService.markPaperRecordsForMerge(paperRecord1, paperRecord2);
 
@@ -736,8 +735,8 @@ public class PaperRecordServiceComponentTest extends BaseModuleContextSensitiveT
         Patient patient2 = patientService.getPatient(6);
 
         // create a couple paper records
-        PaperRecord paperRecord1 = paperRecordService.createPaperRecord(patient1, paperRecordLocation);
-        PaperRecord paperRecord2 = paperRecordService.createPaperRecord(patient2, paperRecordLocation);
+        PaperRecord paperRecord1 = paperRecordService.createPaperRecordStub(patient1, paperRecordLocation);
+        PaperRecord paperRecord2 = paperRecordService.createPaperRecordStub(patient2, paperRecordLocation);
 
         // first, create a couple record requests
         PaperRecordRequest request1 = paperRecordService.requestPaperRecord(patient1, paperRecordLocation, someLocation).get(0);

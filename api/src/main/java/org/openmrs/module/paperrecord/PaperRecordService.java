@@ -79,7 +79,7 @@ public interface PaperRecordService extends OpenmrsService {
      * @return the Patient identifier created
      */
     @Authorized(PaperRecordConstants.PRIVILEGE_PAPER_RECORDS_MANAGE_REQUESTS)
-    PaperRecord createPaperRecord(Patient patient, Location medicalRecordLocation);
+    PaperRecord createPaperRecordStub(Patient patient, Location medicalRecordLocation);
 
 
     /**

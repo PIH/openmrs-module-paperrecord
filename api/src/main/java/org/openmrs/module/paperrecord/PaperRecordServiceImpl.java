@@ -58,17 +58,17 @@ import static org.openmrs.module.paperrecord.PaperRecordRequest.Status;
 
 public class PaperRecordServiceImpl extends BaseOpenmrsService implements PaperRecordService {
 
-    // TODO: various component tests for merge
-    // TODO: remove patient from paper record request?
     // TODO: db file--> migrate paper record, and merge and request
-    // TODO: data migration!  just based on pending requests...  test against 1.9 dataabase
+    // TODO: data migration!  just based on pending requests...
 
-    // TODO: will assureHasPaperRecordIdentifier need to be added to PatientRegistration and Mirebalais modules
-    // TODO: feature toggles?
-    // TODO: changing the request record functionality as part of the new and old workflow in Mirebalais!
-    // TODO: create patient identifier in registration? or when printing wristband
+    // TODO: test builds of Mirebalais and Patient Registration
     // TODO: mirebalais IT test
     // TODO: review to dos
+    // TODO: do a release (and update includes?)
+    // TODO: test against full prod DB
+
+    // TODO: change paperRecordExits to paperRecordObjectExists? PaperRecord-->PaperRecordStub?
+    // TODO: or just hcange nae of createPaperRecord controller method?
 
     // TODO: no longer need to display other patient identifier on pull page?
     // TODO: review all todos
@@ -79,6 +79,8 @@ public class PaperRecordServiceImpl extends BaseOpenmrsService implements PaperR
     // TODO: think about all the duplicate/transactonal cases we need to handle
     // TODO: make sure we mark the record as created in the create method, when created outside of the archives
     // TODO: merging paper records, documentation
+
+    // TODO: a patient could have two identifiers, two records, at the same location?
 
     private final Logger log = LoggerFactory.getLogger(getClass());
 
@@ -257,7 +259,7 @@ public class PaperRecordServiceImpl extends BaseOpenmrsService implements PaperR
 
            // if no record, create one
             if (paperRecords == null || paperRecords.size() == 0) {
-                paperRecords.add(createPaperRecord(patient, recordLocation));
+                paperRecords.add(createPaperRecordStub(patient, recordLocation));
             }
 
             for (PaperRecord paperRecord : paperRecords) {
@@ -570,11 +572,19 @@ public class PaperRecordServiceImpl extends BaseOpenmrsService implements PaperR
     }
 
     // TODO where is this used--when we are creating a record remotely outside the archives
+    // TODO this should actually fetch all r
     @Override
     @Transactional(readOnly = true)
     public void printPaperRecordLabels(Patient patient, Location location, Integer count) throws UnableToPrintLabelException {
-        PatientIdentifier paperRecordIdentifier = GeneralUtils.getPatientIdentifier(patient, paperRecordProperties.getPaperRecordIdentifierType(), getMedicalRecordLocationAssociatedWith(location));
-        printLabels(patient, paperRecordIdentifier != null ? paperRecordIdentifier.getIdentifier() : null, location, count, paperRecordLabelTemplate);
+
+        // generally, in our current design, a patient should only have one paper record per location
+        List<PaperRecord> paperRecords = getPaperRecords(patient, location);
+
+        if (paperRecords != null && paperRecords.size() > 0) {
+            for (PaperRecord paperRecord : paperRecords) {
+                    printLabels(patient, paperRecord.getPatientIdentifier().getIdentifier(), location, count, paperRecordLabelTemplate);
+            }
+        }
     }
 
     @Override
@@ -588,8 +598,15 @@ public class PaperRecordServiceImpl extends BaseOpenmrsService implements PaperR
     @Override
     @Transactional(readOnly = true)
     public void printPaperFormLabels(Patient patient, Location location, Integer count) throws UnableToPrintLabelException {
-        PatientIdentifier paperRecordIdentifier = GeneralUtils.getPatientIdentifier(patient, paperRecordProperties.getPaperRecordIdentifierType(), getMedicalRecordLocationAssociatedWith(location));
-        printLabels(patient, paperRecordIdentifier != null ? paperRecordIdentifier.getIdentifier() : null, location, count, paperFormLabelTemplate);
+
+        // generally, in our current design, a patient should only have one paper record per location
+        List<PaperRecord> paperRecords = getPaperRecords(patient, location);
+
+        if (paperRecords != null && paperRecords.size() > 0) {
+            for (PaperRecord paperRecord : paperRecords) {
+                printLabels(patient, paperRecord.getPatientIdentifier().getIdentifier(), location, count, paperFormLabelTemplate);
+            }
+        }
     }
 
     @Override
@@ -726,7 +743,8 @@ public class PaperRecordServiceImpl extends BaseOpenmrsService implements PaperR
 
     @Override
     @Transactional
-    public PaperRecord createPaperRecord(Patient patient, Location location) {
+    // TODO: rename?
+    public PaperRecord createPaperRecordStub(Patient patient, Location location) {
         if (patient == null) {
             throw new IllegalArgumentException("Patient shouldn't be null");
         }
@@ -762,7 +780,7 @@ public class PaperRecordServiceImpl extends BaseOpenmrsService implements PaperR
 
         PaperRecord paperRecord = getPaperRecord(paperRecordIdentifier, medicalRecordLocation);
         if (paperRecord != null) {
-            log.error("createPaperRecord called for patient " + paperRecordIdentifier + " who already has record at " + medicalRecordLocation);
+            log.error("createPaperRecordStub called for patient " + paperRecordIdentifier + " who already has record at " + medicalRecordLocation);
         }
         else {
             paperRecord = new PaperRecord();
@@ -781,6 +799,8 @@ public class PaperRecordServiceImpl extends BaseOpenmrsService implements PaperR
     public List<PaperRecord> getPaperRecords(Patient patient) {
         return paperRecordDAO.findPaperRecords(patient, null);
     }
+
+    // TODO: should we be allowed to get multiple paper records here?
 
     @Override
     @Transactional
