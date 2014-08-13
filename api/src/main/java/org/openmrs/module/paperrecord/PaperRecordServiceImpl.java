@@ -268,7 +268,6 @@ public class PaperRecordServiceImpl extends BaseOpenmrsService implements PaperR
                request.setCreator(Context.getAuthenticatedUser());
                request.setDateCreated(new Date());
                request.setRecordLocation(recordLocation);
-               request.setPatient(patient);
                request.setRequestLocation(requestLocation);
                paperRecordRequestDAO.saveOrUpdate(request);
 
@@ -567,7 +566,7 @@ public class PaperRecordServiceImpl extends BaseOpenmrsService implements PaperR
     @Override
     @Transactional(readOnly = true)
     public void printPaperRecordLabels(PaperRecordRequest request, Location location, Integer count) throws UnableToPrintLabelException {
-        printLabels(request.getPatient(), request.getPaperRecord().getPatientIdentifier().getIdentifier(), location, count, paperRecordLabelTemplate);
+        printLabels(request.getPaperRecord().getPatientIdentifier().getPatient(), request.getPaperRecord().getPatientIdentifier().getIdentifier(), location, count, paperRecordLabelTemplate);
     }
 
     // TODO where is this used--when we are creating a record remotely outside the archives
@@ -581,7 +580,7 @@ public class PaperRecordServiceImpl extends BaseOpenmrsService implements PaperR
     @Override
     @Transactional(readOnly = true)
     public void printPaperFormLabels(PaperRecordRequest request, Location location, Integer count) throws UnableToPrintLabelException {
-        printLabels(request.getPatient(), request.getPaperRecord().getPatientIdentifier().getIdentifier(), location, count, paperFormLabelTemplate);
+        printLabels(request.getPaperRecord().getPatientIdentifier().getPatient(), request.getPaperRecord().getPatientIdentifier().getIdentifier(), location, count, paperFormLabelTemplate);
 
     }
 
@@ -603,7 +602,7 @@ public class PaperRecordServiceImpl extends BaseOpenmrsService implements PaperR
     public void printPaperRecordLabelSet(PaperRecordRequest request, Location location) throws UnableToPrintLabelException{
         printPaperRecordLabel(request, location);
         printPaperFormLabels(request, location, PaperRecordConstants.NUMBER_OF_FORM_LABELS_TO_PRINT);
-        printIdCardLabel(request.getPatient(), location);
+        printIdCardLabel(request.getPaperRecord().getPatientIdentifier().getPatient(), location);
     }
 
     private void printLabels(Patient patient, String identifier, Location location, Integer count, LabelTemplate template) throws UnableToPrintLabelException {
@@ -653,7 +652,6 @@ public class PaperRecordServiceImpl extends BaseOpenmrsService implements PaperR
         // (this probably isn't exactly right, but it should prevent an error from being thrown one of these charts is returned to the archives room)
         for (PaperRecordRequest request : paperRecordRequestDAO.findPaperRecordRequests(Collections.singletonList(Status.SENT), notPreferredPaperRecord)) {
             request.setPaperRecord(preferredPaperRecord);
-            request.setPatient(preferredPaperRecord.getPatientIdentifier().getPatient());
             savePaperRecordRequest(request);
         }
 

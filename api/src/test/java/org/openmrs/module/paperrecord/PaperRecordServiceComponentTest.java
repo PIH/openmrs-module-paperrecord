@@ -199,7 +199,7 @@ public class PaperRecordServiceComponentTest extends BaseModuleContextSensitiveT
         List<PaperRecordRequest> requests = paperRecordService.getOpenPaperRecordRequestsToCreate();
         Assert.assertEquals(1, requests.size());
         PaperRecordRequest request = requests.get(0);
-        Assert.assertEquals(new Integer(2), request.getPatient().getId());
+        Assert.assertEquals(new Integer(2), request.getPaperRecord().getPatientIdentifier().getPatient().getId());
         Assert.assertEquals(new Integer(1), request.getRecordLocation().getId());
         Assert.assertEquals(new Integer(3), request.getRequestLocation().getId());
         Assert.assertEquals("101", request.getPaperRecord().getPatientIdentifier().getIdentifier());
@@ -226,7 +226,7 @@ public class PaperRecordServiceComponentTest extends BaseModuleContextSensitiveT
         List<PaperRecordRequest> requests = paperRecordService.getOpenPaperRecordRequestsToCreate();
         Assert.assertEquals(1, requests.size());
         PaperRecordRequest request = requests.get(0);
-        Assert.assertEquals(new Integer(2), request.getPatient().getId());
+        Assert.assertEquals(new Integer(2), request.getPaperRecord().getPatientIdentifier().getPatient().getId());
         Assert.assertEquals(new Integer(1), request.getRecordLocation().getId());
         Assert.assertEquals(new Integer(3), request.getRequestLocation().getId());
         Assert.assertEquals("101", request.getPaperRecord().getPatientIdentifier().getIdentifier());
@@ -254,7 +254,7 @@ public class PaperRecordServiceComponentTest extends BaseModuleContextSensitiveT
         List<PaperRecordRequest> requests = paperRecordService.getOpenPaperRecordRequestsToCreate();
         Assert.assertEquals(1, requests.size());
         PaperRecordRequest request = requests.get(0);
-        Assert.assertEquals(new Integer(2), request.getPatient().getId());
+        Assert.assertEquals(new Integer(2), request.getPaperRecord().getPatientIdentifier().getPatient().getId());
         Assert.assertEquals(new Integer(2), request.getRecordLocation().getId());
         Assert.assertEquals(new Integer(3), request.getRequestLocation().getId());
         Assert.assertEquals("A00001", request.getPaperRecord().getPatientIdentifier().getIdentifier());
@@ -307,7 +307,7 @@ public class PaperRecordServiceComponentTest extends BaseModuleContextSensitiveT
         PaperRecordRequest request = paperRecordService.getPaperRecordRequestById(1);
 
         Assert.assertNotNull(request);
-        Assert.assertEquals(new Integer(7), request.getPatient().getId());
+        Assert.assertEquals(new Integer(7), request.getPaperRecord().getPatientIdentifier().getPatient().getId());
         Assert.assertEquals(new Integer(1), request.getRecordLocation().getId());
         Assert.assertEquals(new Integer(2), request.getRequestLocation().getId());
         Assert.assertEquals("CATBALL", request.getPaperRecord().getPatientIdentifier().getIdentifier());
@@ -372,7 +372,7 @@ public class PaperRecordServiceComponentTest extends BaseModuleContextSensitiveT
         requests = paperRecordService.getOpenPaperRecordRequestsToCreate();
         Assert.assertEquals(1, requests.size());
         PaperRecordRequest request = requests.get(0);
-        Assert.assertEquals(new Integer(2), request.getPatient().getId());
+        Assert.assertEquals(new Integer(2), request.getPaperRecord().getPatientIdentifier().getPatient().getId());
         Assert.assertEquals(new Integer(1), request.getRecordLocation().getId());
         Assert.assertEquals(new Integer(3), request.getRequestLocation().getId());
         Assert.assertEquals("101", request.getPaperRecord().getPatientIdentifier().getIdentifier());
@@ -404,7 +404,7 @@ public class PaperRecordServiceComponentTest extends BaseModuleContextSensitiveT
         requests = paperRecordService.getOpenPaperRecordRequestsToCreate();
         Assert.assertEquals(1, requests.size());
         PaperRecordRequest request = requests.get(0);
-        Assert.assertEquals(new Integer(2), request.getPatient().getId());
+        Assert.assertEquals(new Integer(2), request.getPaperRecord().getPatientIdentifier().getPatient().getId());
         Assert.assertEquals(new Integer(1), request.getRecordLocation().getId());
         Assert.assertEquals(new Integer(2), request.getRequestLocation().getId());
         Assert.assertEquals("101",request.getPaperRecord().getPatientIdentifier().getIdentifier());
@@ -444,7 +444,7 @@ public class PaperRecordServiceComponentTest extends BaseModuleContextSensitiveT
         requests = paperRecordService.getAssignedPaperRecordRequestsToCreate();
         Assert.assertEquals(1, requests.size());
         PaperRecordRequest request = requests.get(0);
-        Assert.assertEquals(new Integer(2), request.getPatient().getId());
+        Assert.assertEquals(new Integer(2), request.getPaperRecord().getPatientIdentifier().getPatient().getId());
         Assert.assertEquals(new Integer(1), request.getRecordLocation().getId());
         Assert.assertEquals(new Integer(3), request.getRequestLocation().getId());
         Assert.assertEquals("101", request.getPaperRecord().getPatientIdentifier().getIdentifier());
@@ -495,7 +495,7 @@ public class PaperRecordServiceComponentTest extends BaseModuleContextSensitiveT
         Date dateCreated = requests.get(0).getDateCreated();
 
         PaperRecordRequest request = requests.get(0);
-        Assert.assertEquals(new Integer(7), request.getPatient().getId());
+        Assert.assertEquals(new Integer(7), request.getPaperRecord().getPatientIdentifier().getPatient().getId());
         Assert.assertEquals(new Integer(1), request.getRecordLocation().getId());
         Assert.assertEquals(new Integer(2), request.getRequestLocation().getId());
         Assert.assertEquals(PaperRecordRequest.Status.OPEN, request.getStatus());
@@ -643,11 +643,8 @@ public class PaperRecordServiceComponentTest extends BaseModuleContextSensitiveT
         // this identifier exists in the sample test data
         List<PaperRecordRequest> requests = paperRecordService.getSentPaperRecordRequestByIdentifier("6TS-4");
         Assert.assertNotNull(requests);
-        Assert.assertEquals(2, requests.size());
-
-        // make sure the right requests are returned
-        Assert.assertTrue((requests.get(0).getId() == 1 && requests.get(1).getId() == 2) ||
-                (requests.get(0).getId() == 2 && requests.get(1).getId() == 1));
+        Assert.assertEquals(1, requests.size());
+        Assert.assertEquals(new Integer(1), requests.get(0).getId());
     }
 
     @Test

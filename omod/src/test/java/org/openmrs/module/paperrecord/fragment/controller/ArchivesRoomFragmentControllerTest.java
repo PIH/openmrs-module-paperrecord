@@ -318,7 +318,6 @@ public class ArchivesRoomFragmentControllerTest {
         request.setPaperRecord(paperRecord);
         request.setRequestLocation(location);
         request.setDateCreated(calendar.getTime());
-        request.setPatient(patient);
         request.updateStatus(PaperRecordRequest.Status.OPEN);
 
         PaperRecord paperRecord2 = new PaperRecord();
@@ -331,7 +330,6 @@ public class ArchivesRoomFragmentControllerTest {
         request2.setRequestLocation(location2);
         calendar.set(2012,2,22,12, 11);
         request2.setDateCreated(calendar.getTime());
-        request2.setPatient(patient2);
         request2.updateStatus(PaperRecordRequest.Status.ASSIGNED);
 
         List<PaperRecordRequest> requests = new ArrayList<PaperRecordRequest>();
@@ -393,7 +391,6 @@ public class ArchivesRoomFragmentControllerTest {
         request.setPaperRecord(paperRecord);
         request.setRequestLocation(location);
         request.setDateCreated(calendar.getTime());
-        request.setPatient(patient);
         request.updateStatus(PaperRecordRequest.Status.OPEN);
 
         PaperRecord paperRecord2 = new PaperRecord();
@@ -406,7 +403,6 @@ public class ArchivesRoomFragmentControllerTest {
         request2.setRequestLocation(location2);
         calendar.set(2012,2,22,12, 11);
         request2.setDateCreated(calendar.getTime());
-        request2.setPatient(patient2);
         request2.updateStatus(PaperRecordRequest.Status.ASSIGNED);
 
         List<PaperRecordRequest> requests = new ArrayList<PaperRecordRequest>();
@@ -450,7 +446,6 @@ public class ArchivesRoomFragmentControllerTest {
         request.setPaperRecord(paperRecord);
         request.setRequestLocation(location);
         request.setDateCreated(calendar.getTime());
-        request.setPatient(patient);
         request.updateStatus(PaperRecordRequest.Status.SENT);
 
         return request;

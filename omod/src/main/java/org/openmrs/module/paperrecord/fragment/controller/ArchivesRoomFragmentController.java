@@ -307,13 +307,15 @@ public class ArchivesRoomFragmentController {
         List<SimpleObject> results = new ArrayList<SimpleObject>();
 
         for (PaperRecordRequest request : requests) {
-             SimpleObject result = SimpleObject.fromObject(request, ui, "requestId", "patient", "requestLocation");
+             SimpleObject result = SimpleObject.fromObject(request, ui, "requestId", "requestLocation");
 
-            // manually add the date, paper record identifier, and patient identifier
+            // manually add the date, patient, paper record identifier, and patient identifier
             result.put("identifier", ui.format(request.getPaperRecord().getPatientIdentifier().getIdentifier()));
             result.put("dateCreated", timeAndDateFormat.format(request.getDateCreated()));
-            result.put("dateCreatedSortable", request.getDateCreated()) ;
-            result.put("patientIdentifier", ui.format(request.getPatient().getPatientIdentifier(emrApiProperties.getPrimaryIdentifierType()).getIdentifier()));
+            result.put("dateCreatedSortable", request.getDateCreated());
+            // TODO: do we still need patient identifier?
+            result.put("patientIdentifier", ui.format(request.getPaperRecord().getPatientIdentifier().getPatient().getPatientIdentifier(emrApiProperties.getPrimaryIdentifierType()).getIdentifier()));
+            result.put("patient", ui.format(request.getPaperRecord().getPatientIdentifier().getPatient()));
 
             // add the last sent and last sent date to any pending pull requests
             if (PaperRecordRequest.PENDING_STATUSES.contains(request.getStatus()) && !request.getPaperRecord().getStatus().equals(PaperRecord.Status.PENDING_CREATION)) {

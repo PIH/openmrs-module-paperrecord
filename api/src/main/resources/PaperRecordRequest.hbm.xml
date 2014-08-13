@@ -35,10 +35,6 @@
             <column name="creator"/>
         </many-to-one>
 
-        <many-to-one name="patient" class="org.openmrs.Patient" not-null="true">
-            <column name="patient_id"/>
-        </many-to-one>
-
         <many-to-one name="requestLocation" class="org.openmrs.Location" not-null="true">
             <column name="request_location"/>
         </many-to-one>

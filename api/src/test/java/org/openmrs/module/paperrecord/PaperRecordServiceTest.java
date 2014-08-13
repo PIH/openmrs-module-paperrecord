@@ -1140,14 +1140,12 @@ public class PaperRecordServiceTest {
 
         PaperRecordRequest preferredRequest = new PaperRecordRequest();
         preferredRequest.setPaperRecord(preferredPaperRecord);
-        preferredRequest.setPatient(preferred);
         preferredRequest.setRecordLocation(recordLocation);
         preferredRequest.setRequestLocation(requestLocation);
         preferredRequest.updateStatus(Status.SENT);
 
         PaperRecordRequest nonPreferredRequest = new PaperRecordRequest();
         nonPreferredRequest.setPaperRecord(nonPreferredPaperRecord);
-        nonPreferredRequest.setPatient(notPreferred);
         nonPreferredRequest.setRecordLocation(recordLocation);
         nonPreferredRequest.setRequestLocation(requestLocation);
         nonPreferredRequest.updateStatus(Status.SENT);
@@ -1155,7 +1153,6 @@ public class PaperRecordServiceTest {
         // we are expecting that the non-preferred request is now associated with the the preferred patient
         PaperRecordRequest expectedRequest = new PaperRecordRequest();
         expectedRequest.setPaperRecord(preferredPaperRecord);
-        expectedRequest.setPatient(preferred);
         expectedRequest.setRecordLocation(recordLocation);
         expectedRequest.setRequestLocation(requestLocation);
         expectedRequest.updateStatus(Status.SENT);
@@ -1191,14 +1188,12 @@ public class PaperRecordServiceTest {
 
         PaperRecordRequest preferredRequest = new PaperRecordRequest();
         preferredRequest.setPaperRecord(preferredPaperRecord);
-        preferredRequest.setPatient(preferred);
         preferredRequest.setRecordLocation(recordLocation);
         preferredRequest.setRequestLocation(requestLocation);
         preferredRequest.updateStatus(Status.RETURNED);
 
         PaperRecordRequest nonPreferredRequest = new PaperRecordRequest();
         nonPreferredRequest.setPaperRecord(nonPreferredPaperRecord);
-        nonPreferredRequest.setPatient(notPreferred);
         nonPreferredRequest.setRecordLocation(recordLocation);
         nonPreferredRequest.setRequestLocation(requestLocation);
         nonPreferredRequest.updateStatus(Status.RETURNED);
@@ -1206,7 +1201,6 @@ public class PaperRecordServiceTest {
         // should be same original
         PaperRecordRequest expectedRequest = new PaperRecordRequest();
         expectedRequest.setPaperRecord(nonPreferredPaperRecord);
-        expectedRequest.setPatient(notPreferred);
         expectedRequest.setRecordLocation(recordLocation);
         expectedRequest.setRequestLocation(requestLocation);
         expectedRequest.updateStatus(Status.RETURNED);
@@ -1242,14 +1236,12 @@ public class PaperRecordServiceTest {
 
         PaperRecordRequest preferredRequest = new PaperRecordRequest();
         preferredRequest.setPaperRecord(preferredPaperRecord);
-        preferredRequest.setPatient(preferred);
         preferredRequest.setRecordLocation(recordLocation);
         preferredRequest.setRequestLocation(requestLocation);
         preferredRequest.updateStatus(Status.CANCELLED);
 
         PaperRecordRequest nonPreferredRequest = new PaperRecordRequest();
         nonPreferredRequest.setPaperRecord(nonPreferredPaperRecord);
-        nonPreferredRequest.setPatient(notPreferred);
         nonPreferredRequest.setRecordLocation(recordLocation);
         nonPreferredRequest.setRequestLocation(requestLocation);
         nonPreferredRequest.updateStatus(Status.CANCELLED);
@@ -1257,7 +1249,6 @@ public class PaperRecordServiceTest {
         // should be same original
         PaperRecordRequest expectedRequest = new PaperRecordRequest();
         expectedRequest.setPaperRecord(nonPreferredPaperRecord);
-        expectedRequest.setPatient(notPreferred);
         expectedRequest.setRecordLocation(recordLocation);
         expectedRequest.setRequestLocation(requestLocation);
         expectedRequest.updateStatus(Status.CANCELLED);
@@ -1647,7 +1638,6 @@ public class PaperRecordServiceTest {
         expectedRequest.setPaperRecord(paperRecord);
         expectedRequest.setRequestLocation(requestLocation);
         expectedRequest.setRecordLocation(medicalRecordLocation);
-        expectedRequest.setPatient(patient);
         expectedRequest.updateStatus(paperRecordRequestStatus);
         return expectedRequest;
     }
@@ -1669,7 +1659,6 @@ public class PaperRecordServiceTest {
     // TODO: can we get rid of these and just use the create methods
     private PaperRecordRequest buildPaperRecordRequestWithoutIdentifier(Patient patient, Location location) {
         PaperRecordRequest request = new PaperRecordRequest();
-        request.setPatient(patient);
         request.updateStatus(PaperRecordRequest.Status.OPEN);
         request.setRecordLocation(location);
         return request;
@@ -1688,7 +1677,6 @@ public class PaperRecordServiceTest {
         paperRecord.updateStatus(PaperRecord.Status.ACTIVE);
 
         PaperRecordRequest request = new PaperRecordRequest();
-        request.setPatient(patient);
         request.updateStatus(PaperRecordRequest.Status.OPEN);
         request.setRecordLocation(location);
         request.setPaperRecord(paperRecord);

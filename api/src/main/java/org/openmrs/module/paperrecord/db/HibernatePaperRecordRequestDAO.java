@@ -37,6 +37,11 @@ public class HibernatePaperRecordRequestDAO extends HibernateSingleClassDAO<Pape
 
         Criteria criteria = createPaperRecordRequestCriteria();
 
+        // only add the aliases/joins if necessary
+        if (patient != null || identifier !=null) {
+            addPatientIdentifierAliases(criteria);
+        }
+
         if (statusList != null) {
             addStatusDisjunctionRestriction(criteria, statusList);
         }
@@ -49,7 +54,6 @@ public class HibernatePaperRecordRequestDAO extends HibernateSingleClassDAO<Pape
             addRecordLocationRestriction(criteria, recordLocation);
         }
 
-        // **note that as the code stands now, this restriction must be added last, since it creates sub-criteria on the paper record & patient identifier tables**
         if (identifier != null) {
             addIdentifierRestriction(criteria, identifier);
         }
@@ -77,6 +81,12 @@ public class HibernatePaperRecordRequestDAO extends HibernateSingleClassDAO<Pape
 
     private Criteria createPaperRecordRequestCriteria() {
         return sessionFactory.getCurrentSession().createCriteria(PaperRecordRequest.class);
+
+    }
+
+    private void addPatientIdentifierAliases(Criteria criteria) {
+        criteria.createAlias("paperRecord", "pr")
+                .createAlias("pr.patientIdentifier", "pi");
     }
 
     private void addStatusDisjunctionRestriction(Criteria criteria, List<PaperRecordRequest.Status> statusList) {
@@ -95,7 +105,7 @@ public class HibernatePaperRecordRequestDAO extends HibernateSingleClassDAO<Pape
     }
 
     private void addPatientRestriction(Criteria criteria, Patient patient) {
-        criteria.add(Restrictions.eq("patient", patient));
+        criteria.add(Restrictions.eq("pi.patient", patient));
     }
 
     private void addRecordLocationRestriction(Criteria criteria, Location recordLocation) {
@@ -109,7 +119,7 @@ public class HibernatePaperRecordRequestDAO extends HibernateSingleClassDAO<Pape
 
 
     private void addIdentifierRestriction(Criteria criteria, String identifier) {
-        criteria.createCriteria("paperRecord").createCriteria("patientIdentifier").add(Restrictions.eq("identifier", identifier));
+        criteria.add(Restrictions.eq("pi.identifier", identifier));
     }
 
     private void addOrderByDateCreated(Criteria criteria) {

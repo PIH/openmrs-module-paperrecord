@@ -87,8 +87,6 @@ public class PaperRecordRequest extends BaseOpenmrsObject {
 
     private Integer requestId;
 
-    private Patient patient;
-
     private PaperRecord paperRecord;
 
     private Location recordLocation;
@@ -105,7 +103,7 @@ public class PaperRecordRequest extends BaseOpenmrsObject {
 
     private Date dateStatusChanged;
 
-    // TODO: we could add a type here at some point if need be
+    // TODO: add paper record toString, and add it in paper record service
 
     public PaperRecordRequest() {
     }
@@ -114,7 +112,6 @@ public class PaperRecordRequest extends BaseOpenmrsObject {
     public String toString() {
         String ret;
         ret = this.getId() == null ? "(no id) " : this.getId().toString() + " ";
-        ret += this.getPatient() == null ? "(no patient) " : this.getPatient().toString() + " ";
         ret += this.getRecordLocation() == null ? "(no record location) " : this.getRecordLocation().toString() + " ";
         ret += this.getRequestLocation() == null ? "(no request location) " : this.getRequestLocation().toString() + " ";
         ret += this.getStatus() == null ? "(no status) " : this.getStatus().toString() + " ";
@@ -146,14 +143,6 @@ public class PaperRecordRequest extends BaseOpenmrsObject {
 
     public void setRequestId(Integer requestId) {
         this.requestId = requestId;
-    }
-
-    public Patient getPatient() {
-        return patient;
-    }
-
-    public void setPatient(Patient patient) {
-        this.patient = patient;
     }
 
     public PaperRecord getPaperRecord() {

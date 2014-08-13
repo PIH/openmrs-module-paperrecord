@@ -37,7 +37,6 @@ public class IsExpectedRequest extends ArgumentMatcher<PaperRecordRequest> {
         assertThat(actualRequest.getAssignee(), is(expectedRequest.getAssignee()));
         assertThat(actualRequest.getCreator(), is(expectedRequest.getCreator()));
         assertThat(actualRequest.getRecordLocation(), is(expectedRequest.getRecordLocation()));
-        assertThat(actualRequest.getPatient(), is(expectedRequest.getPatient()));
         assertThat(actualRequest.getStatus(), is(expectedRequest.getStatus()));
         assertThat(actualRequest.getPaperRecord().getPatientIdentifier().getIdentifier(), is(expectedRequest.getPaperRecord().getPatientIdentifier().getIdentifier()));
         if (expectedRequest.getDateCreated() != null) {
