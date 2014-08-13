@@ -4,7 +4,7 @@
 
 <hibernate-mapping>
 
-    <class name="org.openmrs.module.paperrecord.PaperRecordMergeRequest" table="emr_paper_record_merge_request">
+    <class name="org.openmrs.module.paperrecord.PaperRecordMergeRequest" table="paperrecord_paper_record_merge_request">
         <id name="mergeRequestId" type="int" column="merge_request_id" unsaved-value="0">
             <generator class="native"/>
         </id>

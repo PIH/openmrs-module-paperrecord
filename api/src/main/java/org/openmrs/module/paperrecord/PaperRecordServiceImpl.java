@@ -58,28 +58,22 @@ import static org.openmrs.module.paperrecord.PaperRecordRequest.Status;
 
 public class PaperRecordServiceImpl extends BaseOpenmrsService implements PaperRecordService {
 
-    // TODO: db file--> migrate paper record, and merge and request
-    // TODO: data migration!  just based on pending requests...
 
-    // TODO: test builds of Mirebalais and Patient Registration
-    // TODO: mirebalais IT test
+    // TODO: let Dave know--assume all requests closed!
+    // TODO: no longer need to display other patient identifier on pull page?
+
     // TODO: review to dos
-    // TODO: do a release (and update includes?)
     // TODO: test against full prod DB
 
     // TODO: change paperRecordExits to paperRecordObjectExists? PaperRecord-->PaperRecordStub?
     // TODO: or just hcange nae of createPaperRecord controller method?
 
-    // TODO: no longer need to display other patient identifier on pull page?
-    // TODO: review all todos
     // TODO: add additional tests to test new functional
-    // TODO: make sure creator and date created are updated
     // TODO: better way to mark record as created?
     // TODO: document!
     // TODO: think about all the duplicate/transactonal cases we need to handle
-    // TODO: make sure we mark the record as created in the create method, when created outside of the archives
-    // TODO: merging paper records, documentation
 
+    // TODO: merging paper records, documentation
     // TODO: a patient could have two identifiers, two records, at the same location?
 
     private final Logger log = LoggerFactory.getLogger(getClass());

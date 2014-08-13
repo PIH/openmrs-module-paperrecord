@@ -134,5 +134,167 @@
 
     </changeSet>
 
+    <changeSet id="2014-08-13-a" author="mgoodrich">
+        <comment>Rename paper record request table</comment>
+        <renameTable newTableName="paperrecord_paper_record_request" oldTableName="emr_paper_record_request"/>
+    </changeSet>
+
+    <changeSet id="2014-08-13-b" author="mgoodrich">
+        <comment>Rename paper record merge request table</comment>
+        <renameTable newTableName="paperrecord_paper_record_merge_request" oldTableName="emr_paper_record_merge_request"/>
+    </changeSet>
+
+    <changeSet id="2014-08-13-c" author="mgoodrich">
+        <comment>Adds paper record table</comment>
+        <createTable tableName="paperrecord_paper_record">
+            <column name="record_id" type="int" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="patient_identifier" type="int">
+                <constraints nullable="false" />
+            </column>
+            <column name="status" type="varchar(50)" defaultValue="PENDING_CREATION">
+                <constraints nullable="false" />
+            </column>
+            <column name="record_location" type="int">
+                <constraints nullable="false"/>
+            </column>
+            <column name="creator" type="int">
+                <constraints nullable="false"/>
+            </column>
+            <column name="date_created" type="datetime">
+                <constraints nullable="false"/>
+            </column>
+            <column name="date_status_changed" type="datetime"/>
+            <column name="uuid" type="char(38)">
+                <constraints nullable="false" unique="true"/>
+            </column>
+        </createTable>
+
+        <addForeignKeyConstraint constraintName="paper_record_patient_identifier_id_patient_identifier_id_fk"
+                                 baseTableName="paperrecord_paper_record" baseColumnNames="patient_identifier"
+                                 referencedTableName="patient_identifier" referencedColumnNames="patient_identifier_id"/>
+
+        <addForeignKeyConstraint constraintName="paper_record_record_location_id_location_id_fk"
+                                 baseTableName="paperrecord_paper_record" baseColumnNames="record_location"
+                                 referencedTableName="location" referencedColumnNames="location_id"/>
+
+        <addForeignKeyConstraint constraintName="paper_record_creator_user_id_fk"
+                                 baseTableName="paperrecord_paper_record" baseColumnNames="creator"
+                                 referencedTableName="users" referencedColumnNames="user_id" />
+
+    </changeSet>
+
+    <changeSet id="2014-08-13-d" author="mgoodrich">
+        <comment>Populate paper record table based on existing patient identifiers</comment>
+        <sql>
+            INSERT INTO paperrecord_paper_record (patient_identifier, record_location, status, creator, date_created, uuid)
+            SELECT patient_identifier_id, (SELECT location_id FROM location WHERE uuid = 'a084f714-a536-473b-94e6-ec317b152b43'),
+            'ACTIVE', 1, NOW(), UUID() from patient_identifier WHERE identifier_type = (select patient_identifier_type_id from patient_identifier_type where uuid='e66645eb-03a8-4991-b4ce-e87318e37566');
+        </sql>
+    </changeSet>
+
+    <changeSet id="2014-08-13-e" author="mgoodrich">
+        <comment>Add new paper record column to paper record request</comment>
+
+        <addColumn tableName="paperrecord_paper_record_request">
+            <column name="paper_record" type="int" />
+        </addColumn>
+
+        <addForeignKeyConstraint constraintName="paper_record_paper_record_id_paper_record_id_fk"
+                                 baseTableName="paperrecord_paper_record_request" baseColumnNames="paper_record"
+                                 referencedTableName="paperrecord_paper_record" referencedColumnNames="record_id" />
+
+    </changeSet>
+
+    <changeSet id="2014-08-13-f" author="mgoodrich">
+        <comment>Populate paper record request paper record column</comment>
+        <sql>
+            UPDATE paperrecord_paper_record_request AS req, patient AS p, patient_identifier AS pi, paperrecord_paper_record AS rec
+            SET req.paper_record = rec.record_id
+            WHERE req.patient_id = p.patient_id AND p.patient_id = pi.patient_id AND pi.patient_identifier_id = rec.patient_identifier
+            AND pi.identifier_type = (SELECT patient_identifier_type_id FROM patient_identifier_type WHERE uuid='e66645eb-03a8-4991-b4ce-e87318e37566');
+        </sql>
+    </changeSet>
+
+    <changeSet id="2014-08-13-g" author="mgoodrich">
+        <comment>Drop paper patient column from paper record request</comment>
+        <dropForeignKeyConstraint baseTableName="paperrecord_paper_record_request" constraintName="request_patient_id_patient_id_fk"/>
+        <dropColumn tableName="paperrecord_paper_record_request" columnName="patient_id"/>
+    </changeSet>
+
+    <changeSet id="2014-08-13-h" author="mgoodrich">
+        <comment>Drop identifier column from paper record request</comment>
+        <dropColumn tableName="paperrecord_paper_record_request" columnName="identifier"/>
+    </changeSet>
+
+    <changeSet id="2014-08-13-i" author="mgoodrich">
+        <comment>Add new paper record columns to paper record merge request table</comment>
+
+        <addColumn tableName="paperrecord_paper_record_merge_request">
+            <column name="preferred_paper_record" type="int" />
+        </addColumn>
+
+        <addColumn tableName="paperrecord_paper_record_merge_request">
+            <column name="not_preferred_paper_record" type="int" />
+        </addColumn>
+
+        <addForeignKeyConstraint constraintName="merqe_request_preferred_paper_record_id_paper_record_id_fk"
+                                 baseTableName="paperrecord_paper_record_merge_request" baseColumnNames="preferred_paper_record"
+                                 referencedTableName="paperrecord_paper_record" referencedColumnNames="record_id" />
+
+        <addForeignKeyConstraint constraintName="merqe_request_not_preferred_paper_record_id_paper_record_id_fk"
+                                 baseTableName="paperrecord_paper_record_merge_request" baseColumnNames="not_preferred_paper_record"
+                                 referencedTableName="paperrecord_paper_record" referencedColumnNames="record_id" />
+
+    </changeSet>
+
+    <changeSet id="2014-08-13-j" author="mgoodrich">
+        <comment>Populate paper record merge request preferred paper record column</comment>
+        <sql>
+            UPDATE paperrecord_paper_record_merge_request AS req, patient AS p, patient_identifier AS pi, paperrecord_paper_record AS rec
+            SET req.preferred_paper_record = rec.record_id
+            WHERE req.preferred_patient = p.patient_id AND p.patient_id = pi.patient_id AND pi.patient_identifier_id = rec.patient_identifier
+            AND pi.identifier_type = (SELECT patient_identifier_type_id FROM patient_identifier_type WHERE uuid='e66645eb-03a8-4991-b4ce-e87318e37566');
+        </sql>
+    </changeSet>
+
+    <changeSet id="2014-08-13-k" author="mgoodrich">
+        <comment>Populate paper record merge request not preferred paper record column</comment>
+        <sql>
+            UPDATE paperrecord_paper_record_merge_request AS req, patient AS p, patient_identifier AS pi, paperrecord_paper_record AS rec
+            SET req.not_preferred_paper_record = rec.record_id
+            WHERE req.not_preferred_patient = p.patient_id AND p.patient_id = pi.patient_id AND pi.patient_identifier_id = rec.patient_identifier
+            AND pi.identifier_type = (SELECT patient_identifier_type_id FROM patient_identifier_type WHERE uuid='e66645eb-03a8-4991-b4ce-e87318e37566');
+        </sql>
+    </changeSet>
+
+    <changeSet id="2014-08-13-l" author="mgoodrich">
+        <comment>Drop preferred patient column from paper record merge request</comment>
+        <dropForeignKeyConstraint baseTableName="paperrecord_paper_record_merge_request" constraintName="preferred_patient_patient_id_fk"/>
+        <dropColumn tableName="paperrecord_paper_record_merge_request" columnName="preferred_patient"/>
+    </changeSet>
+
+    <changeSet id="2014-08-13-m" author="mgoodrich">
+        <comment>Drop not preferred patient column from paper record merge request</comment>
+        <dropForeignKeyConstraint baseTableName="paperrecord_paper_record_merge_request" constraintName="not_preferred_patient_patient_id_fk"/>
+        <dropColumn tableName="paperrecord_paper_record_merge_request" columnName="not_preferred_patient"/>
+    </changeSet>
+
+    <changeSet id="2014-08-13-n" author="mgoodrich">
+        <comment>Drop preferred identifier column from paper record merge request</comment>
+        <dropColumn tableName="paperrecord_paper_record_merge_request" columnName="preferred_identifier"/>
+    </changeSet>
+
+    <changeSet id="2014-08-13-o" author="mgoodrich">
+        <comment>Drop not preferred identifier column from paper record merge request</comment>
+        <dropColumn tableName="paperrecord_paper_record_merge_request" columnName="not_preferred_identifier"/>
+    </changeSet>
+
+    <changeSet id="2014-08-13-p" author="mgoodrich">
+        <comment>Drop record location column from paper record merge request</comment>
+        <dropForeignKeyConstraint baseTableName="paperrecord_paper_record_merge_request" constraintName="merge_record_location_id_location_id_fk"/>
+        <dropColumn tableName="paperrecord_paper_record_merge_request" columnName="record_location"/>
+    </changeSet>
 
 </databaseChangeLog>

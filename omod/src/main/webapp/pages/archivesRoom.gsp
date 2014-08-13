@@ -44,7 +44,7 @@
                 <thead>
                 <tr>
                     <th>${ ui.message("coreapps.person.name") }</th>
-                    <th>${ ui.message("coreapps.patient.identifier") }</th>
+                    <th>${ ui.message("coreapps.patient.paperRecordIdentifier") }</th>
                     <th>${ ui.message("coreapps.location") }</th>
                     <th>${ ui.message("coreapps.time") }</th>
                     <th>&nbsp;</th>
@@ -53,7 +53,7 @@
                 <tbody data-bind="foreach: recordsToCreate">
                 <tr data-bind="attr:{'class': patientId}, css:{ selected: selected(), hover: hovered() }, visible: visible()" >
                     <td data-bind="event: { mouseover: \$root.hoverRecords, mouseout: \$root.unHoverRecords }, click: \$root.selectRecordToBeCreated"><span data-bind="text: patientName"></span></td>
-                    <td data-bind="event: { mouseover: \$root.hoverRecords, mouseout: \$root.unHoverRecords }, click: \$root.selectRecordToBeCreated"><span data-bind="text: patientId"></span></td>
+                    <td data-bind="event: { mouseover: \$root.hoverRecords, mouseout: \$root.unHoverRecords }, click: \$root.selectRecordToBeCreated"><span data-bind="text: dossierNumber"></span></td>
                     <td data-bind="event: { mouseover: \$root.hoverRecords, mouseout: \$root.unHoverRecords }, click: \$root.selectRecordToBeCreated"><span data-bind="text: sendToLocation"></span></td>
                     <td data-bind="event: { mouseover: \$root.hoverRecords, mouseout: \$root.unHoverRecords }, click: \$root.selectRecordToBeCreated"><span data-bind="text: timeRequested"></span></td>
                     <td><i data-bind="click: \$root.cancelRequest" class="delete-item icon-remove" title="${ui.message("paperrecord.archivesRoom.cancel")}"></i></td>
