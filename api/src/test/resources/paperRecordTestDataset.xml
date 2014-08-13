@@ -26,11 +26,11 @@
     <paperrecord_paper_record record_id="2" patient_identifier="2002" record_location="1" status="ACTIVE"
                         date_created="2006-01-18 00:00:00.0" uuid="999cb3c3-9e66-42c6-8f03-2a0c1e9ca2a8"/>
 
-    <emr_paper_record_request request_id="1" paper_record="1" request_location="2"
+    <paperrecord_paper_record_request request_id="1" paper_record="1" request_location="2"
                               record_location="1" status="SENT" date_created="2006-01-18 00:00:00.0"
                               uuid="696cb3c3-9e66-42c6-8f03-2a0c1e9ca2a8"/>
 
-    <emr_paper_record_request request_id="2" paper_record="2" request_location="2"
+    <paperrecord_paper_record_request request_id="2" paper_record="2" request_location="2"
                               record_location="1" status="SENT" date_created="2006-01-18 00:00:00.0"
                               uuid="776cb3c3-9e66-42c6-8f03-2a0c1e9ca2a8"/>
 

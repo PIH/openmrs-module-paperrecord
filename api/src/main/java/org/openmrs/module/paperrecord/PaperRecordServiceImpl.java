@@ -61,6 +61,7 @@ public class PaperRecordServiceImpl extends BaseOpenmrsService implements PaperR
 
     // TODO: let Dave know--assume all requests closed!
     // TODO: no longer need to display other patient identifier on pull page?
+    // TODO: when patient identifier is created, print, etc, etc,  (check-in)
 
     // TODO: review to dos
     // TODO: test against full prod DB
