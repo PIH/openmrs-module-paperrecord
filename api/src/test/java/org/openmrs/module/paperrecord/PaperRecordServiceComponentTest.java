@@ -33,7 +33,9 @@ import java.util.Date;
 import java.util.List;
 
 import static org.hamcrest.Matchers.is;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertThat;
+import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -569,7 +571,7 @@ public class PaperRecordServiceComponentTest extends BaseModuleContextSensitiveT
     }
 
     @Test
-    public void testMarkPaperRecordRequestAsSentShouldMarkRecordRequestAsSent() {
+    public void testMarkPaperRecordRequestAsSentShouldMarkRecordRequestAsSentAndSetRecordToActive() {
 
         // all these are from the standard test dataset
         Patient patient = patientService.getPatient(2);
@@ -678,8 +680,8 @@ public class PaperRecordServiceComponentTest extends BaseModuleContextSensitiveT
         Location paperRecordLocation = locationService.getLocation(1);
 
         // create a couple paper records
-        PaperRecord paperRecord1 = paperRecordService.createPaperRecordStub(patient1, paperRecordLocation);
-        PaperRecord paperRecord2 = paperRecordService.createPaperRecordStub(patient2, paperRecordLocation);
+        PaperRecord paperRecord1 = paperRecordService.createPaperRecord(patient1, paperRecordLocation);
+        PaperRecord paperRecord2 = paperRecordService.createPaperRecord(patient2, paperRecordLocation);
 
         paperRecordService.markPaperRecordsForMerge(paperRecord1, paperRecord2);
 
@@ -705,8 +707,8 @@ public class PaperRecordServiceComponentTest extends BaseModuleContextSensitiveT
         Location paperRecordLocation = locationService.getLocation(1);
 
         // create a couple paper records
-        PaperRecord paperRecord1 = paperRecordService.createPaperRecordStub(patient1, paperRecordLocation);
-        PaperRecord paperRecord2 = paperRecordService.createPaperRecordStub(patient2, paperRecordLocation);
+        PaperRecord paperRecord1 = paperRecordService.createPaperRecord(patient1, paperRecordLocation);
+        PaperRecord paperRecord2 = paperRecordService.createPaperRecord(patient2, paperRecordLocation);
 
         paperRecordService.markPaperRecordsForMerge(paperRecord1, paperRecord2);
 
@@ -735,8 +737,8 @@ public class PaperRecordServiceComponentTest extends BaseModuleContextSensitiveT
         Patient patient2 = patientService.getPatient(6);
 
         // create a couple paper records
-        PaperRecord paperRecord1 = paperRecordService.createPaperRecordStub(patient1, paperRecordLocation);
-        PaperRecord paperRecord2 = paperRecordService.createPaperRecordStub(patient2, paperRecordLocation);
+        PaperRecord paperRecord1 = paperRecordService.createPaperRecord(patient1, paperRecordLocation);
+        PaperRecord paperRecord2 = paperRecordService.createPaperRecord(patient2, paperRecordLocation);
 
         // first, create a couple record requests
         PaperRecordRequest request1 = paperRecordService.requestPaperRecord(patient1, paperRecordLocation, someLocation).get(0);
@@ -784,4 +786,76 @@ public class PaperRecordServiceComponentTest extends BaseModuleContextSensitiveT
         assertThat(request.getStatus(), is(PaperRecordRequest.Status.CANCELLED));
         assertThat(paperRecordService.getOpenPaperRecordRequestsToCreate().size(), is(0));
     }
+
+    @Test
+    public void testPaperRecordIdentifierInUseIfInUse() {
+
+        Location medicalRecordLocation1 = locationService.getLocation(1);
+        Location medicalRecordLocation2 = locationService.getLocation(2);
+
+        // identifier in use at this location
+        assertTrue(paperRecordService.paperRecordIdentifierInUse("CATBALL", medicalRecordLocation1));
+
+        // real paper record identifier, but wrong location
+        assertFalse(paperRecordService.paperRecordIdentifierInUse("CATBALL", medicalRecordLocation2));
+
+        // bogus identifier at valid medical record location
+        assertFalse(paperRecordService.paperRecordIdentifierInUse("BOGUS", medicalRecordLocation1));
+
+        // primary identifier should return false
+        assertFalse(paperRecordService.paperRecordIdentifierInUse("101-6", medicalRecordLocation1));
+
+    }
+
+    @Test
+    public void testPaperRecordExistsForPatient() {
+
+        Patient patientWithPaperRecord = patientService.getPatient(7);
+        Patient patientWithoutPaperRecord = patientService.getPatient(6);
+
+        Location medicalRecordLocation1 = locationService.getLocation(1);
+        Location medicalRecordLocation2 = locationService.getLocation(2);
+
+        // right location
+        assertTrue(paperRecordService.paperRecordExistsForPatient(patientWithPaperRecord, medicalRecordLocation1));
+
+        // wrong location
+        assertFalse(paperRecordService.paperRecordExistsForPatient(patientWithPaperRecord, medicalRecordLocation2));
+
+
+        // patient with paper record identifier, but no paper record itself (in real-life, we probbly should never get this)
+        assertFalse(paperRecordService.paperRecordExistsForPatient(patientWithoutPaperRecord, medicalRecordLocation1));
+
+    }
+
+    @Test
+    public void testGetMostRecentPaperRecordRequest() {
+
+        Patient patient = patientService.getPatient(7);
+
+        Location medicalRecordLocation = locationService.getLocation(1);
+        Location requestLocation = locationService.getLocation(2);
+
+        // we are request this record a few times
+        PaperRecordRequest paperRecordRequest1 = paperRecordService.requestPaperRecord(patient, medicalRecordLocation, requestLocation).get(0);
+        paperRecordService.markPaperRecordRequestAsSent(paperRecordRequest1);
+
+        PaperRecordRequest paperRecordRequest2 = paperRecordService.requestPaperRecord(patient, medicalRecordLocation, requestLocation).get(0);
+        paperRecordService.markPaperRecordRequestAsSent(paperRecordRequest2);
+
+        PaperRecordRequest paperRecordRequest3 = paperRecordService.requestPaperRecord(patient, medicalRecordLocation, requestLocation).get(0);
+        paperRecordService.markPaperRecordRequestAsSent(paperRecordRequest3);
+
+        // note that this last two requests aren't in the "sent" state
+        PaperRecordRequest paperRecordRequest4 = paperRecordService.requestPaperRecord(patient, medicalRecordLocation, requestLocation).get(0);
+        paperRecordService.markPaperRecordRequestAsReturned(paperRecordRequest4);
+
+        PaperRecordRequest paperRecordRequest5 = paperRecordService.requestPaperRecord(patient, medicalRecordLocation, requestLocation).get(0);
+        paperRecordService.markPaperRecordRequestAsReturned(paperRecordRequest5);
+
+        PaperRecord paperRecord = paperRecordService.getPaperRecords(patient, medicalRecordLocation).get(0);
+        assertThat(paperRecordService.getMostRecentSentPaperRecordRequest(paperRecord), is(paperRecordRequest3));
+
+    }
+
 }

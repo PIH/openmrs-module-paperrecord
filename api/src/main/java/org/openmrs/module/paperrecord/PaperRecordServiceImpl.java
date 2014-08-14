@@ -59,17 +59,17 @@ import static org.openmrs.module.paperrecord.PaperRecordRequest.Status;
 public class PaperRecordServiceImpl extends BaseOpenmrsService implements PaperRecordService {
 
     // TODO: review to dos
-
-    // TODO: change paperRecordExits to paperRecordObjectExists? PaperRecord-->PaperRecordStub?
-    // TODO: or just hcange nae of createPaperRecord controller method?
-
-    // TODO: add additional tests to test new functional
-    // TODO: better way to mark record as created?
+    // TODO: update patient registration / mirebalais --> remove stub from method name
+    // TODO: test the synchronization methods
+    // TODO: note to Dave when we mark a record as having been created?
     // TODO: document--java docs at PaperRecordRequest
-    // TODO: think about all the duplicate/transactonal cases we need to handle
 
-    // TODO: merging paper records, documentation
-    // TODO: a patient could have two identifiers, two records, at the same location?
+    // TODO: test better: merging paper records, request paper record
+    // TODO: could a patient could have two identifiers, two records, at the same location?
+
+    // the methods to request and create a record use this method to make sure they have a lock on the patient before operating,
+    // so we can avoid creating duplicate requests and/or creates
+    private static Map<Integer, Object> patientLock = new HashMap<Integer, Object>();
 
     private final Logger log = LoggerFactory.getLogger(getClass());
 
@@ -196,7 +196,6 @@ public class PaperRecordServiceImpl extends BaseOpenmrsService implements PaperR
     }
 
     @Override
-    @Transactional
     public List<PaperRecordRequest> requestPaperRecord(Patient patient, Location location, Location requestLocation) {
 
         // TODO: we will have to handle the case if there is already a request for this patient's record in the "SENT" state
@@ -218,27 +217,44 @@ public class PaperRecordServiceImpl extends BaseOpenmrsService implements PaperR
         // medical record location)
         Location recordLocation = getMedicalRecordLocationAssociatedWith(location);
 
-        // TODO: handle synchronization? lock here on patient and record location?  or does assurePaperRecordIdentifier just need to be synchronized
-        // TODO: what kind of @Transactional on assurePaperMedicalRecordNumber
+        List<PaperRecordRequest> requests;
+
+        synchronized(lockOnPatient(patient)) {
+            requests = Context.getService(PaperRecordService.class).requestPaperRecordInternal(patient, recordLocation,requestLocation);
+        }
+
+        return requests;
+    }
+
+    @Override
+    @Transactional
+    public List<PaperRecordRequest> requestPaperRecordInternal(Patient patient, Location recordLocation, Location requestLocation) {
+
+        // TODO: we will have to handle the case if there is already a request for this patient's record in the "SENT" state
+        // TODO: (ie, what to do if the record is already out on the floor--right now it will just create a new request)
 
         // fetch any pending request for this patient at this record location
         List<PaperRecordRequest> requests = paperRecordRequestDAO.findPaperRecordRequests(PENDING_STATUSES, patient,
                 recordLocation, null);
 
-        // if pending records exists, simply update that request location and return it, don't issue a new request
-        // TODO: support multiple requests from different locations at the same time, instead of this "LAST REQUEST WINS" scenario
-       if (requests.size() > 0) {
+        // if pending record request exists, simply update that request location and return it, and delet duplicates
+        // TODO: support multiple requests for the same record from different locations at the same time, instead of this "LAST REQUEST WINS" scenario, and deleting duplicqtes
+        if (requests.size() > 0) {
 
-           // TODO: handle cancelling duplicate requests--same record
+            Iterator<PaperRecordRequest> i = requests.iterator();
+            PaperRecordRequest firstRequest = i.next();
+            firstRequest.setRequestLocation(requestLocation);
+            paperRecordRequestDAO.saveOrUpdate(firstRequest);
 
-           for (PaperRecordRequest request : requests) {
-               request.setRequestLocation(requestLocation);
-               paperRecordRequestDAO.saveOrUpdate(request);
-           }
+            while (i.hasNext()) {
+                PaperRecordRequest request = i.next();
+                request.updateStatus(Status.CANCELLED);
+                paperRecordRequestDAO.saveOrUpdate(request);
+            }
 
-           return requests;
-       }
-       // if no pending record exists, create new requests
+            return requests;
+        }
+        // if no pending record exists, create new requests
         else {
 
             requests = new ArrayList<PaperRecordRequest>();
@@ -246,45 +262,26 @@ public class PaperRecordServiceImpl extends BaseOpenmrsService implements PaperR
             // get records to create requests for
             List<PaperRecord> paperRecords = getPaperRecords(patient, recordLocation);
 
-           // if no record, create one
+            // if no record, create one
             if (paperRecords == null || paperRecords.size() == 0) {
-                paperRecords.add(createPaperRecordStub(patient, recordLocation));
+                paperRecords.add(createPaperRecord(patient, recordLocation));
             }
 
+            // now create requests for all paper records for patient at location
             for (PaperRecord paperRecord : paperRecords) {
 
-               PaperRecordRequest request = new PaperRecordRequest();
-               // fetch the appropriate paper records (if any exists)
-               request.setPaperRecord(paperRecord);
-               request.setCreator(Context.getAuthenticatedUser());
-               request.setDateCreated(new Date());
-               request.setRecordLocation(recordLocation);
-               request.setRequestLocation(requestLocation);
-               paperRecordRequestDAO.saveOrUpdate(request);
+                PaperRecordRequest request = new PaperRecordRequest();
+                request.setPaperRecord(paperRecord);
+                request.setCreator(Context.getAuthenticatedUser());
+                request.setDateCreated(new Date());
+                request.setRecordLocation(recordLocation);
+                request.setRequestLocation(requestLocation);
+                paperRecordRequestDAO.saveOrUpdate(request);
 
-               requests.add(request);
-           }
+                requests.add(request);
+            }
 
             return requests;
-       }
-    }
-
-    // TODO: do we still need this, or should we handle it in the above method?
-    /**
-     *  Double check and remove any duplicate requests by cancelling all but the first request in the list
-     *  (there should rarely be more than one pending record for a single patient, but this *may* happen if two
-     *  patients with pending records are merged)
-     **/
-    private void cancelDuplicateRequests(List<PaperRecordRequest> requests) {
-
-        // TODO: calculate duplicate requests by location
-
-        Iterator<PaperRecordRequest> i = requests.iterator();
-        i.next();
-        while (i.hasNext()) {
-            PaperRecordRequest request = i.next();
-            request.updateStatus(Status.CANCELLED);
-            paperRecordRequestDAO.saveOrUpdate(request);
         }
     }
 
@@ -342,6 +339,8 @@ public class PaperRecordServiceImpl extends BaseOpenmrsService implements PaperR
         if (assignee == null) {
             throw new IllegalArgumentException("Assignee cannot be null");
         }
+
+        // this outer block allows us to synchronize outside of the @Transaction (I think?)
 
         // HACK: we need to reference the service here because an internal call won't pick up the @Transactional on the
         // internal method; we could potentially wire the bean into itself, but are unsure of that
@@ -459,9 +458,6 @@ public class PaperRecordServiceImpl extends BaseOpenmrsService implements PaperR
     }
 
     private List<PaperRecordRequest> getPaperRecordRequestByIdentifierAndStatus(String identifier, List<Status> statusList) {
-
-        // TODO: we need to figure out how to rework this?
-
         // first see if we find any requests by paper record identifier
         List<PaperRecordRequest> requests = getPaperRecordRequestByPaperRecordIdentifierAndStatus(identifier, statusList);
 
@@ -477,11 +473,17 @@ public class PaperRecordServiceImpl extends BaseOpenmrsService implements PaperR
                 }
             }
         }
-
         return requests;
     }
 
-    // TODO: test this!
+    private List<PaperRecordRequest> getPaperRecordRequestByPaperRecordIdentifierAndStatus(String identifier, List<Status> statusList) {
+        // TODO: once we have multiple medical record locations, we will need to add location as a criteria
+        if (StringUtils.isBlank(identifier)) {
+            return new ArrayList<PaperRecordRequest>();
+        }
+        return paperRecordRequestDAO.findPaperRecordRequests(statusList, null, null, identifier);
+    }
+
     @Override
     @Transactional(readOnly = true)
     public PaperRecordRequest getMostRecentSentPaperRecordRequest(PaperRecord paperRecord) {
@@ -504,19 +506,6 @@ public class PaperRecordServiceImpl extends BaseOpenmrsService implements PaperR
         }
     }
 
-
-    private List<PaperRecordRequest> getPaperRecordRequestByPaperRecordIdentifierAndStatus(String identifier, List<Status> statusList) {
-
-        // TODO: once we have multiple medical record locations, we will need to add location as a criteria
-
-        if (StringUtils.isBlank(identifier)) {
-            return new ArrayList<PaperRecordRequest>();
-        }
-
-        return paperRecordRequestDAO.findPaperRecordRequests(statusList, null, null, identifier);
-    }
-
-
     @Override
     @Transactional
     public void markPaperRecordRequestAsSent(PaperRecordRequest request) {
@@ -525,7 +514,7 @@ public class PaperRecordServiceImpl extends BaseOpenmrsService implements PaperR
         // TODO: think about the multiple records per location issue?
         request.updateStatus(Status.SENT);
 
-        // for now , this is where we note when/where a record has been created, at the time of sending
+        // TODO: **for now , this is where we note when/where a record has been created, at the time of sending** (does this make sense?)
         if (request.getPaperRecord().getStatus().equals(PaperRecord.Status.PENDING_CREATION)) {
             request.getPaperRecord().updateStatus(PaperRecord.Status.ACTIVE);
         }
@@ -560,8 +549,6 @@ public class PaperRecordServiceImpl extends BaseOpenmrsService implements PaperR
         printLabels(request.getPaperRecord().getPatientIdentifier().getPatient(), request.getPaperRecord().getPatientIdentifier().getIdentifier(), location, count, paperRecordLabelTemplate);
     }
 
-    // TODO where is this used--when we are creating a record remotely outside the archives
-    // TODO this should actually fetch all r
     @Override
     @Transactional(readOnly = true)
     public void printPaperRecordLabels(Patient patient, Location location, Integer count) throws UnableToPrintLabelException {
@@ -583,7 +570,6 @@ public class PaperRecordServiceImpl extends BaseOpenmrsService implements PaperR
 
     }
 
-    // TODO where is this used-when we are creating a record remotely outside the archives
     @Override
     @Transactional(readOnly = true)
     public void printPaperFormLabels(Patient patient, Location location, Integer count) throws UnableToPrintLabelException {
@@ -731,16 +717,29 @@ public class PaperRecordServiceImpl extends BaseOpenmrsService implements PaperR
     }
 
     @Override
-    @Transactional
-    // TODO: rename?
-    public PaperRecord createPaperRecordStub(Patient patient, Location location) {
+    public PaperRecord createPaperRecord(Patient patient, Location location) {
+
         if (patient == null) {
             throw new IllegalArgumentException("Patient shouldn't be null");
         }
 
-        // TODO: the appropriate parts of this must lock on patient when creating identifier
+        PaperRecord paperRecord;
 
         Location medicalRecordLocation = getMedicalRecordLocationAssociatedWith(location);
+
+        synchronized(lockOnPatient(patient)) {
+            paperRecord = Context.getService(PaperRecordService.class).createPaperRecordInternal(patient, medicalRecordLocation);
+        }
+
+        return paperRecord;
+    }
+
+    @Override
+    @Transactional
+    public PaperRecord createPaperRecordInternal(Patient patient, Location medicalRecordLocation) {
+        if (patient == null) {
+            throw new IllegalArgumentException("Patient shouldn't be null");
+        }
 
         PatientIdentifier paperRecordIdentifier  = getPaperRecordIdentifier(patient, medicalRecordLocation);
 
@@ -769,7 +768,7 @@ public class PaperRecordServiceImpl extends BaseOpenmrsService implements PaperR
 
         PaperRecord paperRecord = getPaperRecord(paperRecordIdentifier, medicalRecordLocation);
         if (paperRecord != null) {
-            log.error("createPaperRecordStub called for patient " + paperRecordIdentifier + " who already has record at " + medicalRecordLocation);
+            log.error("createPaperRecord called for patient " + paperRecordIdentifier + " who already has record at " + medicalRecordLocation);
         }
         else {
             paperRecord = new PaperRecord();
@@ -783,13 +782,12 @@ public class PaperRecordServiceImpl extends BaseOpenmrsService implements PaperR
     }
 
 
+
     @Override
     @Transactional
     public List<PaperRecord> getPaperRecords(Patient patient) {
         return paperRecordDAO.findPaperRecords(patient, null);
     }
-
-    // TODO: should we be allowed to get multiple paper records here?
 
     @Override
     @Transactional
@@ -828,6 +826,15 @@ public class PaperRecordServiceImpl extends BaseOpenmrsService implements PaperR
     }
 
 
+    private Object lockOnPatient(Patient patient) {
+
+        if (!patientLock.containsKey(patient.getId())) {
+            patientLock.put(patient.getId(), new Object());
+        }
+
+        return patientLock.get(patient.getId());
+    }
+
     private PatientIdentifier getPaperRecordIdentifier(Patient patient, Location medicalRecordLocation) {
         PatientIdentifier paperRecordIdentifier = GeneralUtils.getPatientIdentifier(patient,
                 paperRecordProperties.getPaperRecordIdentifierType(), medicalRecordLocation);
@@ -835,7 +842,7 @@ public class PaperRecordServiceImpl extends BaseOpenmrsService implements PaperR
     }
 
 
-    // TODO: old, more complex merge functionality that we are ignoring for now
+    // TODO: old, more complex merge functionality that we are ignoring--probably can be deleted
 /*    private void mergePendingPaperRecordRequests(PaperRecordMergeRequest mergeRequest) {
 
         // (note that we are not searching by patient here because the patient may have been changed during the merge)
@@ -882,8 +889,6 @@ public class PaperRecordServiceImpl extends BaseOpenmrsService implements PaperR
         // if there is only a non-preferred request, we need to update it with the right identifier
         if (preferredRequest == null && notPreferredRequest != null) {
 
-           // TODO: figure this out!
-            // TODO: had to comment this out for now
            // notPreferredRequest.setIdentifier(mergeRequest.getPreferredIdentifier());
             paperRecordRequestDAO.saveOrUpdate(notPreferredRequest);
         }

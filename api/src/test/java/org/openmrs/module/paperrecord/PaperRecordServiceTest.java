@@ -385,7 +385,7 @@ public class PaperRecordServiceTest {
 
         //PatientIdentifier identifier = new PatientIdentifier(paperMedicalRecordNumberAsExpected, paperRecordIdentifierType, createMedicalRecordLocation());
 
-        String paperMedicalRecordNumber = paperRecordService.createPaperRecordStub(patient, createMedicalRecordLocation()).getPatientIdentifier().getIdentifier();
+        String paperMedicalRecordNumber = paperRecordService.createPaperRecord(patient, createMedicalRecordLocation()).getPatientIdentifier().getIdentifier();
 
         // cannot compare using one identifier because the equals is not implemented correctly
         verify(mockPatientService).savePatientIdentifier(any(PatientIdentifier.class));
@@ -1602,7 +1602,7 @@ public class PaperRecordServiceTest {
 
         when(mockIdentifierSourceService.generateIdentifier(paperRecordIdentifierType, "generating a new dossier number")).thenReturn("A00001", "A00002");
 
-        PatientIdentifier paperMedicalRecordIdentifier = paperRecordService.createPaperRecordStub(new Patient(), medicalRecordLocation).getPatientIdentifier();
+        PatientIdentifier paperMedicalRecordIdentifier = paperRecordService.createPaperRecord(new Patient(), medicalRecordLocation).getPatientIdentifier();
 
         assertThat(paperMedicalRecordIdentifier.getIdentifier(), is("A00002"));
     }

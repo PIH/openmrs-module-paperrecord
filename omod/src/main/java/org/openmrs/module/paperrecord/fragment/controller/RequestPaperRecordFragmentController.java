@@ -62,7 +62,7 @@ public class RequestPaperRecordFragmentController {
 
         // if no record stub, create one
         if (paperRecords == null || paperRecords.size() == 0) {
-            paperRecords.add(service.createPaperRecordStub(patient, location));
+            paperRecords.add(service.createPaperRecord(patient, location));
         }
         else {
             if (paperRecords.size() > 1) {
@@ -111,7 +111,7 @@ public class RequestPaperRecordFragmentController {
 
         // create paper record if necessary
         if(!service.paperRecordExistsForPatient(patient, location)) {
-            service.createPaperRecordStub(patient, location);
+            service.createPaperRecord(patient, location);
         }
 
         try {
@@ -135,7 +135,7 @@ public class RequestPaperRecordFragmentController {
 
         // create paper record if necessary
         if(!service.paperRecordExistsForPatient(patient, location)) {
-            service.createPaperRecordStub(patient, location);
+            service.createPaperRecord(patient, location);
         }
 
         try {
@@ -159,7 +159,7 @@ public class RequestPaperRecordFragmentController {
 
         // create paper record if necessary
         if(!service.paperRecordExistsForPatient(patient, location)) {
-            service.createPaperRecordStub(patient, location);
+            service.createPaperRecord(patient, location);
         }
 
         try {

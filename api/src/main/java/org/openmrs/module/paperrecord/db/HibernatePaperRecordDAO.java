@@ -50,7 +50,7 @@ public class HibernatePaperRecordDAO  extends HibernateSingleClassDAO<PaperRecor
 
         addExcludeVoidedRestriction(criteria);
 
-        // TODO: how do we assure that duplicate records don't get created?
+        // TODO: since we aren't allowing more than one record per patient identifier, how do we assure that duplicate records don't get created?
         return (PaperRecord)  criteria.uniqueResult();
     }
 
@@ -68,7 +68,8 @@ public class HibernatePaperRecordDAO  extends HibernateSingleClassDAO<PaperRecor
         }
 
         addExcludeVoidedRestriction(criteria);
-        // TODO: how do we assure that duplicate records don't get created?
+
+        // TODO: since we aren't allowing more than one record per patient identifier, how do we assure that duplicate records don't get created?
         return (PaperRecord)  criteria.uniqueResult();
     }
 

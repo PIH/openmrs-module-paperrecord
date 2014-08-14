@@ -88,8 +88,17 @@ public interface PaperRecordService extends OpenmrsService {
      * @return the Patient Record created
      */
     @Authorized(PaperRecordConstants.PRIVILEGE_PAPER_RECORDS_MANAGE_REQUESTS)
-    PaperRecord createPaperRecordStub(Patient patient, Location medicalRecordLocation);
+    PaperRecord createPaperRecord(Patient patient, Location medicalRecordLocation);
 
+    /**
+     * This internal method should not be invoked directly!
+     * <p/>
+     * Workaround because we need this method to be @Transactional and Spring won't handle calling a @Transactional
+     * method from within the same class:
+     * http://stackoverflow.com/questions/3423972/spring-transaction-method-call-by-the-method-within-the-same-class-does-not-wo
+     */
+    @Authorized(PaperRecordConstants.PRIVILEGE_PAPER_RECORDS_MANAGE_REQUESTS)
+    PaperRecord createPaperRecordInternal(Patient patient, Location medicalRecordLocation);
 
     /**
      * Fetches the Paper Record Request with the specified id
@@ -129,6 +138,16 @@ public interface PaperRecordService extends OpenmrsService {
      */
     @Authorized(PaperRecordConstants.PRIVILEGE_PAPER_RECORDS_REQUEST_RECORDS)
     List<PaperRecordRequest> requestPaperRecord(Patient patient, Location recordLocation, Location requestLocation);
+
+    /**
+     * This internal method should not be invoked directly!
+     * <p/>
+     * Workaround because we need this method to be @Transactional and Spring won't handle calling a @Transactional
+     * method from within the same class:
+     * http://stackoverflow.com/questions/3423972/spring-transaction-method-call-by-the-method-within-the-same-class-does-not-wo
+     */
+    @Authorized(PaperRecordConstants.PRIVILEGE_PAPER_RECORDS_REQUEST_RECORDS)
+    List<PaperRecordRequest> requestPaperRecordInternal(Patient patient, Location recordLocation, Location requestLocation);
 
     /**
      * Gets all paper record requests in the OPEN state
