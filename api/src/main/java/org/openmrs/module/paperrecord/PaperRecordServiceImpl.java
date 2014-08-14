@@ -58,11 +58,10 @@ import static org.openmrs.module.paperrecord.PaperRecordRequest.Status;
 
 public class PaperRecordServiceImpl extends BaseOpenmrsService implements PaperRecordService {
 
-    // TODO: review to dos
-    // TODO: update patient registration / mirebalais --> remove stub from method name
+    // TODO: do a release?
     // TODO: test the synchronization methods
     // TODO: note to Dave when we mark a record as having been created?
-    // TODO: document--java docs at PaperRecordRequest
+    // TODO: add paper record hibernate file where necessary
 
     // TODO: test better: merging paper records, request paper record
     // TODO: could a patient could have two identifiers, two records, at the same location?

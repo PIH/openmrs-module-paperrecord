@@ -344,9 +344,9 @@ public class PaperRecordServiceTest {
         patient.addIdentifier(identifier);
 
         List<PaperRecordRequest> requests = new ArrayList<PaperRecordRequest>();
-        requests.add(buildPaperRecordRequestWithIdentifier(patient, location, "ABC"));
-        requests.add(buildPaperRecordRequestWithIdentifier(patient, location, "ABC"));
-        requests.add(buildPaperRecordRequestWithIdentifier(patient, location, "ABC"));
+        requests.add(createPaperRecordRequest(patient, location, "ABC"));
+        requests.add(createPaperRecordRequest(patient, location, "ABC"));
+        requests.add(createPaperRecordRequest(patient, location, "ABC"));
 
         Map<String, List<String>> response = paperRecordService.assignRequests(requests, assignTo, null);
 
@@ -369,9 +369,9 @@ public class PaperRecordServiceTest {
         Location location = new Location(1);
 
         List<PaperRecordRequest> requests = new ArrayList<PaperRecordRequest>();
-        requests.add(buildPaperRecordRequestWithoutIdentifier(patient, location));
-        requests.add(buildPaperRecordRequestWithoutIdentifier(patient, location));
-        requests.add(buildPaperRecordRequestWithoutIdentifier(patient, location));
+        requests.add(createPaperRecordRequest(patient, location));
+        requests.add(createPaperRecordRequest(patient, location));
+        requests.add(createPaperRecordRequest(patient, location));
 
         paperRecordService.assignRequests(requests, null, null);
     }
@@ -1269,7 +1269,7 @@ public class PaperRecordServiceTest {
         when(mockPaperRecordLabelTemplate.generateLabel(patient, "ABC")).thenReturn("data\nlines\n");
         when(mockPaperRecordLabelTemplate.getEncoding()).thenReturn("UTF-8");
 
-        PaperRecordRequest request = buildPaperRecordRequestWithIdentifier(patient, location, "ABC");
+        PaperRecordRequest request = createPaperRecordRequest(patient, location, "ABC");
 
         paperRecordService.printPaperRecordLabel(request, location);
 
@@ -1286,7 +1286,7 @@ public class PaperRecordServiceTest {
         when(mockPaperRecordLabelTemplate.generateLabel(patient, "ABC")).thenReturn("data\nlines\n");
         when(mockPaperRecordLabelTemplate.getEncoding()).thenReturn("UTF-8");
 
-        PaperRecordRequest request = buildPaperRecordRequestWithIdentifier(patient, location, "ABC");
+        PaperRecordRequest request = createPaperRecordRequest(patient, location, "ABC");
 
         paperRecordService.printPaperRecordLabels(request, location, 3);
 
@@ -1329,7 +1329,7 @@ public class PaperRecordServiceTest {
         when(mockPaperFormLabelTemplate.generateLabel(patient, "ABC")).thenReturn("data\nlines\n");
         when(mockPaperFormLabelTemplate.getEncoding()).thenReturn("UTF-8");
 
-        PaperRecordRequest request = buildPaperRecordRequestWithIdentifier(patient, location, "ABC");
+        PaperRecordRequest request = createPaperRecordRequest(patient, location, "ABC");
 
         paperRecordService.printPaperFormLabels(request, location, 3);
 
@@ -1632,14 +1632,14 @@ public class PaperRecordServiceTest {
                                                     Location requestLocation, PaperRecordRequest.Status paperRecordRequestStatus,
                                                     PaperRecord.Status paperRecordStatus) {
 
+        PaperRecord paperRecord = new PaperRecord();
+        paperRecord.setRecordLocation(medicalRecordLocation);
+        paperRecord.updateStatus(paperRecordStatus);
+
         PatientIdentifier patientIdentifier = new PatientIdentifier();
         patientIdentifier.setIdentifierType(paperRecordIdentifierType);
         patientIdentifier.setIdentifier(identifier);
         patient.addIdentifier(patientIdentifier);
-
-        PaperRecord paperRecord = new PaperRecord();
-        paperRecord.setRecordLocation(medicalRecordLocation);
-        paperRecord.updateStatus(paperRecordStatus);
         paperRecord.setPatientIdentifier(patientIdentifier);
 
         PaperRecordRequest expectedRequest = new PaperRecordRequest();
@@ -1657,6 +1657,10 @@ public class PaperRecordServiceTest {
         return createPaperRecordRequest(patient, medicalRecordLocation, identifier, null, Status.OPEN);
     }
 
+    private PaperRecordRequest createPaperRecordRequest(Patient patient, Location location) {
+        return createPaperRecordRequest(patient, location, "");
+    }
+
     private PaperRecordMergeRequest createExpectedMergeRequest(PaperRecord preferredPaperRecord, PaperRecord notPreferredPaperRecord) {
         PaperRecordMergeRequest expectedMergeRequest = new PaperRecordMergeRequest();
         expectedMergeRequest.setPreferredPaperRecord(preferredPaperRecord);
@@ -1665,34 +1669,6 @@ public class PaperRecordServiceTest {
         expectedMergeRequest.setCreator(authenticatedUser);
         return expectedMergeRequest;
     }
-
-    // TODO: can we get rid of these and just use the create methods
-    private PaperRecordRequest buildPaperRecordRequestWithoutIdentifier(Patient patient, Location location) {
-        PaperRecordRequest request = new PaperRecordRequest();
-        request.updateStatus(PaperRecordRequest.Status.OPEN);
-        request.setRecordLocation(location);
-        return request;
-    }
-
-    private PaperRecordRequest buildPaperRecordRequestWithIdentifier(Patient patient, Location location, String identifier) {
-
-        PatientIdentifier patientIdentifier = new PatientIdentifier();
-        patientIdentifier.setIdentifierType(paperRecordIdentifierType);
-        patientIdentifier.setIdentifier("ABC");
-        patient.addIdentifier(patientIdentifier);
-
-        PaperRecord paperRecord = new PaperRecord();
-        paperRecord.setPatientIdentifier(patientIdentifier);
-        paperRecord.setRecordLocation(location);
-        paperRecord.updateStatus(PaperRecord.Status.ACTIVE);
-
-        PaperRecordRequest request = new PaperRecordRequest();
-        request.updateStatus(PaperRecordRequest.Status.OPEN);
-        request.setRecordLocation(location);
-        request.setPaperRecord(paperRecord);
-        return request;
-    }
-
 
     private class PaperRecordServiceStub extends PaperRecordServiceImpl {
 

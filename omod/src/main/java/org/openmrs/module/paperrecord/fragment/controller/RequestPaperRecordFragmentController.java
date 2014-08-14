@@ -35,10 +35,11 @@ public class RequestPaperRecordFragmentController {
         return SimpleObject.create("message", ui.message("paperrecord.patientDashBoard.requestPaperRecord.successMessage"));
     }
 
-    // TODO: better document this method?
-    // TODO: change name of this method?
     /**
      * Assigned a dossier number (if necessary), and then prints out paper record label(s) and an ID card label at the specified location
+     * If the printing completes successfully, the record is flagged as "active"
+     *
+     * The use case here is when a paper record is created for a new patient at the point of check-in, instead of at the archives room
      *
      * @param ui
      * @param patient
@@ -72,8 +73,7 @@ public class RequestPaperRecordFragmentController {
             // if any of the paper records have already been created, the user should request the record instead
             for (PaperRecord paperRecord : paperRecords) {
                 if (!paperRecord.getStatus().equals(PaperRecord.Status.PENDING_CREATION)) {
-                    // TODO: return an error message here telling the user to request the record
-                    return null;
+                    return SimpleObject.create("success", false, "message", ui.message("paperrecord.archivesRoom.error.paperRecordAlreadyExists"));
                 }
             }
         }

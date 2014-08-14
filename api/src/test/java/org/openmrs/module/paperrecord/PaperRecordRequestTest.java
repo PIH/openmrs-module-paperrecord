@@ -63,7 +63,7 @@ public class PaperRecordRequestTest {
         request.setDateCreated(dateOct.toDate());
         request.setDateStatusChanged(new DateTime(2012, 9, 9, 9, 9).toDate());
 
-        assertThat(request.toString(), is("Paper Record Request: [1 1 2 OPEN Person(personId=1) username Wed Oct 10 10:10:00 "
+        assertThat(request.toString(), is("Paper Record Request: [1 (no paper record) 1 2 OPEN Person(personId=1) username Wed Oct 10 10:10:00 "
                 + timeZoneCode + " 2012 Sun Sep 09 09:09:00 " + timeZoneCode +" 2012]"));
     }
 
@@ -74,6 +74,6 @@ public class PaperRecordRequestTest {
         request.updateStatus(null);
         request.setDateStatusChanged(null);
 
-        assertThat(request.toString(), is("Paper Record Request: [(no id) (no record location) (no request location) (no status) (no assignee) (no creator) (no date created) (no date status changed)]"));
+        assertThat(request.toString(), is("Paper Record Request: [(no id) (no paper record) (no record location) (no request location) (no status) (no assignee) (no creator) (no date created) (no date status changed)]"));
     }
 }
