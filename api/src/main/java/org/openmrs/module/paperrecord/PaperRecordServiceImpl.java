@@ -58,20 +58,14 @@ import static org.openmrs.module.paperrecord.PaperRecordRequest.Status;
 
 public class PaperRecordServiceImpl extends BaseOpenmrsService implements PaperRecordService {
 
-
-    // TODO: let Dave know--assume all requests closed!
-    // TODO: no longer need to display other patient identifier on pull page?
-    // TODO: when patient identifier is created, print, etc, etc,  (check-in)
-
     // TODO: review to dos
-    // TODO: test against full prod DB
 
     // TODO: change paperRecordExits to paperRecordObjectExists? PaperRecord-->PaperRecordStub?
     // TODO: or just hcange nae of createPaperRecord controller method?
 
     // TODO: add additional tests to test new functional
     // TODO: better way to mark record as created?
-    // TODO: document!
+    // TODO: document--java docs at PaperRecordRequest
     // TODO: think about all the duplicate/transactonal cases we need to handle
 
     // TODO: merging paper records, documentation
@@ -800,11 +794,17 @@ public class PaperRecordServiceImpl extends BaseOpenmrsService implements PaperR
     @Override
     @Transactional
     public List<PaperRecord> getPaperRecords(Patient patient, Location paperRecordLocation) {
+        if (paperRecordLocation != null) {
+            paperRecordLocation = getMedicalRecordLocationAssociatedWith(paperRecordLocation);
+        }
         return paperRecordDAO.findPaperRecords(patient, paperRecordLocation);
     }
 
     @Override
     public PaperRecord getPaperRecord(PatientIdentifier patientIdentifier, Location paperRecordLocation) {
+        if (paperRecordLocation != null) {
+            paperRecordLocation = getMedicalRecordLocationAssociatedWith(paperRecordLocation);
+        }
         return paperRecordDAO.findPaperRecord(patientIdentifier, paperRecordLocation);
     }
 

@@ -32,7 +32,13 @@ import java.util.Map;
  */
 public interface PaperRecordService extends OpenmrsService {
 
-    // TODO: javadocs and test
+    /**
+     * Returns whether string is currently being used as a paper record identifier at the specified location
+     *
+     * @param identifier
+     * @param location
+     * @return
+     */
     @Authorized(PaperRecordConstants.PRIVILEGE_PAPER_RECORDS_REQUEST_RECORDS)
     boolean paperRecordIdentifierInUse(String identifier, Location location);
 
@@ -70,13 +76,16 @@ public interface PaperRecordService extends OpenmrsService {
     boolean paperRecordExistsForPatientWithPrimaryIdentifier(String patientIdentifier, Location location);
 
 
-    // TODO: update tour dates
     /**
-     * Creates a paper medical record number for the given patient at the specified medical record location
+     * Creates a paper record for the specified patient at the specified location
+     * Assigns a patient identifier if necessary
+     * Paper Record is set to the PENDING_CREATION state
+     * If a paper record already exists at the specified location for the specified patient,
+     * that paper record will be returned and an error will be logged
      *
      * @param patient
      * @param medicalRecordLocation
-     * @return the Patient identifier created
+     * @return the Patient Record created
      */
     @Authorized(PaperRecordConstants.PRIVILEGE_PAPER_RECORDS_MANAGE_REQUESTS)
     PaperRecord createPaperRecordStub(Patient patient, Location medicalRecordLocation);
@@ -121,13 +130,18 @@ public interface PaperRecordService extends OpenmrsService {
     @Authorized(PaperRecordConstants.PRIVILEGE_PAPER_RECORDS_REQUEST_RECORDS)
     List<PaperRecordRequest> requestPaperRecord(Patient patient, Location recordLocation, Location requestLocation);
 
-    // TODO: javadoc
+    /**
+     * Gets all paper record requests in the OPEN state
+     *
+     * @return
+     */
     @Authorized(PaperRecordConstants.PRIVILEGE_PAPER_RECORDS_REQUEST_RECORDS)
+    // TODO: once we have multiple medical record locations, we will need to add location as a criteria (see paperRecordExistsWithIdentifier)
     List<PaperRecordRequest> getOpenPaperRecordRequests();
 
     /**
-     * Retrieves all records that are open (ie, have yet to be assigned to an archivist for retrieval)
-     * and need to be pulled (ie, already exist and just need to be pulled, not created)
+     * Retrieves all record requests that are open (ie, have yet to be assigned to an archivist for retrieval)
+     * and are associated with records that have already been created (i.e., status != PENDING_CREATION)
      *
      * @return the list of all open paper record requests that need to be pulled
      */
@@ -136,8 +150,8 @@ public interface PaperRecordService extends OpenmrsService {
     List<PaperRecordRequest> getOpenPaperRecordRequestsToPull();
 
     /**
-     * Retrieves all records that are open (ie, have yet to be assigned to an archivist for retrieval)
-     * and need to be created (ie, do not yet exist)
+     * Retrieves all record requets that are open (ie, have yet to be assigned to an archivist for retrieval)
+     * and are associated with records that need to be created (i.e., status == PENDING_CREATION)
      *
      * @return the list of all open paper record requests that need to be created
      */
@@ -175,12 +189,16 @@ public interface PaperRecordService extends OpenmrsService {
     @Authorized(PaperRecordConstants.PRIVILEGE_PAPER_RECORDS_MANAGE_REQUESTS)
     Map<String, List<String>> assignRequestsInternal(List<PaperRecordRequest> requests, Person assignee, Location location) throws UnableToPrintLabelException;
 
-    // TODO: javaadoc
+    /**
+     * Retrieves all record requests in the ASSIGNED state
+     *
+     * @return
+     */
     @Authorized(PaperRecordConstants.PRIVILEGE_PAPER_RECORDS_MANAGE_REQUESTS)
     List<PaperRecordRequest> getAssignedPaperRecordRequests();
 
     /**
-     * Retrieves all records that have been assigned and need to be pulled
+     * Retrieves all record requests that have been assigned and need to be pulled (ie, the associated PaperRecord status != PENDING_CREATION)
      *
      * @return the list of all assigned paper record requests that need to be pulled
      */
@@ -188,7 +206,7 @@ public interface PaperRecordService extends OpenmrsService {
     List<PaperRecordRequest> getAssignedPaperRecordRequestsToPull();
 
     /**
-     * Retrieves all records that have been assigned and need to be created
+     * Retrieves all record requests that have been assigned and need to be created (ie, the associated PaperRecord status == PENDING_CREATION)
      *
      * @return
      */
@@ -196,7 +214,7 @@ public interface PaperRecordService extends OpenmrsService {
     List<PaperRecordRequest> getAssignedPaperRecordRequestsToCreate();
 
     /**
-     * Returns the pending (i.e, OPEN, ASSIGNED_TO_PULL, or ASSIGNED_TO_CREATE) paper record request (if any) for the record with the specified identifier
+     * Returns the pending (i.e, OPEN or ASSIGNED) paper record request (if any) for the record with the specified identifier
      * (there should only be one pending request per identifier & *location*)
      *
      * @param identifier the paper record identifier OR the patient identifier associated with the request
@@ -207,10 +225,8 @@ public interface PaperRecordService extends OpenmrsService {
     // TODO: once we have multiple medical record locations, we will need to add location as a criteria (see paperRecordExistsWithIdentifier)
     PaperRecordRequest getPendingPaperRecordRequestByIdentifier(String identifier);
 
-
-    // TODO: can this method be deleted
     /**
-     * Returns the assigned (i.e, ASSIGNED_TO_PULL or ASSIGNED_TO_CREATE) paper record request (if any) for the record with the specified identifier
+     * Returns the assigned (i.e, ASSIGNED) paper record request (if any) for the record with the specified identifier
      * (there should only be one assigned request per identifier & *location*)
      *
      * @param identifier the paper record identifier OR the patient identifier associated with the request
@@ -238,7 +254,7 @@ public interface PaperRecordService extends OpenmrsService {
      * Returns the most recent "sent" paper record request (if any) for the record
      * "Most Recent" is the one with the most recent dateStatusChanged field
      *
-     * @param the paper record
+     * @param paperRecord
      * @return returns the most recent "sent" paper record request (if any) for the record with specified identifier
      */
     @Authorized(PaperRecordConstants.PRIVILEGE_PAPER_RECORDS_MANAGE_REQUESTS)
@@ -246,6 +262,7 @@ public interface PaperRecordService extends OpenmrsService {
 
     /**
      * Marks the specified paper record request as "sent"
+     * Also, if the associated PaperRecord has a status of PENDING_CREATION, it's status is set to ACTIVE.
      *
      * @param request
      */
@@ -253,7 +270,7 @@ public interface PaperRecordService extends OpenmrsService {
     void markPaperRecordRequestAsSent(PaperRecordRequest request);
 
     /**
-     * Marks the specified paper record request as "cancelled"                      //To change body of implemented methods use File | Settings | File Templates.
+     * Marks the specified paper record request as "cancelled"
      *
      * @param request
      */
@@ -267,7 +284,7 @@ public interface PaperRecordService extends OpenmrsService {
     void markPaperRecordRequestAsReturned(PaperRecordRequest requests);
 
     /**
-     * Prints a papr record label for the paper record associated wth the request
+     * Prints a paper record label for the paper record associated wth the request
      * at the selected location
      *
      * @param request
@@ -289,7 +306,7 @@ public interface PaperRecordService extends OpenmrsService {
     void printPaperRecordLabels(PaperRecordRequest request, Location location, Integer count) throws UnableToPrintLabelException;
 
     /**
-     * Prints x numbers of paper record labels for the paper record associated with the patient
+     * Prints x numbers of paper record labels for the paper record associated with the patient at the given location
      *
      * @param patient  the patient we want to print the label for
      * @param location the location where the record should be printed
@@ -341,12 +358,11 @@ public interface PaperRecordService extends OpenmrsService {
     @Authorized(PaperRecordConstants.PRIVILEGE_PAPER_RECORDS_MANAGE_REQUESTS)
     void printPaperRecordLabelSet(PaperRecordRequest paperRecordRequest, Location location) throws UnableToPrintLabelException;
 
-    // TODO: fix javadoc
     /**
      * Creates a request to merge two paper records
      *
-     * @param preferredIdentifier    the identifier of the preferred paper record
-     * @param notPreferredIdentifier the identifier of the non-preferred paper record
+     * @param preferredPaperRecord   the preferred paper record
+     * @param notPreferredPaperRecord the non-preferred paper record
      */
     @Authorized(PaperRecordConstants.PRIVILEGE_PAPER_RECORDS_REQUEST_RECORDS)
     void markPaperRecordsForMerge(PaperRecord preferredPaperRecord, PaperRecord notPreferredPaperRecord);
@@ -365,22 +381,42 @@ public interface PaperRecordService extends OpenmrsService {
     @Authorized(PaperRecordConstants.PRIVILEGE_PAPER_RECORDS_MANAGE_REQUESTS)
     List<PaperRecordMergeRequest> getOpenPaperRecordMergeRequests();
 
-    // TODO: authorized, javadoc
+    /**
+     * Gets all paper records for the specified patient, across all locations
+     * Excludes voided paper records (defined as paper records where the associated patient identifier is voided)
+     *
+     * @param patient
+     * @return
+     */
+    @Authorized(PaperRecordConstants.PRIVILEGE_PAPER_RECORDS_REQUEST_RECORDS)
     List<PaperRecord> getPaperRecords(Patient patient);
 
-    // TODO: authorized, javadoc
+    /**
+     * Gets all paper records for the specified patient, for the specified record location
+     * Excludes voided paper records (defined as paper records where the associated patient identifier is voided)
+     *
+     * @param patient
+     * @return
+     */
+    @Authorized(PaperRecordConstants.PRIVILEGE_PAPER_RECORDS_REQUEST_RECORDS)
     List<PaperRecord> getPaperRecords(Patient patient, Location paperRecordLocation);
 
-    // TODO: authorized, javadoc
+    /**
+     * Gets all paper records for the specified patient identifier, for the specified record location
+     * Excludes voided paper records (defined as paper records where the associated patient identifier is voided)
+     *
+     * @param patientIdentifier
+     * @return
+     */
+    @Authorized(PaperRecordConstants.PRIVILEGE_PAPER_RECORDS_REQUEST_RECORDS)
     PaperRecord getPaperRecord(PatientIdentifier patientIdentifier, Location paperRecordLocation);
 
     /**
-     * Creates or updates a Paper Record Request
+     * Creates or updates a Paper Record
      *
      * @return
      */
-    // TODO: authorized, javadoc
-    @Authorized(PaperRecordConstants.PRIVILEGE_PAPER_RECORDS_MANAGE_REQUESTS)
+    @Authorized(PaperRecordConstants.PRIVILEGE_PAPER_RECORDS_REQUEST_RECORDS)
     PaperRecord savePaperRecord(PaperRecord paperRecord);
 
 

@@ -7,6 +7,9 @@ import org.openmrs.User;
 
 import java.util.Date;
 
+/**
+ * javadoc--what void means?
+ */
 public class PaperRecord extends BaseOpenmrsObject {
 
     // TODO: in the future we will probably want to create a MISSING status, and perhaps status to represent whether the
