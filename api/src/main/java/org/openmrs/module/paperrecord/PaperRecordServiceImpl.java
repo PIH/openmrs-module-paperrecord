@@ -61,8 +61,6 @@ public class PaperRecordServiceImpl extends BaseOpenmrsService implements PaperR
     // TODO: do a release?
     // TODO: test the synchronization methods
     // TODO: note to Dave when we mark a record as having been created?
-    // TODO: add paper record hibernate file where necessary
-
     // TODO: test better: merging paper records, request paper record
     // TODO: could a patient could have two identifiers, two records, at the same location?
 
