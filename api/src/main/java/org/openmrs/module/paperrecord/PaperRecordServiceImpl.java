@@ -59,10 +59,9 @@ import static org.openmrs.module.paperrecord.PaperRecordRequest.Status;
 public class PaperRecordServiceImpl extends BaseOpenmrsService implements PaperRecordService {
 
     // TODO: do a release?
-    // TODO: test the synchronization methods
     // TODO: note to Dave when we mark a record as having been created?
     // TODO: test better: merging paper records, request paper record
-    // TODO: could a patient could have two identifiers, two records, at the same location?
+    // TODO: think about CDI?
 
     // the methods to request and create a record use this method to make sure they have a lock on the patient before operating,
     // so we can avoid creating duplicate requests and/or creates
@@ -765,7 +764,7 @@ public class PaperRecordServiceImpl extends BaseOpenmrsService implements PaperR
 
         PaperRecord paperRecord = getPaperRecord(paperRecordIdentifier, medicalRecordLocation);
         if (paperRecord != null) {
-            log.error("createPaperRecord called for patient " + paperRecordIdentifier + " who already has record at " + medicalRecordLocation);
+            log.warn("createPaperRecord called for patient " + paperRecordIdentifier + " who already has record at " + medicalRecordLocation);
         }
         else {
             paperRecord = new PaperRecord();
