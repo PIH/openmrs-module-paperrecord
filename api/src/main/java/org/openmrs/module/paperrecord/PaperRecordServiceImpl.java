@@ -58,11 +58,6 @@ import static org.openmrs.module.paperrecord.PaperRecordRequest.Status;
 
 public class PaperRecordServiceImpl extends BaseOpenmrsService implements PaperRecordService {
 
-    // TODO: do a release?
-    // TODO: note to Dave when we mark a record as having been created?
-    // TODO: test better: merging paper records, request paper record
-    // TODO: think about CDI?
-
     // the methods to request and create a record use this method to make sure they have a lock on the patient before operating,
     // so we can avoid creating duplicate requests and/or creates
     private static Map<Integer, Object> patientLock = new HashMap<Integer, Object>();

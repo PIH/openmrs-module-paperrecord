@@ -354,8 +354,10 @@ public class ArchivesRoomFragmentController {
     }
 
     private SimpleObject createASingleMergeRequestResult(UiUtils ui, PaperRecordMergeRequest request) {
-        SimpleObject result = SimpleObject.fromObject(request, ui, "mergeRequestId", "preferredIdentifier", "notPreferredIdentifier");
+        SimpleObject result = SimpleObject.fromObject(request, ui, "mergeRequestId");
 
+        result.put("preferredIdentifier", request.getPreferredPaperRecord().getPatientIdentifier().getIdentifier());
+        result.put("notPreferredIdentifier", request.getNotPreferredPaperRecord().getPatientIdentifier().getIdentifier());
         result.put("dateCreated", dateAndTimeFormat.format(request.getDateCreated()));
         result.put("dateCreatedSortable", request.getDateCreated());
 
