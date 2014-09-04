@@ -58,6 +58,13 @@ import static org.openmrs.module.paperrecord.PaperRecordRequest.Status;
 
 public class PaperRecordServiceImpl extends BaseOpenmrsService implements PaperRecordService {
 
+
+    // TODO make sure that all web methods now call the locations with
+    // TODO remove medical record location property from request
+    // TODO db query should now use medical record location of underlying paper record
+    // TODO db changeset to remove location\
+    // TODO merge request location?
+
     // the methods to request and create a record use this method to make sure they have a lock on the patient before operating,
     // so we can avoid creating duplicate requests and/or creates
     private static Map<Integer, Object> patientLock = new HashMap<Integer, Object>();
@@ -134,23 +141,23 @@ public class PaperRecordServiceImpl extends BaseOpenmrsService implements PaperR
 
     @Override
     @Transactional(readOnly = true)
-    public boolean paperRecordIdentifierInUse(String identifier, Location location) {
+    public boolean paperRecordIdentifierInUse(String identifier, Location medicalRecordLocation) {
         List<PatientIdentifier> identifiers = patientService.getPatientIdentifiers(identifier,
                 Collections.singletonList(paperRecordProperties.getPaperRecordIdentifierType()),
-                Collections.singletonList(getMedicalRecordLocationAssociatedWith(location)), null, null);
+                Collections.singletonList(getMedicalRecordLocationAssociatedWith(medicalRecordLocation)), null, null);
 
         return identifiers != null && identifiers.size() > 0 ? true : false;
     }
 
     @Override
     @Transactional(readOnly = true)
-    public boolean paperRecordExistsWithIdentifier(String identifier, Location location) {
-        return paperRecordDAO.findPaperRecord(identifier, getMedicalRecordLocationAssociatedWith(location)) != null;
+    public boolean paperRecordExistsWithIdentifier(String identifier, Location medicalRecordLocation) {
+        return paperRecordDAO.findPaperRecord(identifier, getMedicalRecordLocationAssociatedWith(medicalRecordLocation)) != null;
     }
 
     @Override
     @Transactional(readOnly = true)
-    public boolean paperRecordExistsForPatientWithPrimaryIdentifier(String patientIdentifier, Location location) {
+    public boolean paperRecordExistsForPatientWithPrimaryIdentifier(String patientIdentifier, Location medicalRecordLocation) {
 
         List<Patient> patients = patientService.getPatients(null, patientIdentifier, Collections.singletonList(emrApiProperties.getPrimaryIdentifierType()), true);
 
@@ -162,15 +169,15 @@ public class PaperRecordServiceImpl extends BaseOpenmrsService implements PaperR
             // data model should prevent us from ever getting her, but just in case
             throw new APIException("Multiple patients found with identifier " + patientIdentifier);
         } else {
-           return paperRecordExistsForPatient(patients.get(0), location);
+           return paperRecordExistsForPatient(patients.get(0), medicalRecordLocation);
         }
 
     }
 
     @Override
     @Transactional(readOnly = true)
-    public boolean paperRecordExistsForPatient(Patient patient, Location location) {
-        List<PaperRecord> paperRecords = paperRecordDAO.findPaperRecords(patient, getMedicalRecordLocationAssociatedWith(location));
+    public boolean paperRecordExistsForPatient(Patient patient, Location medicalRecordLocation) {
+        List<PaperRecord> paperRecords = paperRecordDAO.findPaperRecords(patient, getMedicalRecordLocationAssociatedWith(medicalRecordLocation));
         return paperRecords != null && paperRecords.size() > 0 ? true : false;
     }
 
@@ -187,7 +194,7 @@ public class PaperRecordServiceImpl extends BaseOpenmrsService implements PaperR
     }
 
     @Override
-    public List<PaperRecordRequest> requestPaperRecord(Patient patient, Location location, Location requestLocation) {
+    public List<PaperRecordRequest> requestPaperRecord(Patient patient, Location medicalRecordLocation, Location requestLocation) {
 
         // TODO: we will have to handle the case if there is already a request for this patient's record in the "SENT" state
         // TODO: (ie, what to do if the record is already out on the floor--right now it will just create a new request)
@@ -196,7 +203,7 @@ public class PaperRecordServiceImpl extends BaseOpenmrsService implements PaperR
             throw new IllegalArgumentException("Patient cannot be null");
         }
 
-        if (location == null) {
+        if (medicalRecordLocation == null) {
             throw new IllegalArgumentException("Record Location cannot be null");
         }
 
@@ -206,7 +213,7 @@ public class PaperRecordServiceImpl extends BaseOpenmrsService implements PaperR
 
         // fetch the nearest medical record location (or just return the given location if it is a valid
         // medical record location)
-        Location recordLocation = getMedicalRecordLocationAssociatedWith(location);
+        Location recordLocation = getMedicalRecordLocationAssociatedWith(medicalRecordLocation);
 
         List<PaperRecordRequest> requests;
 
@@ -287,15 +294,19 @@ public class PaperRecordServiceImpl extends BaseOpenmrsService implements PaperR
 
     @Override
     public List<PaperRecordRequest> getOpenPaperRecordRequests() {
-        // TODO: once we have multiple medical record locations, we will need to add location as a criteria
         return paperRecordRequestDAO.findPaperRecordRequests(Collections.singletonList(PaperRecordRequest.Status.OPEN),
                 null, null, null);
     }
 
     @Override
+    public List<PaperRecordRequest> getOpenPaperRecordRequests(Location medicalRecordLocation) {
+        return paperRecordRequestDAO.findPaperRecordRequests(Collections.singletonList(PaperRecordRequest.Status.OPEN),
+                null, getMedicalRecordLocationAssociatedWith(medicalRecordLocation), null);
+    }
+
+    @Override
     @Transactional(readOnly = true)
     public List<PaperRecordRequest> getOpenPaperRecordRequestsToPull() {
-        // TODO: once we have multiple medical record locations, we will need to add location as a criteria
         return new ArrayList<PaperRecordRequest> (CollectionUtils.select(getOpenPaperRecordRequests(), new Predicate() {
             @Override
             public boolean evaluate(Object request) {
@@ -306,9 +317,31 @@ public class PaperRecordServiceImpl extends BaseOpenmrsService implements PaperR
 
     @Override
     @Transactional(readOnly = true)
+    public List<PaperRecordRequest> getOpenPaperRecordRequestsToPull(Location medicalRecordLocation) {
+        return new ArrayList<PaperRecordRequest> (CollectionUtils.select(getOpenPaperRecordRequests(medicalRecordLocation), new Predicate() {
+            @Override
+            public boolean evaluate(Object request) {
+                return ! ((PaperRecordRequest) request).getPaperRecord().getStatus().equals(PaperRecord.Status.PENDING_CREATION);
+            }
+        }));
+    }
+
+    @Override
+    @Transactional(readOnly = true)
     public List<PaperRecordRequest> getOpenPaperRecordRequestsToCreate() {
-        // TODO: once we have multiple medical record locations, we will need to add location as a criteria
-        return new ArrayList<PaperRecordRequest> (CollectionUtils.select(getOpenPaperRecordRequests(), new Predicate() {
+       return new ArrayList<PaperRecordRequest> (CollectionUtils.select(getOpenPaperRecordRequests(), new Predicate() {
+            @Override
+            public boolean evaluate(Object request) {
+                return ((PaperRecordRequest) request).getPaperRecord().getStatus().equals(PaperRecord.Status.PENDING_CREATION);
+            }
+        }));
+
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<PaperRecordRequest> getOpenPaperRecordRequestsToCreate(Location medicalRecordLocation) {
+        return new ArrayList<PaperRecordRequest> (CollectionUtils.select(getOpenPaperRecordRequests(medicalRecordLocation), new Predicate() {
             @Override
             public boolean evaluate(Object request) {
                 return ((PaperRecordRequest) request).getPaperRecord().getStatus().equals(PaperRecord.Status.PENDING_CREATION);
@@ -375,15 +408,20 @@ public class PaperRecordServiceImpl extends BaseOpenmrsService implements PaperR
     @Override
     @Transactional(readOnly = true)
     public List<PaperRecordRequest> getAssignedPaperRecordRequests() {
-        // TODO: once we have multiple medical record locations, we will need to add location as a criteria
         return paperRecordRequestDAO.findPaperRecordRequests(
                 Collections.singletonList(PaperRecordRequest.Status.ASSIGNED), null, null, null);
     }
 
     @Override
     @Transactional(readOnly = true)
+    public List<PaperRecordRequest> getAssignedPaperRecordRequests(Location medicalRecordLocation) {
+        return paperRecordRequestDAO.findPaperRecordRequests(
+                Collections.singletonList(PaperRecordRequest.Status.ASSIGNED), null, getMedicalRecordLocationAssociatedWith(medicalRecordLocation), null);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
     public List<PaperRecordRequest> getAssignedPaperRecordRequestsToPull() {
-        // TODO: once we have multiple medical record locations, we will need to add location as a criteria
         return new ArrayList<PaperRecordRequest> (CollectionUtils.select(getAssignedPaperRecordRequests(), new Predicate() {
             @Override
             public boolean evaluate(Object request) {
@@ -394,9 +432,30 @@ public class PaperRecordServiceImpl extends BaseOpenmrsService implements PaperR
 
     @Override
     @Transactional(readOnly = true)
+    public List<PaperRecordRequest> getAssignedPaperRecordRequestsToPull(Location medicalRecordLocation) {
+        return new ArrayList<PaperRecordRequest> (CollectionUtils.select(getAssignedPaperRecordRequests(medicalRecordLocation), new Predicate() {
+            @Override
+            public boolean evaluate(Object request) {
+                return ! ((PaperRecordRequest) request).getPaperRecord().getStatus().equals(PaperRecord.Status.PENDING_CREATION);
+            }
+        }));
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<PaperRecordRequest> getAssignedPaperRecordRequestsToCreate(Location medicalRecordLocation) {
+        return new ArrayList<PaperRecordRequest> (CollectionUtils.select(getAssignedPaperRecordRequests(medicalRecordLocation), new Predicate() {
+            @Override
+            public boolean evaluate(Object request) {
+                return ((PaperRecordRequest) request).getPaperRecord().getStatus().equals(PaperRecord.Status.PENDING_CREATION);
+            }
+        }));
+    }
+
+    @Override
+    @Transactional(readOnly = true)
     public List<PaperRecordRequest> getAssignedPaperRecordRequestsToCreate() {
-        // TODO: once we have multiple medical record locations, we will need to add location as a criteria
-        return new ArrayList<PaperRecordRequest> (CollectionUtils.select(getAssignedPaperRecordRequests(), new Predicate() {
+    return new ArrayList<PaperRecordRequest> (CollectionUtils.select(getAssignedPaperRecordRequests(), new Predicate() {
             @Override
             public boolean evaluate(Object request) {
                 return ((PaperRecordRequest) request).getPaperRecord().getStatus().equals(PaperRecord.Status.PENDING_CREATION);
@@ -412,9 +471,8 @@ public class PaperRecordServiceImpl extends BaseOpenmrsService implements PaperR
 
     @Override
     @Transactional(readOnly = true)
-    public PaperRecordRequest getPendingPaperRecordRequestByIdentifier(String identifier) {
-        // TODO: once we have multiple medical record locations, we will need to add location as a criteria
-        List<PaperRecordRequest> requests = getPaperRecordRequestByIdentifierAndStatus(identifier, PENDING_STATUSES);
+    public PaperRecordRequest getPendingPaperRecordRequestByIdentifier(String identifier, Location medicalRecordLocation) {
+        List<PaperRecordRequest> requests = getPaperRecordRequestByIdentifierAndStatus(identifier, PENDING_STATUSES, medicalRecordLocation);
 
         if (requests == null || requests.size() == 0) {
             return null;
@@ -427,9 +485,8 @@ public class PaperRecordServiceImpl extends BaseOpenmrsService implements PaperR
 
     @Override
     @Transactional(readOnly = true)
-    public PaperRecordRequest getAssignedPaperRecordRequestByIdentifier(String identifier) {
-        // TODO: once we have multiple medical record locations, we will need to add location as a criteria
-        List<PaperRecordRequest> requests = getPaperRecordRequestByIdentifierAndStatus(identifier, Collections.singletonList(Status.ASSIGNED));
+    public PaperRecordRequest getAssignedPaperRecordRequestByIdentifier(String identifier, Location medicalRecordLocation) {
+        List<PaperRecordRequest> requests = getPaperRecordRequestByIdentifierAndStatus(identifier, Collections.singletonList(Status.ASSIGNED), medicalRecordLocation);
 
         if (requests == null || requests.size() == 0) {
             return null;
@@ -443,14 +500,13 @@ public class PaperRecordServiceImpl extends BaseOpenmrsService implements PaperR
 
     @Override
     @Transactional(readOnly = true)
-    public List<PaperRecordRequest> getSentPaperRecordRequestByIdentifier(String identifier) {
-        // TODO: once we have multiple medical record locations, we will need to add location as a criteria
-        return getPaperRecordRequestByIdentifierAndStatus(identifier, Collections.singletonList(Status.SENT));
+    public List<PaperRecordRequest> getSentPaperRecordRequestByIdentifier(String identifier, Location medicalRecordLocation) {
+        return getPaperRecordRequestByIdentifierAndStatus(identifier, Collections.singletonList(Status.SENT), medicalRecordLocation);
     }
 
-    private List<PaperRecordRequest> getPaperRecordRequestByIdentifierAndStatus(String identifier, List<Status> statusList) {
+    private List<PaperRecordRequest> getPaperRecordRequestByIdentifierAndStatus(String identifier, List<Status> statusList, Location medicalRecordLocation) {
         // first see if we find any requests by paper record identifier
-        List<PaperRecordRequest> requests = getPaperRecordRequestByPaperRecordIdentifierAndStatus(identifier, statusList);
+        List<PaperRecordRequest> requests = getPaperRecordRequestByPaperRecordIdentifierAndStatus(identifier, statusList, medicalRecordLocation);
 
         // if no requests, see if this is another type of patient identifier (note tha this appears to be computationally expensive)
         if ((requests == null || requests.size() == 0)) {
@@ -459,7 +515,7 @@ public class PaperRecordServiceImpl extends BaseOpenmrsService implements PaperR
                 if (patients.size() > 1) {
                     throw new IllegalStateException("Duplicate patients exist with identifier " + identifier);
                 } else {
-                    requests = paperRecordRequestDAO.findPaperRecordRequests(statusList, patients.get(0), null,
+                    requests = paperRecordRequestDAO.findPaperRecordRequests(statusList, patients.get(0), getMedicalRecordLocationAssociatedWith(medicalRecordLocation),
                             null);
                 }
             }
@@ -467,12 +523,11 @@ public class PaperRecordServiceImpl extends BaseOpenmrsService implements PaperR
         return requests;
     }
 
-    private List<PaperRecordRequest> getPaperRecordRequestByPaperRecordIdentifierAndStatus(String identifier, List<Status> statusList) {
-        // TODO: once we have multiple medical record locations, we will need to add location as a criteria
+    private List<PaperRecordRequest> getPaperRecordRequestByPaperRecordIdentifierAndStatus(String identifier, List<Status> statusList, Location medicalRecordLocation) {
         if (StringUtils.isBlank(identifier)) {
             return new ArrayList<PaperRecordRequest>();
         }
-        return paperRecordRequestDAO.findPaperRecordRequests(statusList, null, null, identifier);
+        return paperRecordRequestDAO.findPaperRecordRequests(statusList, null, getMedicalRecordLocationAssociatedWith(medicalRecordLocation), identifier);
     }
 
     @Override

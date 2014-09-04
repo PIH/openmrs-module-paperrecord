@@ -65,6 +65,7 @@ public class PaperRecordRequest extends BaseOpenmrsObject {
 
     private PaperRecord paperRecord;
 
+    // TODO: remove this?
     private Location recordLocation;
 
     private Location requestLocation;

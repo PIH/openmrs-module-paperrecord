@@ -83,10 +83,10 @@ public class ArchivesRoomFragmentControllerTest {
     @Test
     public void testControllerShouldReturnFailureResultIfNoMatchingRequestFound() throws Exception {
 
-        when(paperRecordService.getAssignedPaperRecordRequestByIdentifier(eq("123"))).thenReturn(null);
-        when(paperRecordService.getSentPaperRecordRequestByIdentifier(eq("123"))).thenReturn(null);
+        when(paperRecordService.getAssignedPaperRecordRequestByIdentifier(eq("123"), eq(sessionLocation))).thenReturn(null);
+        when(paperRecordService.getSentPaperRecordRequestByIdentifier(eq("123"), eq(sessionLocation))).thenReturn(null);
 
-        FragmentActionResult result = controller.markPaperRecordRequestAsSent("123", paperRecordService, ui);
+        FragmentActionResult result = controller.markPaperRecordRequestAsSent("123", paperRecordService, uiSessionContext, ui);
 
         assertThat(result, instanceOf(FailureResult.class));
         FailureResult failureResult = (FailureResult) result;
@@ -110,10 +110,10 @@ public class ArchivesRoomFragmentControllerTest {
         request.setRequestLocation(location);
         request.setPaperRecord(paperRecord);
 
-        when(paperRecordService.getAssignedPaperRecordRequestByIdentifier(eq("123"))).thenReturn(null);
-        when(paperRecordService.getSentPaperRecordRequestByIdentifier(eq("123"))).thenReturn(Collections.singletonList(request));
+        when(paperRecordService.getAssignedPaperRecordRequestByIdentifier(eq("123"), eq(sessionLocation))).thenReturn(null);
+        when(paperRecordService.getSentPaperRecordRequestByIdentifier(eq("123"), eq(sessionLocation))).thenReturn(Collections.singletonList(request));
 
-        FragmentActionResult result = controller.markPaperRecordRequestAsSent("123", paperRecordService, ui);
+        FragmentActionResult result = controller.markPaperRecordRequestAsSent("123", paperRecordService, uiSessionContext, ui);
 
         assertThat(result, instanceOf(FailureResult.class));
         FailureResult failureResult = (FailureResult) result;
@@ -139,9 +139,9 @@ public class ArchivesRoomFragmentControllerTest {
         request.setDateCreated(new Date());
         request.updateStatus(PaperRecordRequest.Status.ASSIGNED);
 
-        when(paperRecordService.getPendingPaperRecordRequestByIdentifier(eq("123"))).thenReturn(request);
+        when(paperRecordService.getPendingPaperRecordRequestByIdentifier(eq("123"),eq(sessionLocation))).thenReturn(request);
 
-        FragmentActionResult result = controller.markPaperRecordRequestAsSent("123", paperRecordService, ui);
+        FragmentActionResult result = controller.markPaperRecordRequestAsSent("123", paperRecordService, uiSessionContext, ui);
 
         verify(paperRecordService).markPaperRecordRequestAsSent(request);
         assertThat(result, instanceOf(SuccessResult.class));
@@ -168,7 +168,7 @@ public class ArchivesRoomFragmentControllerTest {
         request.setDateCreated(new Date());
         request.updateStatus(PaperRecordRequest.Status.SENT);
 
-        when(paperRecordService.getSentPaperRecordRequestByIdentifier(eq("123"))).thenReturn(Collections.singletonList(request));
+        when(paperRecordService.getSentPaperRecordRequestByIdentifier(eq("123"), eq(sessionLocation))).thenReturn(Collections.singletonList(request));
 
         FragmentActionResult result = controller.markPaperRecordRequestAsReturned("123", paperRecordService, uiSessionContext, ui);
         assertThat(result, instanceOf(SuccessResult.class));
@@ -206,11 +206,11 @@ public class ArchivesRoomFragmentControllerTest {
 
         List<PaperRecordRequest> requests = createSamplePullPaperRecordRequestList();
 
-        when(paperRecordService.getOpenPaperRecordRequestsToPull()).thenReturn(requests);
+        when(paperRecordService.getOpenPaperRecordRequestsToPull(sessionLocation)).thenReturn(requests);
         when(paperRecordService.getMostRecentSentPaperRecordRequest(requests.get(0).getPaperRecord())).thenReturn(createSampleSentRequest());
         when(emrApiProperties.getPrimaryIdentifierType()).thenReturn(patientIdentifierType);
 
-        List<SimpleObject> results = controller.getOpenRecordsToPull(paperRecordService, emrApiProperties, ui);
+        List<SimpleObject> results = controller.getOpenRecordsToPull(paperRecordService, emrApiProperties, uiSessionContext, ui);
 
         assertProperPullResultsList(results);
     }
@@ -220,10 +220,10 @@ public class ArchivesRoomFragmentControllerTest {
 
         List<PaperRecordRequest> requests = createSampleCreatePaperRecordRequestList();
 
-        when(paperRecordService.getOpenPaperRecordRequestsToCreate()).thenReturn(requests);
+        when(paperRecordService.getOpenPaperRecordRequestsToCreate(sessionLocation)).thenReturn(requests);
         when(emrApiProperties.getPrimaryIdentifierType()).thenReturn(patientIdentifierType);
 
-        List<SimpleObject> results = controller.getOpenRecordsToCreate(paperRecordService, emrApiProperties, ui);
+        List<SimpleObject> results = controller.getOpenRecordsToCreate(paperRecordService, emrApiProperties, uiSessionContext, ui);
 
         assertProperCreateResultsList(results);
     }
@@ -233,11 +233,11 @@ public class ArchivesRoomFragmentControllerTest {
 
         List<PaperRecordRequest> requests = createSamplePullPaperRecordRequestList();
 
-        when(paperRecordService.getAssignedPaperRecordRequestsToPull()).thenReturn(requests);
+        when(paperRecordService.getAssignedPaperRecordRequestsToPull(sessionLocation)).thenReturn(requests);
         when(paperRecordService.getMostRecentSentPaperRecordRequest(requests.get(0).getPaperRecord())).thenReturn(createSampleSentRequest());
         when(emrApiProperties.getPrimaryIdentifierType()).thenReturn(patientIdentifierType);
 
-        List<SimpleObject> results = controller.getAssignedRecordsToPull(paperRecordService, emrApiProperties, ui);
+        List<SimpleObject> results = controller.getAssignedRecordsToPull(paperRecordService, emrApiProperties, uiSessionContext, ui);
 
         assertProperPullResultsList(results);
     }
@@ -247,10 +247,10 @@ public class ArchivesRoomFragmentControllerTest {
 
         List<PaperRecordRequest> requests = createSampleCreatePaperRecordRequestList();
 
-        when(paperRecordService.getAssignedPaperRecordRequestsToCreate()).thenReturn(requests);
+        when(paperRecordService.getAssignedPaperRecordRequestsToCreate(sessionLocation)).thenReturn(requests);
         when(emrApiProperties.getPrimaryIdentifierType()).thenReturn(patientIdentifierType);
 
-        List<SimpleObject> results = controller.getAssignedRecordsToCreate(paperRecordService, emrApiProperties, ui);
+        List<SimpleObject> results = controller.getAssignedRecordsToCreate(paperRecordService, emrApiProperties, uiSessionContext, ui);
 
         assertProperCreateResultsList(results);
     }

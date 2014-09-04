@@ -194,10 +194,10 @@ public class PaperRecordServiceComponentTest extends BaseModuleContextSensitiveT
         paperRecordService.requestPaperRecord(patient, medicalRecordLocation, requestLocation);
 
         // first, make sure that this record is not returned by the "to pull" service method
-        Assert.assertEquals(0, paperRecordService.getOpenPaperRecordRequestsToPull().size());
+        Assert.assertEquals(0, paperRecordService.getOpenPaperRecordRequestsToPull(medicalRecordLocation).size());
 
         // make sure the record is in the database
-        List<PaperRecordRequest> requests = paperRecordService.getOpenPaperRecordRequestsToCreate();
+        List<PaperRecordRequest> requests = paperRecordService.getOpenPaperRecordRequestsToCreate(medicalRecordLocation);
         Assert.assertEquals(1, requests.size());
         PaperRecordRequest request = requests.get(0);
         Assert.assertEquals(new Integer(2), request.getPaperRecord().getPatientIdentifier().getPatient().getId());
@@ -221,10 +221,10 @@ public class PaperRecordServiceComponentTest extends BaseModuleContextSensitiveT
         paperRecordService.requestPaperRecord(patient, medicalRecordLocation, requestLocation);
 
         // first, make sure that this record is not returned by the "to pull" service method
-        Assert.assertEquals(0, paperRecordService.getOpenPaperRecordRequestsToPull().size());
+        Assert.assertEquals(0, paperRecordService.getOpenPaperRecordRequestsToPull(medicalRecordLocation).size());
 
         // make sure the record is in the database
-        List<PaperRecordRequest> requests = paperRecordService.getOpenPaperRecordRequestsToCreate();
+        List<PaperRecordRequest> requests = paperRecordService.getOpenPaperRecordRequestsToCreate(medicalRecordLocation);
         Assert.assertEquals(1, requests.size());
         PaperRecordRequest request = requests.get(0);
         Assert.assertEquals(new Integer(2), request.getPaperRecord().getPatientIdentifier().getPatient().getId());
@@ -249,10 +249,10 @@ public class PaperRecordServiceComponentTest extends BaseModuleContextSensitiveT
         paperRecordService.requestPaperRecord(patient, medicalRecordLocation, requestLocation);
 
         // first, make sure that this record is not returned by the "to pull" service method
-        Assert.assertEquals(0, paperRecordService.getOpenPaperRecordRequestsToPull().size());
+        Assert.assertEquals(0, paperRecordService.getOpenPaperRecordRequestsToPull(medicalRecordLocation).size());
 
         // make sure the record is in the database
-        List<PaperRecordRequest> requests = paperRecordService.getOpenPaperRecordRequestsToCreate();
+        List<PaperRecordRequest> requests = paperRecordService.getOpenPaperRecordRequestsToCreate(medicalRecordLocation);
         Assert.assertEquals(1, requests.size());
         PaperRecordRequest request = requests.get(0);
         Assert.assertEquals(new Integer(2), request.getPaperRecord().getPatientIdentifier().getPatient().getId());
@@ -268,26 +268,24 @@ public class PaperRecordServiceComponentTest extends BaseModuleContextSensitiveT
     @Test
     public void testGetOpenPaperRecordRequestsToCreateForPatientsWithNoIdentifiers() {
 
-        Assert.assertEquals(0, paperRecordService.getOpenPaperRecordRequestsToCreate().size());
-
         // all these are from the standard test dataset (neither patient have medical record identifiers at location 2)
         Patient patient = patientService.getPatient(2);
         Patient anotherPatient = patientService.getPatient(8);
         Location medicalRecordLocation = locationService.getLocation(2);
         Location requestLocation = locationService.getLocation(3);
 
+        Assert.assertEquals(0, paperRecordService.getOpenPaperRecordRequestsToCreate(medicalRecordLocation).size());
+
         paperRecordService.requestPaperRecord(patient, medicalRecordLocation, requestLocation);
         paperRecordService.requestPaperRecord(anotherPatient, medicalRecordLocation, requestLocation);
 
         // make sure both records are now in the database
-        Assert.assertEquals(2, paperRecordService.getOpenPaperRecordRequestsToCreate().size());
+        Assert.assertEquals(2, paperRecordService.getOpenPaperRecordRequestsToCreate(medicalRecordLocation).size());
     }
 
 
     @Test
     public void testGetOpenPaperRecordRequestsToCreateForPatientsWithIdentifiers() {
-
-        Assert.assertEquals(0, paperRecordService.getOpenPaperRecordRequestsToPull().size());
 
         // all these are from the standard test dataset (both patients have medical record identifiers at location 1, but no paper record entry created yet)
         Patient patient = patientService.getPatient(2);
@@ -295,11 +293,14 @@ public class PaperRecordServiceComponentTest extends BaseModuleContextSensitiveT
         Location medicalRecordLocation = locationService.getLocation(1);
         Location requestLocation = locationService.getLocation(3);
 
+
+        Assert.assertEquals(0, paperRecordService.getOpenPaperRecordRequestsToPull(medicalRecordLocation).size());
+
         paperRecordService.requestPaperRecord(patient, medicalRecordLocation, requestLocation);
         paperRecordService.requestPaperRecord(anotherPatient, medicalRecordLocation, requestLocation);
 
         // make sure both records are now is in the database
-        Assert.assertEquals(2, paperRecordService.getOpenPaperRecordRequestsToCreate().size());
+        Assert.assertEquals(2, paperRecordService.getOpenPaperRecordRequestsToCreate(medicalRecordLocation).size());
     }
 
     @Test
@@ -333,7 +334,7 @@ public class PaperRecordServiceComponentTest extends BaseModuleContextSensitiveT
         paperRecordService.requestPaperRecord(patient, medicalRecordLocation, requestLocation);
 
         // retrieve that record
-        List<PaperRecordRequest> paperRecordRequests = paperRecordService.getOpenPaperRecordRequestsToCreate();
+        List<PaperRecordRequest> paperRecordRequests = paperRecordService.getOpenPaperRecordRequestsToCreate(medicalRecordLocation);
         Assert.assertEquals(1, paperRecordRequests.size()); // sanity check
 
         // assign the person to the request
@@ -342,7 +343,7 @@ public class PaperRecordServiceComponentTest extends BaseModuleContextSensitiveT
         paperRecordService.assignRequests(paperRecordRequests, person, null);
 
         // should not move the record as the person already has an paper record identifier
-        paperRecordRequests = paperRecordService.getAssignedPaperRecordRequestsToCreate();
+        paperRecordRequests = paperRecordService.getAssignedPaperRecordRequestsToCreate(medicalRecordLocation);
         Assert.assertEquals(1, paperRecordRequests.size());
         PaperRecordRequest request = paperRecordRequests.get(0);
         Assert.assertEquals(PaperRecordRequest.Status.ASSIGNED, request.getStatus());
@@ -362,7 +363,7 @@ public class PaperRecordServiceComponentTest extends BaseModuleContextSensitiveT
         paperRecordService.requestPaperRecord(patient, medicalRecordLocation, requestLocation);
 
         // sanity check; make sure the record is in the database
-        List<PaperRecordRequest> requests = paperRecordService.getOpenPaperRecordRequestsToCreate();
+        List<PaperRecordRequest> requests = paperRecordService.getOpenPaperRecordRequestsToCreate(medicalRecordLocation);
         Assert.assertEquals(1, requests.size());
         Date dateCreated = requests.get(0).getDateCreated();
 
@@ -370,7 +371,7 @@ public class PaperRecordServiceComponentTest extends BaseModuleContextSensitiveT
         paperRecordService.requestPaperRecord(patient, medicalRecordLocation, requestLocation);
 
         // there should still only be one paper record request
-        requests = paperRecordService.getOpenPaperRecordRequestsToCreate();
+        requests = paperRecordService.getOpenPaperRecordRequestsToCreate(medicalRecordLocation);
         Assert.assertEquals(1, requests.size());
         PaperRecordRequest request = requests.get(0);
         Assert.assertEquals(new Integer(2), request.getPaperRecord().getPatientIdentifier().getPatient().getId());
@@ -394,7 +395,7 @@ public class PaperRecordServiceComponentTest extends BaseModuleContextSensitiveT
         paperRecordService.requestPaperRecord(patient, medicalRecordLocation, requestLocation);
 
         // sanity check; make sure the record is in the database
-        List<PaperRecordRequest> requests = paperRecordService.getOpenPaperRecordRequestsToCreate();
+        List<PaperRecordRequest> requests = paperRecordService.getOpenPaperRecordRequestsToCreate(medicalRecordLocation);
         Assert.assertEquals(1, requests.size());
         Date dateCreated = requests.get(0).getDateCreated();
 
@@ -402,7 +403,7 @@ public class PaperRecordServiceComponentTest extends BaseModuleContextSensitiveT
         paperRecordService.requestPaperRecord(patient, medicalRecordLocation, anotherRequestLocation);
 
         // there should still only be one paper record request, but with the new location
-        requests = paperRecordService.getOpenPaperRecordRequestsToCreate();
+        requests = paperRecordService.getOpenPaperRecordRequestsToCreate(medicalRecordLocation);
         Assert.assertEquals(1, requests.size());
         PaperRecordRequest request = requests.get(0);
         Assert.assertEquals(new Integer(2), request.getPaperRecord().getPatientIdentifier().getPatient().getId());
@@ -432,7 +433,7 @@ public class PaperRecordServiceComponentTest extends BaseModuleContextSensitiveT
         paperRecordService.assignRequests(paperRecordRequests, person, null);
 
         // sanity check; make sure the record is in the database
-        List<PaperRecordRequest> requests = paperRecordService.getAssignedPaperRecordRequestsToCreate();
+        List<PaperRecordRequest> requests = paperRecordService.getAssignedPaperRecordRequestsToCreate(medicalRecordLocation);
         Assert.assertEquals(1, requests.size());
         Date dateCreated = requests.get(0).getDateCreated();
 
@@ -440,9 +441,9 @@ public class PaperRecordServiceComponentTest extends BaseModuleContextSensitiveT
         paperRecordService.requestPaperRecord(patient, medicalRecordLocation, requestLocation);
 
         // there should not be any open requested, and only the one assigned request
-        requests = paperRecordService.getOpenPaperRecordRequestsToCreate();
+        requests = paperRecordService.getOpenPaperRecordRequestsToCreate(medicalRecordLocation);
         Assert.assertEquals(0, requests.size());
-        requests = paperRecordService.getAssignedPaperRecordRequestsToCreate();
+        requests = paperRecordService.getAssignedPaperRecordRequestsToCreate(medicalRecordLocation);
         Assert.assertEquals(1, requests.size());
         PaperRecordRequest request = requests.get(0);
         Assert.assertEquals(new Integer(2), request.getPaperRecord().getPatientIdentifier().getPatient().getId());
@@ -467,16 +468,22 @@ public class PaperRecordServiceComponentTest extends BaseModuleContextSensitiveT
         paperRecordService.requestPaperRecord(patient, medicalRecordLocation, requestLocation);
 
         // sanity check; make sure the record is in the database
-        List<PaperRecordRequest> requests = paperRecordService.getOpenPaperRecordRequestsToCreate();
+        List<PaperRecordRequest> requests = paperRecordService.getOpenPaperRecordRequestsToCreate(medicalRecordLocation);
         Assert.assertEquals(1, requests.size());
         Date dateCreated = requests.get(0).getDateCreated();
 
         // now request the the record from the same patient, but a different medical record location
         paperRecordService.requestPaperRecord(patient, anotherMedicalRecordLocation, requestLocation);
 
-        // both of these requests should be in the queue (should not be flagged as a duplicate)
-        requests = paperRecordService.getOpenPaperRecordRequestsToCreate();
+        // make sure the requests are in the proper queues
+        requests = paperRecordService.getOpenPaperRecordRequestsToCreate();  // both if we don't limit by meidcal record location
         Assert.assertEquals(2, requests.size());
+
+        requests = paperRecordService.getOpenPaperRecordRequestsToCreate(medicalRecordLocation);
+        Assert.assertEquals(1, requests.size());
+
+        requests = paperRecordService.getOpenPaperRecordRequestsToCreate(anotherMedicalRecordLocation);
+        Assert.assertEquals(1, requests.size());
     }
 
 
@@ -491,7 +498,7 @@ public class PaperRecordServiceComponentTest extends BaseModuleContextSensitiveT
         paperRecordService.requestPaperRecord(patient, medicalRecordLocation, requestLocation);
 
         // make sure this request has been created (it is a pull request, since this patient already has a patient record)
-        List<PaperRecordRequest> requests = paperRecordService.getOpenPaperRecordRequestsToPull();
+        List<PaperRecordRequest> requests = paperRecordService.getOpenPaperRecordRequestsToPull(medicalRecordLocation);
         Assert.assertEquals(1, requests.size());
         Date dateCreated = requests.get(0).getDateCreated();
 
@@ -514,7 +521,7 @@ public class PaperRecordServiceComponentTest extends BaseModuleContextSensitiveT
 
         paperRecordService.requestPaperRecord(patient, medicalRecordLocation, requestLocation);
 
-        PaperRecordRequest request = paperRecordService.getAssignedPaperRecordRequestByIdentifier("101");
+        PaperRecordRequest request = paperRecordService.getAssignedPaperRecordRequestByIdentifier("101", medicalRecordLocation);
         Assert.assertNull(request);
     }
 
@@ -534,14 +541,14 @@ public class PaperRecordServiceComponentTest extends BaseModuleContextSensitiveT
         paperRecordService.requestPaperRecord(patient, medicalRecordLocation, requestLocation);
 
         // retrieve that record
-        List<PaperRecordRequest> paperRecordRequests = paperRecordService.getOpenPaperRecordRequestsToCreate();
+        List<PaperRecordRequest> paperRecordRequests = paperRecordService.getOpenPaperRecordRequestsToCreate(medicalRecordLocation);
         Assert.assertEquals(1, paperRecordRequests.size()); // sanity check
 
         // assign the person to the request
         Person person = personService.getPerson(7);
         paperRecordService.assignRequests(paperRecordRequests, person, null);
 
-        PaperRecordRequest request = paperRecordService.getAssignedPaperRecordRequestByIdentifier("101");
+        PaperRecordRequest request = paperRecordService.getAssignedPaperRecordRequestByIdentifier("101", medicalRecordLocation);
 
         Assert.assertEquals(PaperRecordRequest.Status.ASSIGNED, request.getStatus());
         Assert.assertEquals(PaperRecord.Status.PENDING_CREATION, request.getPaperRecord().getStatus());
@@ -560,14 +567,17 @@ public class PaperRecordServiceComponentTest extends BaseModuleContextSensitiveT
 
         paperRecordService.requestPaperRecord(patient, medicalRecordLocation, requestLocation);
 
-        PaperRecordRequest request = paperRecordService.getAssignedPaperRecordRequestByIdentifier("101-6");
+        PaperRecordRequest request = paperRecordService.getAssignedPaperRecordRequestByIdentifier("101-6", medicalRecordLocation);
         Assert.assertNull(request);
     }
 
     @Test
     public void testGetAssignedRequestByIdentifierShouldReturnNullIfNoActiveRequests() {
+
+        Location medicalRecordLocation = locationService.getLocation(1);
+
         // there is a paper record request in the sample database with this identifier, but it is marked as SENT
-        Assert.assertNull(paperRecordService.getAssignedPaperRecordRequestByIdentifier("CATBALL"));
+        Assert.assertNull(paperRecordService.getAssignedPaperRecordRequestByIdentifier("CATBALL", medicalRecordLocation));
     }
 
     @Test
@@ -611,7 +621,7 @@ public class PaperRecordServiceComponentTest extends BaseModuleContextSensitiveT
         paperRecordService.requestPaperRecord(patient, medicalRecordLocation, requestLocation);
 
         // retrieve that record
-        PaperRecordRequest request = paperRecordService.getOpenPaperRecordRequestsToCreate().get(0);
+        PaperRecordRequest request = paperRecordService.getOpenPaperRecordRequestsToCreate(medicalRecordLocation).get(0);
 
         // store the id and identifier for future retrieval
         int id = request.getId();
@@ -632,8 +642,11 @@ public class PaperRecordServiceComponentTest extends BaseModuleContextSensitiveT
 
     @Test
     public void testGetSentPaperRecordRequestsShouldFetchSentRecordRequest() {
+
+        Location medicalRecordLocation = locationService.getLocation(1);
+
         // this identifier exists in the sample test data
-        List<PaperRecordRequest> requests = paperRecordService.getSentPaperRecordRequestByIdentifier("CATBALL");
+        List<PaperRecordRequest> requests = paperRecordService.getSentPaperRecordRequestByIdentifier("CATBALL", medicalRecordLocation);
         Assert.assertNotNull(requests);
         Assert.assertEquals(1, requests.size());
         Assert.assertEquals(new Integer(1), requests.get(0).getId());
@@ -641,8 +654,11 @@ public class PaperRecordServiceComponentTest extends BaseModuleContextSensitiveT
 
     @Test
     public void testGetSentPaperRecordRequestsShouldFetchSentRecordRequestsReferencedByPatientIdentifier() {
+
+        Location medicalRecordLocation = locationService.getLocation(1);
+
         // this identifier exists in the sample test data
-        List<PaperRecordRequest> requests = paperRecordService.getSentPaperRecordRequestByIdentifier("6TS-4");
+        List<PaperRecordRequest> requests = paperRecordService.getSentPaperRecordRequestByIdentifier("6TS-4", medicalRecordLocation);
         Assert.assertNotNull(requests);
         Assert.assertEquals(1, requests.size());
         Assert.assertEquals(new Integer(1), requests.get(0).getId());
@@ -650,7 +666,10 @@ public class PaperRecordServiceComponentTest extends BaseModuleContextSensitiveT
 
     @Test
     public void testGetSentRequestByIdentifierShouldReturnNullIfNoSentRequests() {
-        Assert.assertNull(paperRecordService.getAssignedPaperRecordRequestByIdentifier("101"));
+
+        Location medicalRecordLocation = locationService.getLocation(1);
+
+        Assert.assertNull(paperRecordService.getAssignedPaperRecordRequestByIdentifier("101", medicalRecordLocation));
     }
 
     @Test

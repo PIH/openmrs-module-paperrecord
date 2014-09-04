@@ -39,10 +39,10 @@ public class ArchivesRoomFragmentController {
 
     public List<SimpleObject> getOpenRecordsToPull(@SpringBean("paperRecordService") PaperRecordService paperRecordService,
                                                    @SpringBean("emrApiProperties") EmrApiProperties emrApiProperties,
+                                                   UiSessionContext uiSessionContext,
                                                    UiUtils ui) {
 
-        // TODO: when we have multiple archives rooms this method will have to operate by location as well
-        List<PaperRecordRequest> requests = paperRecordService.getOpenPaperRecordRequestsToPull();
+        List<PaperRecordRequest> requests = paperRecordService.getOpenPaperRecordRequestsToPull(uiSessionContext.getSessionLocation());
         List<SimpleObject> results = new ArrayList<SimpleObject>();
 
         if (requests != null && requests.size() > 0) {
@@ -54,10 +54,10 @@ public class ArchivesRoomFragmentController {
 
     public List<SimpleObject> getOpenRecordsToCreate(@SpringBean("paperRecordService") PaperRecordService paperRecordService,
                                                      @SpringBean("emrApiProperties") EmrApiProperties emrApiProperties,
+                                                     UiSessionContext uiSessionContext,
                                                      UiUtils ui) {
 
-        // TODO: when we have multiple archives rooms this method will have to operate by location as well
-        List<PaperRecordRequest> requests = paperRecordService.getOpenPaperRecordRequestsToCreate();
+        List<PaperRecordRequest> requests = paperRecordService.getOpenPaperRecordRequestsToCreate(uiSessionContext.getSessionLocation());
         List<SimpleObject> results = new ArrayList<SimpleObject>();
 
         if (requests != null && requests.size() > 0) {
@@ -82,10 +82,10 @@ public class ArchivesRoomFragmentController {
 
     public List<SimpleObject> getAssignedRecordsToPull(@SpringBean("paperRecordService") PaperRecordService paperRecordService,
                                                        @SpringBean("emrApiProperties") EmrApiProperties emrApiProperties,
+                                                       UiSessionContext uiSessionContext,
                                                        UiUtils ui) {
 
-        // TODO: when we have multiple archives rooms this method will have to operate by location as well
-        List<PaperRecordRequest> requests = paperRecordService.getAssignedPaperRecordRequestsToPull();
+        List<PaperRecordRequest> requests = paperRecordService.getAssignedPaperRecordRequestsToPull(uiSessionContext.getSessionLocation());
         List<SimpleObject> results = new ArrayList<SimpleObject>();
 
         if (requests != null && requests.size() > 0) {
@@ -97,10 +97,10 @@ public class ArchivesRoomFragmentController {
 
     public List<SimpleObject> getAssignedRecordsToCreate(@SpringBean("paperRecordService") PaperRecordService paperRecordService,
                                                          @SpringBean("emrApiProperties") EmrApiProperties emrApiProperties,
+                                                         UiSessionContext uiSessionContext,
                                                          UiUtils ui) {
 
-        // TODO: when we have multiple archives rooms this method will have to operate by location as well
-        List<PaperRecordRequest> requests = paperRecordService.getAssignedPaperRecordRequestsToCreate();
+        List<PaperRecordRequest> requests = paperRecordService.getAssignedPaperRecordRequestsToCreate(uiSessionContext.getSessionLocation());
         List<SimpleObject> results = new ArrayList<SimpleObject>();
 
         if (requests != null && requests.size() > 0) {
@@ -168,15 +168,16 @@ public class ArchivesRoomFragmentController {
     // TODO: multiple locations?
     public FragmentActionResult markPaperRecordRequestAsSent(@RequestParam(value = "identifier", required = true) String identifier,
                                                              @SpringBean("paperRecordService") PaperRecordService paperRecordService,
+                                                             UiSessionContext uiSessionContext,
                                                              UiUtils ui) {
 
         try {
             // fetch the pending request associated with this identifier
-            PaperRecordRequest paperRecordRequest = paperRecordService.getPendingPaperRecordRequestByIdentifier(identifier);
+            PaperRecordRequest paperRecordRequest = paperRecordService.getPendingPaperRecordRequestByIdentifier(identifier, uiSessionContext.getSessionLocation());
 
             if (paperRecordRequest == null) {
                 // if no matching request found, determine what error we need to return
-                List<PaperRecordRequest> sentRequests = paperRecordService.getSentPaperRecordRequestByIdentifier(identifier);
+                List<PaperRecordRequest> sentRequests = paperRecordService.getSentPaperRecordRequestByIdentifier(identifier, uiSessionContext.getSessionLocation());
                 if (sentRequests == null || sentRequests.size() == 0) {
                     return new FailureResult(ui.message("paperrecord.archivesRoom.error.paperRecordNotRequested", ui.format(identifier)));
                 }
@@ -219,7 +220,7 @@ public class ArchivesRoomFragmentController {
 
         try {
             // fetch the send requests associated with this message
-            List<PaperRecordRequest> sentRequests = paperRecordService.getSentPaperRecordRequestByIdentifier(identifier);
+            List<PaperRecordRequest> sentRequests = paperRecordService.getSentPaperRecordRequestByIdentifier(identifier, sessionContext.getSessionLocation());
 
             // handle not finding a match
             if (sentRequests == null || sentRequests.size() == 0) {
