@@ -297,4 +297,11 @@
         <dropColumn tableName="paperrecord_paper_record_merge_request" columnName="record_location"/>
     </changeSet>
 
+    <changeSet id="2014-09-04-a" author="mgoodrich">
+        <comment>Drop record location column from paper record request</comment>
+        <dropForeignKeyConstraint baseTableName="paperrecord_paper_record_request" constraintName="record_location_id_location_id_fk"/>
+        <dropColumn tableName="paperrecord_paper_record_request" columnName="record_location"/>
+    </changeSet>
+
+
 </databaseChangeLog>

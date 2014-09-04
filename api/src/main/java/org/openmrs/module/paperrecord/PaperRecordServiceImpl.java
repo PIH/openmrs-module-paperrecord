@@ -59,7 +59,6 @@ import static org.openmrs.module.paperrecord.PaperRecordRequest.Status;
 public class PaperRecordServiceImpl extends BaseOpenmrsService implements PaperRecordService {
 
 
-    // TODO make sure that all web methods now call the locations with
     // TODO remove medical record location property from request
     // TODO db query should now use medical record location of underlying paper record
     // TODO db changeset to remove location\
@@ -272,7 +271,6 @@ public class PaperRecordServiceImpl extends BaseOpenmrsService implements PaperR
                 request.setPaperRecord(paperRecord);
                 request.setCreator(Context.getAuthenticatedUser());
                 request.setDateCreated(new Date());
-                request.setRecordLocation(recordLocation);
                 request.setRequestLocation(requestLocation);
                 paperRecordRequestDAO.saveOrUpdate(request);
 

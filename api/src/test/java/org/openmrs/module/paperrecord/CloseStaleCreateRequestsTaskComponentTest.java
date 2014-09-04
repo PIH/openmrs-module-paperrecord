@@ -59,7 +59,6 @@ public class CloseStaleCreateRequestsTaskComponentTest extends BaseModuleContext
         PaperRecordRequest beforeExpireDate = new PaperRecordRequest();
         beforeExpireDate.setPaperRecord(paperRecord);
         beforeExpireDate.setRequestLocation(requestLocation);
-        beforeExpireDate.setRecordLocation(recordLocation);
         beforeExpireDate.setAssignee(person);
         beforeExpireDate.updateStatus(PaperRecordRequest.Status.ASSIGNED);
         paperRecordService.savePaperRecordRequest(beforeExpireDate);
@@ -71,7 +70,6 @@ public class CloseStaleCreateRequestsTaskComponentTest extends BaseModuleContext
         PaperRecordRequest afterExpireDate = new PaperRecordRequest();
         afterExpireDate.setPaperRecord(paperRecord);
         afterExpireDate.setRequestLocation(requestLocation);
-        afterExpireDate.setRecordLocation(recordLocation);
         afterExpireDate.setAssignee(person);
         afterExpireDate.updateStatus(PaperRecordRequest.Status.ASSIGNED);
         paperRecordService.savePaperRecordRequest(afterExpireDate);
@@ -115,7 +113,6 @@ public class CloseStaleCreateRequestsTaskComponentTest extends BaseModuleContext
         PaperRecordRequest beforeExpireDate = new PaperRecordRequest();
         beforeExpireDate.setPaperRecord(paperRecord);
         beforeExpireDate.setRequestLocation(requestLocation);
-        beforeExpireDate.setRecordLocation(recordLocation);
         beforeExpireDate.setAssignee(person);
         beforeExpireDate.updateStatus(PaperRecordRequest.Status.ASSIGNED);
         paperRecordService.savePaperRecordRequest(beforeExpireDate);
@@ -127,7 +124,6 @@ public class CloseStaleCreateRequestsTaskComponentTest extends BaseModuleContext
         PaperRecordRequest afterExpireDate = new PaperRecordRequest();
         afterExpireDate.setPaperRecord(paperRecord);
         afterExpireDate.setRequestLocation(requestLocation);
-        afterExpireDate.setRecordLocation(recordLocation);
         afterExpireDate.setAssignee(person);
         afterExpireDate.updateStatus(PaperRecordRequest.Status.ASSIGNED);
         paperRecordService.savePaperRecordRequest(afterExpireDate);

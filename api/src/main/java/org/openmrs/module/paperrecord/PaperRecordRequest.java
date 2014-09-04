@@ -65,9 +65,6 @@ public class PaperRecordRequest extends BaseOpenmrsObject {
 
     private PaperRecord paperRecord;
 
-    // TODO: remove this?
-    private Location recordLocation;
-
     private Location requestLocation;
 
     private Person assignee;
@@ -88,7 +85,6 @@ public class PaperRecordRequest extends BaseOpenmrsObject {
         String ret;
         ret = this.getId() == null ? "(no id) " : this.getId().toString() + " ";
         ret += this.getPaperRecord() == null ? "(no paper record) " : this.getPaperRecord().toString() + " ";
-        ret += this.getRecordLocation() == null ? "(no record location) " : this.getRecordLocation().toString() + " ";
         ret += this.getRequestLocation() == null ? "(no request location) " : this.getRequestLocation().toString() + " ";
         ret += this.getStatus() == null ? "(no status) " : this.getStatus().toString() + " ";
         ret += this.getAssignee() == null ? "(no assignee) " : this.getAssignee().toString() + " ";
@@ -127,14 +123,6 @@ public class PaperRecordRequest extends BaseOpenmrsObject {
 
     public void setPaperRecord(PaperRecord paperRecord) {
         this.paperRecord = paperRecord;
-    }
-
-    public Location getRecordLocation() {
-        return recordLocation;
-    }
-
-    public void setRecordLocation(Location recordLocation) {
-        this.recordLocation = recordLocation;
     }
 
     public Location getRequestLocation() {

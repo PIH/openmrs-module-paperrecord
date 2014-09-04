@@ -39,9 +39,5 @@
             <column name="request_location"/>
         </many-to-one>
 
-        <many-to-one name="recordLocation" class="org.openmrs.Location" not-null="true">
-            <column name="record_location"/>
-        </many-to-one>
-
     </class>
 </hibernate-mapping>

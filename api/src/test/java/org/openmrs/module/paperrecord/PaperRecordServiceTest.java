@@ -1149,20 +1149,17 @@ public class PaperRecordServiceTest {
 
         PaperRecordRequest preferredRequest = new PaperRecordRequest();
         preferredRequest.setPaperRecord(preferredPaperRecord);
-        preferredRequest.setRecordLocation(recordLocation);
         preferredRequest.setRequestLocation(requestLocation);
         preferredRequest.updateStatus(Status.SENT);
 
         PaperRecordRequest nonPreferredRequest = new PaperRecordRequest();
         nonPreferredRequest.setPaperRecord(nonPreferredPaperRecord);
-        nonPreferredRequest.setRecordLocation(recordLocation);
         nonPreferredRequest.setRequestLocation(requestLocation);
         nonPreferredRequest.updateStatus(Status.SENT);
 
         // we are expecting that the non-preferred request is now associated with the the preferred patient
         PaperRecordRequest expectedRequest = new PaperRecordRequest();
         expectedRequest.setPaperRecord(preferredPaperRecord);
-        expectedRequest.setRecordLocation(recordLocation);
         expectedRequest.setRequestLocation(requestLocation);
         expectedRequest.updateStatus(Status.SENT);
 
@@ -1197,20 +1194,17 @@ public class PaperRecordServiceTest {
 
         PaperRecordRequest preferredRequest = new PaperRecordRequest();
         preferredRequest.setPaperRecord(preferredPaperRecord);
-        preferredRequest.setRecordLocation(recordLocation);
         preferredRequest.setRequestLocation(requestLocation);
         preferredRequest.updateStatus(Status.RETURNED);
 
         PaperRecordRequest nonPreferredRequest = new PaperRecordRequest();
         nonPreferredRequest.setPaperRecord(nonPreferredPaperRecord);
-        nonPreferredRequest.setRecordLocation(recordLocation);
         nonPreferredRequest.setRequestLocation(requestLocation);
         nonPreferredRequest.updateStatus(Status.RETURNED);
 
         // should be same original
         PaperRecordRequest expectedRequest = new PaperRecordRequest();
         expectedRequest.setPaperRecord(nonPreferredPaperRecord);
-        expectedRequest.setRecordLocation(recordLocation);
         expectedRequest.setRequestLocation(requestLocation);
         expectedRequest.updateStatus(Status.RETURNED);
 
@@ -1245,20 +1239,17 @@ public class PaperRecordServiceTest {
 
         PaperRecordRequest preferredRequest = new PaperRecordRequest();
         preferredRequest.setPaperRecord(preferredPaperRecord);
-        preferredRequest.setRecordLocation(recordLocation);
         preferredRequest.setRequestLocation(requestLocation);
         preferredRequest.updateStatus(Status.CANCELLED);
 
         PaperRecordRequest nonPreferredRequest = new PaperRecordRequest();
         nonPreferredRequest.setPaperRecord(nonPreferredPaperRecord);
-        nonPreferredRequest.setRecordLocation(recordLocation);
         nonPreferredRequest.setRequestLocation(requestLocation);
         nonPreferredRequest.updateStatus(Status.CANCELLED);
 
         // should be same original
         PaperRecordRequest expectedRequest = new PaperRecordRequest();
         expectedRequest.setPaperRecord(nonPreferredPaperRecord);
-        expectedRequest.setRecordLocation(recordLocation);
         expectedRequest.setRequestLocation(requestLocation);
         expectedRequest.updateStatus(Status.CANCELLED);
 
@@ -1656,7 +1647,6 @@ public class PaperRecordServiceTest {
         expectedRequest.setCreator(authenticatedUser);
         expectedRequest.setPaperRecord(paperRecord);
         expectedRequest.setRequestLocation(requestLocation);
-        expectedRequest.setRecordLocation(medicalRecordLocation);
         expectedRequest.updateStatus(paperRecordRequestStatus);
         return expectedRequest;
     }

@@ -38,8 +38,8 @@ public class HibernatePaperRecordRequestDAO extends HibernateSingleClassDAO<Pape
         Criteria criteria = createPaperRecordRequestCriteria();
 
         // only add the aliases/joins if necessary
-        if (patient != null || identifier !=null) {
-            addPatientIdentifierAliases(criteria);
+        if (patient != null || identifier !=null || recordLocation != null) {
+            addAliases(criteria);
         }
 
         if (statusList != null) {
@@ -84,7 +84,7 @@ public class HibernatePaperRecordRequestDAO extends HibernateSingleClassDAO<Pape
 
     }
 
-    private void addPatientIdentifierAliases(Criteria criteria) {
+    private void addAliases(Criteria criteria) {
         criteria.createAlias("paperRecord", "pr")
                 .createAlias("pr.patientIdentifier", "pi");
     }
@@ -109,7 +109,7 @@ public class HibernatePaperRecordRequestDAO extends HibernateSingleClassDAO<Pape
     }
 
     private void addRecordLocationRestriction(Criteria criteria, Location recordLocation) {
-        criteria.add(Restrictions.eq("recordLocation", recordLocation));
+        criteria.add(Restrictions.eq("pr.recordLocation", recordLocation));
 
     }
 
