@@ -68,9 +68,10 @@ public class ArchivesRoomFragmentController {
     }
 
     public List<SimpleObject> getOpenRecordsToMerge(@SpringBean("paperRecordService") PaperRecordService paperRecordService,
+                                                    UiSessionContext uiSessionContext,
                                                     UiUtils ui) {
 
-        List<PaperRecordMergeRequest> requests = paperRecordService.getOpenPaperRecordMergeRequests();
+        List<PaperRecordMergeRequest> requests = paperRecordService.getOpenPaperRecordMergeRequests(uiSessionContext.getSessionLocation());
         List<SimpleObject> results = new ArrayList<SimpleObject>();
 
         if (requests != null && requests.size() > 0) {

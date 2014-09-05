@@ -14,6 +14,7 @@
 
 package org.openmrs.module.paperrecord.db;
 
+import org.openmrs.Location;
 import org.openmrs.module.emrapi.db.SingleClassDAO;
 import org.openmrs.module.paperrecord.PaperRecordMergeRequest;
 
@@ -21,6 +22,8 @@ import java.util.List;
 
 public interface PaperRecordMergeRequestDAO extends SingleClassDAO<PaperRecordMergeRequest> {
 
-    List<PaperRecordMergeRequest> findPaperRecordMergeRequest(List<PaperRecordMergeRequest.Status> statusList);
+    List<PaperRecordMergeRequest> findPaperRecordMergeRequest(List<PaperRecordMergeRequest.Status> statusList,
+                                                              Location medicalRecordLocation);
+
 
 }

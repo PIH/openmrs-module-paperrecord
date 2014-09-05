@@ -452,7 +452,7 @@ public interface PaperRecordService extends OpenmrsService {
      * Returns all merge requets with status = OPEN
      */
     @Authorized(PaperRecordConstants.PRIVILEGE_PAPER_RECORDS_MANAGE_REQUESTS)
-    List<PaperRecordMergeRequest> getOpenPaperRecordMergeRequests();
+    List<PaperRecordMergeRequest> getOpenPaperRecordMergeRequests(Location medicalRecordLocation);
 
     /**
      * Gets all paper records for the specified patient, across all locations

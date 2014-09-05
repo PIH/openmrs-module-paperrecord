@@ -18,6 +18,7 @@ import org.hibernate.Criteria;
 import org.hibernate.criterion.Disjunction;
 import org.hibernate.criterion.Order;
 import org.hibernate.criterion.Restrictions;
+import org.openmrs.Location;
 import org.openmrs.module.emrapi.db.HibernateSingleClassDAO;
 import org.openmrs.module.paperrecord.PaperRecordMergeRequest;
 
@@ -30,12 +31,17 @@ public class HibernatePaperRecordMergeRequestDAO extends HibernateSingleClassDAO
     }
 
     @Override
-    public List<PaperRecordMergeRequest> findPaperRecordMergeRequest(List<PaperRecordMergeRequest.Status> statusList) {
+    public List<PaperRecordMergeRequest> findPaperRecordMergeRequest(List<PaperRecordMergeRequest.Status> statusList,
+                                                                     Location medicaRecordLocation) {
 
         Criteria criteria = createPaperRecordRequestCriteria();
 
         if (statusList != null) {
             addStatusDisjunctionRestriction(criteria, statusList);
+        }
+
+        if (medicaRecordLocation != null) {
+            addLocationRestriction(criteria,medicaRecordLocation);
         }
 
         addOrderByDateCreated(criteria);
@@ -61,6 +67,22 @@ public class HibernatePaperRecordMergeRequestDAO extends HibernateSingleClassDAO
             criteria.add(statusDisjunction);
         }
     }
+
+    private void addLocationRestriction(Criteria criteria, Location medicalRecordLocation) {
+
+        // in our current workflow, both paper records should always have the same record location, but, just in case,
+        // we fetch any merge reqeusts where *either* of the records are associated with the specified record location
+        criteria.createAlias("preferredPaperRecord", "ppr");
+        criteria.createAlias("notPreferredPaperRecord", "nppr");
+
+        Disjunction locationDisjunction = Restrictions.disjunction();
+        locationDisjunction.add(Restrictions.eq("ppr.recordLocation", medicalRecordLocation));
+        locationDisjunction.add(Restrictions.eq("nppr.recordLocation", medicalRecordLocation));
+
+        criteria.add(locationDisjunction);
+
+    }
+
 
     private void addOrderByDateCreated(Criteria criteria) {
         criteria.addOrder(Order.asc("dateCreated"));

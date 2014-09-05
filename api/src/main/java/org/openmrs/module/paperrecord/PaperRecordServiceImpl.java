@@ -716,9 +716,10 @@ public class PaperRecordServiceImpl extends BaseOpenmrsService implements PaperR
 
     @Override
     @Transactional(readOnly = true)
-    public List<PaperRecordMergeRequest> getOpenPaperRecordMergeRequests() {
+    public List<PaperRecordMergeRequest> getOpenPaperRecordMergeRequests(Location medicalRecordlocation) {
         return paperRecordMergeRequestDAO.findPaperRecordMergeRequest(
-                Collections.singletonList(PaperRecordMergeRequest.Status.OPEN));
+                Collections.singletonList(PaperRecordMergeRequest.Status.OPEN),
+                getMedicalRecordLocationAssociatedWith(medicalRecordlocation));
     }
 
     @Override

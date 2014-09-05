@@ -704,8 +704,8 @@ public class PaperRecordServiceComponentTest extends BaseModuleContextSensitiveT
 
         paperRecordService.markPaperRecordsForMerge(paperRecord1, paperRecord2);
 
-        Assert.assertEquals(1, paperRecordService.getOpenPaperRecordMergeRequests().size());
-        PaperRecordMergeRequest request = paperRecordService.getOpenPaperRecordMergeRequests().get(0);
+        Assert.assertEquals(1, paperRecordService.getOpenPaperRecordMergeRequests(paperRecordLocation).size());
+        PaperRecordMergeRequest request = paperRecordService.getOpenPaperRecordMergeRequests(paperRecordLocation).get(0);
 
         Assert.assertEquals(paperRecord1, request.getPreferredPaperRecord());
         Assert.assertEquals(paperRecord2, request.getNotPreferredPaperRecord());
@@ -731,8 +731,8 @@ public class PaperRecordServiceComponentTest extends BaseModuleContextSensitiveT
 
         paperRecordService.markPaperRecordsForMerge(paperRecord1, paperRecord2);
 
-        Assert.assertEquals(1, paperRecordService.getOpenPaperRecordMergeRequests().size());  // sanity check
-        PaperRecordMergeRequest request = paperRecordService.getOpenPaperRecordMergeRequests().get(0);
+        Assert.assertEquals(1, paperRecordService.getOpenPaperRecordMergeRequests(paperRecordLocation).size());  // sanity check
+        PaperRecordMergeRequest request = paperRecordService.getOpenPaperRecordMergeRequests(paperRecordLocation).get(0);
 
         paperRecordService.markPaperRecordsAsMerged(request);
 
@@ -773,7 +773,7 @@ public class PaperRecordServiceComponentTest extends BaseModuleContextSensitiveT
 
         // now create the merge request & then mark it as merged
         paperRecordService.markPaperRecordsForMerge(paperRecord1, paperRecord2);
-        PaperRecordMergeRequest mergeRequest = paperRecordService.getOpenPaperRecordMergeRequests().get(0);
+        PaperRecordMergeRequest mergeRequest = paperRecordService.getOpenPaperRecordMergeRequests(paperRecordLocation).get(0);
         paperRecordService.markPaperRecordsAsMerged(mergeRequest);
 
         // there should be no outstanding cretae requests (since we just cancel them)
