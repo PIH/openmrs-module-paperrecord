@@ -16,7 +16,6 @@ package org.openmrs.module.paperrecord;
 
 import junit.framework.Assert;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.openmrs.Location;
 import org.openmrs.Patient;
@@ -79,14 +78,12 @@ public class PaperRecordServiceComponentTest extends BaseModuleContextSensitiveT
     }
 
     @Test
-    @Ignore
     public void testThatServiceIsConfiguredCorrectly() {
         Assert.assertNotNull("Couldn't autowire PaperRecordService", paperRecordService);
         Assert.assertNotNull("Couldn't get PaperRecordService from Context", Context.getService(PaperRecordService.class));
     }
 
     @Test
-    @Ignore
     public void testPaperMedicalRecordExistsWithIdentifierReturnsTrueIfPaperMedicalRecordExists() {
 
         // from the standard test dataset
@@ -97,7 +94,6 @@ public class PaperRecordServiceComponentTest extends BaseModuleContextSensitiveT
     }
 
     @Test
-    @Ignore
     public void testPaperMedicalRecordExistsReturnsTrueWhenUsingChildLocationOfMedicalRecordLocation() {
 
         // a child location of location defined in paperRecordServiceComponentTestDataset
@@ -108,7 +104,6 @@ public class PaperRecordServiceComponentTest extends BaseModuleContextSensitiveT
     }
 
     @Test
-    @Ignore
     public void testPaperMedicalRecordExistsReturnsFalseIfPaperMedicalRecordDoesNotExist() {
 
         // from the standard test dataset
@@ -119,7 +114,6 @@ public class PaperRecordServiceComponentTest extends BaseModuleContextSensitiveT
     }
 
     @Test
-    @Ignore
     public void testPaperMedicalRecordExistsReturnsFalseIfIdentifierIsInUseButWrongLocation() {
 
         // from the standard test dataset
@@ -130,7 +124,6 @@ public class PaperRecordServiceComponentTest extends BaseModuleContextSensitiveT
     }
 
     @Test
-    @Ignore
     public void testPaperMedicalRecordExistsReturnsFalseIfIdentifierIsInUseButWrongIdentifierType() {
 
         // from the standard test dataset
@@ -141,7 +134,6 @@ public class PaperRecordServiceComponentTest extends BaseModuleContextSensitiveT
     }
 
     @Test
-    @Ignore
     public void testPaperMedicalRecordExistsReturnsFalseIfIdentifierVoided() {
 
         // from the standard test dataset
@@ -152,7 +144,6 @@ public class PaperRecordServiceComponentTest extends BaseModuleContextSensitiveT
     }
 
     @Test
-    @Ignore
     public void testPaperMedicalRecordExistsForPatientWithIdentifierReturnsTrueIfPaperMedicalRecordExists() {
 
         // from the standard test dataset
@@ -163,7 +154,6 @@ public class PaperRecordServiceComponentTest extends BaseModuleContextSensitiveT
     }
 
     @Test
-    @Ignore
     public void testPaperMedicalRecordExistsForPatientShouldReturnFalseIfWrongIdentifierType() {
 
         // from the standard test dataset
@@ -174,7 +164,6 @@ public class PaperRecordServiceComponentTest extends BaseModuleContextSensitiveT
     }
 
     @Test
-    @Ignore
     public void testPaperMedicalRecordExistsForPatientShouldReturnFalseIfWrongLocation() {
 
         // from the standard test dataset
@@ -185,7 +174,6 @@ public class PaperRecordServiceComponentTest extends BaseModuleContextSensitiveT
     }
 
     @Test
-    @Ignore
     public void testPaperMedicalRecordExistsForPatientShouldReturnFalseIfPaperRecordIdentifierVoided() {
 
         // from the standard test dataset
@@ -196,7 +184,6 @@ public class PaperRecordServiceComponentTest extends BaseModuleContextSensitiveT
     }
 
     @Test
-    @Ignore
     public void testRequestPaperRecord() {
 
         // all these are from the standard test dataset
@@ -224,7 +211,6 @@ public class PaperRecordServiceComponentTest extends BaseModuleContextSensitiveT
     }
 
     @Test
-    @Ignore
     public void testRequestPaperRecordFromChildLocation() {
 
         // all these are from the standard test dataset
@@ -253,7 +239,6 @@ public class PaperRecordServiceComponentTest extends BaseModuleContextSensitiveT
 
 
     @Test
-    @Ignore
     public void testRequestPaperRecordWhenNoValidPatientIdentifierForPaperRecord() {
 
         // all these are from the standard test dataset
@@ -281,7 +266,6 @@ public class PaperRecordServiceComponentTest extends BaseModuleContextSensitiveT
     }
 
     @Test
-    @Ignore
     public void testGetOpenPaperRecordRequestsToCreateForPatientsWithNoIdentifiers() {
 
         // all these are from the standard test dataset (neither patient have medical record identifiers at location 2)
@@ -301,7 +285,6 @@ public class PaperRecordServiceComponentTest extends BaseModuleContextSensitiveT
 
 
     @Test
-    @Ignore
     public void testGetOpenPaperRecordRequestsToCreateForPatientsWithIdentifiers() {
 
         // all these are from the standard test dataset (both patients have medical record identifiers at location 1, but no paper record entry created yet)
@@ -321,7 +304,6 @@ public class PaperRecordServiceComponentTest extends BaseModuleContextSensitiveT
     }
 
     @Test
-    @Ignore
     public void testGetPaperRecordRequestById() {
 
         PaperRecordRequest request = paperRecordService.getPaperRecordRequestById(1);
@@ -337,7 +319,6 @@ public class PaperRecordServiceComponentTest extends BaseModuleContextSensitiveT
     }
 
     @Test
-    @Ignore
     public void testAssignRequest() throws UnableToPrintLabelException {
 
         // all these are from the standard test dataset
@@ -372,7 +353,6 @@ public class PaperRecordServiceComponentTest extends BaseModuleContextSensitiveT
     }
 
     @Test
-    @Ignore
     public void testRequestPaperRecordWithDuplicateRequest() {
 
         // all these are from the standard test dataset
@@ -404,7 +384,6 @@ public class PaperRecordServiceComponentTest extends BaseModuleContextSensitiveT
     }
 
     @Test
-    @Ignore
     public void testRequestPaperRecordWhenDuplicateRequestShouldUpdateLocation() {
 
         // all these are from the standard test dataset
@@ -437,7 +416,6 @@ public class PaperRecordServiceComponentTest extends BaseModuleContextSensitiveT
     }
 
     @Test
-    @Ignore
     public void testRequestPaperRecordWhenDuplicateRequestThatHasAlreadyBeenAssigned() throws UnableToPrintLabelException {
 
         // all these are from the standard test dataset
@@ -479,7 +457,6 @@ public class PaperRecordServiceComponentTest extends BaseModuleContextSensitiveT
     }
 
     @Test
-    @Ignore
     public void testRequestPaperRecordWhenSamePatientButDifferentMedicalRecordLocation() {
 
         // all these are from the standard test dataset
@@ -511,7 +488,6 @@ public class PaperRecordServiceComponentTest extends BaseModuleContextSensitiveT
 
 
     @Test
-    @Ignore
     public void testRequestPaperRecordShouldNotConsiderSentRequestAsDuplicate() {
 
         // create a request for the patient that has a "completed" request defined in paperRecordTestDataset.xml
@@ -536,7 +512,6 @@ public class PaperRecordServiceComponentTest extends BaseModuleContextSensitiveT
     }
 
     @Test
-    @Ignore
     public void testGetAssignedRequestByIdentifierShouldNotReturnOpenRequest() {
 
         // all these are from the standard test dataset
@@ -551,7 +526,6 @@ public class PaperRecordServiceComponentTest extends BaseModuleContextSensitiveT
     }
 
     @Test
-    @Ignore
     public void testGetAssignedRequestByIdentifierShouldReturnAssignedPullRequest() throws UnableToPrintLabelException {
 
         // all these are from the standard test dataset
