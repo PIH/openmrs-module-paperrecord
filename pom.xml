@@ -139,11 +139,13 @@
             <scope>provided</scope>
         </dependency>
 
+        <!-- modules only needed for testing -->
+
         <dependency>
             <groupId>org.openmrs.module</groupId>
             <artifactId>htmlformentry-api</artifactId>
             <version>${htmlformentryVersion}</version>
-            <scope>provided</scope>
+            <scope>test</scope>
         </dependency>
 
         <!-- End OpenMRS modules -->

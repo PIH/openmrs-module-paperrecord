@@ -25,7 +25,6 @@
         <require_module version="${appframeworkVersion}">org.openmrs.module.appframework</require_module>
         <require_module version="${coreappsVersion}">org.openmrs.module.coreapps</require_module>
         <require_module version="${printerVersion}">org.openmrs.module.printer</require_module>
-        <require_module version="${htmlformentryVersion}">org.openmrs.module.htmlformentry</require_module>
     </require_modules>
     <!-- / Required Modules -->
 
