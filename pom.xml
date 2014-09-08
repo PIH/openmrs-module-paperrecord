@@ -47,6 +47,7 @@
         <serializationxstreamVersion>0.2.7</serializationxstreamVersion>
         <calculationVersion>1.1</calculationVersion>
         <printerVersion>1.0-SNAPSHOT</printerVersion>
+        <htmlformentryVersion>2.4-SNAPSHOT</htmlformentryVersion>
         <coreappsVersion>1.1-SNAPSHOT</coreappsVersion>  <!-- currently only used for messages.properties -->
     </properties>
 
@@ -138,6 +139,12 @@
             <scope>provided</scope>
         </dependency>
 
+        <dependency>
+            <groupId>org.openmrs.module</groupId>
+            <artifactId>htmlformentry-api</artifactId>
+            <version>${htmlformentryVersion}</version>
+            <scope>provided</scope>
+        </dependency>
 
         <!-- End OpenMRS modules -->
 
