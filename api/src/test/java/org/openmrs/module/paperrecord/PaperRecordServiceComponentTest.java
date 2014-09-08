@@ -16,6 +16,7 @@ package org.openmrs.module.paperrecord;
 
 import junit.framework.Assert;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.openmrs.Location;
 import org.openmrs.Patient;
@@ -39,6 +40,7 @@ import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
+@Ignore
 public class PaperRecordServiceComponentTest extends BaseModuleContextSensitiveTest {
 
     @Autowired
