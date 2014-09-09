@@ -139,6 +139,16 @@
             <scope>provided</scope>
         </dependency>
 
+
+        <!-- Modules required only for testing purposes -->
+
+        <dependency>
+            <groupId>org.openmrs.module</groupId>
+            <artifactId>htmlformentry-api</artifactId>
+            <version>${htmlformentryVersion}</version>
+            <scope>test</scope>
+        </dependency>
+
         <!-- End OpenMRS modules -->
 
         <!-- Begin OpenMRS core -->
