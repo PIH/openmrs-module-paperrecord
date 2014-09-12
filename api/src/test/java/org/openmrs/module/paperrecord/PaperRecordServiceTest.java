@@ -310,13 +310,14 @@ public class PaperRecordServiceTest {
     @Test
     public void testRequestPaperRecordWhenPatientHasNoPaperRecordIdentifier() throws Exception {
 
+        Location medicalRecordLocation = createMedicalRecordLocation();
+
         String paperMedicalRecordNumberAsExpected = "A000001";
-        when(mockIdentifierSourceService.generateIdentifier(paperRecordIdentifierType, "generating a new dossier number")).thenReturn(paperMedicalRecordNumberAsExpected);
+        when(mockIdentifierSourceService.generateIdentifier(paperRecordIdentifierType, medicalRecordLocation, "generating a new dossier number")).thenReturn(paperMedicalRecordNumberAsExpected);
 
         Patient patient = new Patient();
         patient.setId(15);
 
-        Location medicalRecordLocation = createMedicalRecordLocation();
         Location requestLocation = createLocation(4, "Outpatient Clinic");
 
         PaperRecordRequest expectedRequest = createPaperRecordRequest(patient, medicalRecordLocation, "A000001");
@@ -378,14 +379,17 @@ public class PaperRecordServiceTest {
 
     @Test
     public void whenPatientDoesNotHaveAnPaperMedicalRecordIdentifierShouldCreateAnPaperMedicalRecordNumberAndAssignToHim() {
+
+        Location medicalRecordLocation = createMedicalRecordLocation();
+
         String paperMedicalRecordNumberAsExpected = "A000001";
-        when(mockIdentifierSourceService.generateIdentifier(paperRecordIdentifierType, "generating a new dossier number")).thenReturn(paperMedicalRecordNumberAsExpected);
+        when(mockIdentifierSourceService.generateIdentifier(paperRecordIdentifierType, medicalRecordLocation, "generating a new dossier number")).thenReturn(paperMedicalRecordNumberAsExpected);
 
         Patient patient = new Patient();
 
         //PatientIdentifier identifier = new PatientIdentifier(paperMedicalRecordNumberAsExpected, paperRecordIdentifierType, createMedicalRecordLocation());
 
-        String paperMedicalRecordNumber = paperRecordService.createPaperRecord(patient, createMedicalRecordLocation()).getPatientIdentifier().getIdentifier();
+        String paperMedicalRecordNumber = paperRecordService.createPaperRecord(patient, medicalRecordLocation).getPatientIdentifier().getIdentifier();
 
         // cannot compare using one identifier because the equals is not implemented correctly
         verify(mockPatientService).savePatientIdentifier(any(PatientIdentifier.class));
@@ -1600,7 +1604,7 @@ public class PaperRecordServiceTest {
                 Collections.singletonList(medicalRecordLocation), null, null))
                 .thenReturn(Collections.singletonList(identifier));
 
-        when(mockIdentifierSourceService.generateIdentifier(paperRecordIdentifierType, "generating a new dossier number")).thenReturn("A00001", "A00002");
+        when(mockIdentifierSourceService.generateIdentifier(paperRecordIdentifierType, medicalRecordLocation, "generating a new dossier number")).thenReturn("A00001", "A00002");
 
         PatientIdentifier paperMedicalRecordIdentifier = paperRecordService.createPaperRecord(new Patient(), medicalRecordLocation).getPatientIdentifier();
 

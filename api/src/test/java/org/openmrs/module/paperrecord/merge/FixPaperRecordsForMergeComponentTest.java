@@ -44,6 +44,8 @@ public class FixPaperRecordsForMergeComponentTest extends BaseModuleContextSensi
 
     private IdentifierSourceService mockIdentifierSourceService;
 
+    private Location paperRecordLocation;
+
     @Before
     public void before() throws Exception {
         executeDataSet("retrospectiveCheckinComponentTestDataset.xml");
@@ -51,8 +53,9 @@ public class FixPaperRecordsForMergeComponentTest extends BaseModuleContextSensi
         // stub out the identifier service
         mockIdentifierSourceService = mock(IdentifierSourceService.class);
         paperRecordService.setIdentifierSourceService(mockIdentifierSourceService);
+        paperRecordLocation = locationService.getLocation(1);
 
-        when(mockIdentifierSourceService.generateIdentifier(paperRecordProperties.getPaperRecordIdentifierType(), "generating a new dossier number"))
+        when(mockIdentifierSourceService.generateIdentifier(paperRecordProperties.getPaperRecordIdentifierType(), paperRecordLocation, "generating a new dossier number"))
                 .thenReturn("A00001", "A00002", "A00003");
 
         // paper record merge action is wired in the activator
@@ -62,7 +65,6 @@ public class FixPaperRecordsForMergeComponentTest extends BaseModuleContextSensi
 
     @Test
     public void shouldCancelPendingPaperRecordRequestsAfterMerge() {
-        Location paperRecordLocation = locationService.getLocation(1);
         Location someLocation = locationService.getLocation(2);
         Location anotherLocation = locationService.getLocation(3);
 

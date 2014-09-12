@@ -794,13 +794,13 @@ public class PaperRecordServiceImpl extends BaseOpenmrsService implements PaperR
 
             String paperRecordId = "";
 
-            paperRecordId = identifierSourceService.generateIdentifier(paperRecordIdentifierType,
+            paperRecordId = identifierSourceService.generateIdentifier(paperRecordIdentifierType, medicalRecordLocation,
                     "generating a new dossier number");
 
             // double check to make sure this identifier is not in use
             while (paperRecordIdentifierInUse(paperRecordId, medicalRecordLocation)) {
                 log.error("Attempted to generate duplicate paper record identifier " + paperRecordId );
-                paperRecordId = identifierSourceService.generateIdentifier(paperRecordIdentifierType,
+                paperRecordId = identifierSourceService.generateIdentifier(paperRecordIdentifierType, medicalRecordLocation,
                         "generating a new dossier number");
             }
 
