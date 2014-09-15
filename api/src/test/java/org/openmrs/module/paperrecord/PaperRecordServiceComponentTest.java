@@ -75,7 +75,7 @@ public class PaperRecordServiceComponentTest extends BaseModuleContextSensitiveT
         mockIdentifierSourceService = mock(IdentifierSourceService.class);
         paperRecordService.setIdentifierSourceService(mockIdentifierSourceService);
 
-        when(mockIdentifierSourceService.generateIdentifier(eq(paperRecordProperties.getPaperRecordIdentifierType()), any(Location.class), eq("generating a new dossier number")))
+        when(mockIdentifierSourceService.generateIdentifier(eq(paperRecordProperties.getPaperRecordIdentifierType()), any(Location.class), eq("generating a new paper record identifier number")))
                 .thenReturn("A00001", "A00002", "A00003");
 
     }

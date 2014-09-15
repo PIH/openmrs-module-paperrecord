@@ -55,7 +55,7 @@ public class FixPaperRecordsForMergeComponentTest extends BaseModuleContextSensi
         paperRecordService.setIdentifierSourceService(mockIdentifierSourceService);
         paperRecordLocation = locationService.getLocation(1);
 
-        when(mockIdentifierSourceService.generateIdentifier(paperRecordProperties.getPaperRecordIdentifierType(), paperRecordLocation, "generating a new dossier number"))
+        when(mockIdentifierSourceService.generateIdentifier(paperRecordProperties.getPaperRecordIdentifierType(), paperRecordLocation, "generating a new paper record identifier number"))
                 .thenReturn("A00001", "A00002", "A00003");
 
         // paper record merge action is wired in the activator

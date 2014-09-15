@@ -313,7 +313,7 @@ public class PaperRecordServiceTest {
         Location medicalRecordLocation = createMedicalRecordLocation();
 
         String paperMedicalRecordNumberAsExpected = "A000001";
-        when(mockIdentifierSourceService.generateIdentifier(paperRecordIdentifierType, medicalRecordLocation, "generating a new dossier number")).thenReturn(paperMedicalRecordNumberAsExpected);
+        when(mockIdentifierSourceService.generateIdentifier(paperRecordIdentifierType, medicalRecordLocation, "generating a new paper record identifier number")).thenReturn(paperMedicalRecordNumberAsExpected);
 
         Patient patient = new Patient();
         patient.setId(15);
@@ -383,7 +383,7 @@ public class PaperRecordServiceTest {
         Location medicalRecordLocation = createMedicalRecordLocation();
 
         String paperMedicalRecordNumberAsExpected = "A000001";
-        when(mockIdentifierSourceService.generateIdentifier(paperRecordIdentifierType, medicalRecordLocation, "generating a new dossier number")).thenReturn(paperMedicalRecordNumberAsExpected);
+        when(mockIdentifierSourceService.generateIdentifier(paperRecordIdentifierType, medicalRecordLocation, "generating a new paper record identifier number")).thenReturn(paperMedicalRecordNumberAsExpected);
 
         Patient patient = new Patient();
 
@@ -1604,7 +1604,7 @@ public class PaperRecordServiceTest {
                 Collections.singletonList(medicalRecordLocation), null, null))
                 .thenReturn(Collections.singletonList(identifier));
 
-        when(mockIdentifierSourceService.generateIdentifier(paperRecordIdentifierType, medicalRecordLocation, "generating a new dossier number")).thenReturn("A00001", "A00002");
+        when(mockIdentifierSourceService.generateIdentifier(paperRecordIdentifierType, medicalRecordLocation, "generating a new paper record identifier number")).thenReturn("A00001", "A00002");
 
         PatientIdentifier paperMedicalRecordIdentifier = paperRecordService.createPaperRecord(new Patient(), medicalRecordLocation).getPatientIdentifier();
 
