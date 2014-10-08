@@ -24,7 +24,7 @@ import java.util.Date;
  * <p/>
  * We don't currently 100% support multiple paper record locations... there are a few API methods within
  * the PaperRecordService that will have to be modified to support filtering by location in order to fully support
- * multiple locations. (These methods should be flagged with TO DOS referencings this point within the code)
+ * multiple locations. (These methods should be flagged with TO DOS referencing these point within the code)
  * <p/>
  *  Within a single location, all the record identifiers should be unique, and a patient should have no more than
  * one record (since record identifiers are assigned by the EMR, and not manually, we should be able to prevent
@@ -45,7 +45,7 @@ import java.util.Date;
  * adding multiple locations).
  * <p/>
  * Note that in our original model there was no Patient Record domain object--only Paper Record Requests. Whether or not a paper record existed
- * for a patient was deterimined by whether or not they had a patient identifier of the appropriate type.  We had to refactor
+ * for a patient was determined by whether or not they had a patient identifier of the appropriate type.  We had to refactor
  * when it was determined that we wanted to be able to assign paper record numbers to patients before we created the
  * actual, physical, underlying record.
  */
