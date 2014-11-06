@@ -23,4 +23,8 @@ public class PaperRecordProperties extends ModuleProperties {
         return locationService.getLocationTagByName(PaperRecordConstants.LOCATION_TAG_MEDICAL_RECORD_LOCATION);
     }
 
+    public LocationTag getArchivesLocationTag() {
+        return locationService.getLocationTagByName(PaperRecordConstants.LOCATION_TAG_ARCHIVES_LOCATION);
+    }
+
 }

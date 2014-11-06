@@ -19,6 +19,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentMatcher;
 import org.openmrs.Location;
+import org.openmrs.LocationTag;
 import org.openmrs.Patient;
 import org.openmrs.PatientIdentifier;
 import org.openmrs.PatientIdentifierType;
@@ -1611,6 +1612,54 @@ public class PaperRecordServiceTest {
         assertThat(paperMedicalRecordIdentifier.getIdentifier(), is("A00002"));
     }
 
+    // note that the getMedicalRecordLocation has been mocked out, so we are only testing the getArchivesLocation part here
+    @Test
+    public void getArchivesLocation_shouldFindArchivesLocation() {
+
+        LocationTag medicalRecordTag = new LocationTag(PaperRecordConstants.LOCATION_TAG_MEDICAL_RECORD_LOCATION, null);
+        LocationTag archivesTag = new LocationTag(PaperRecordConstants.LOCATION_TAG_ARCHIVES_LOCATION, null);
+        when(mockPaperRecordProperties.getArchivesLocationTag()).thenReturn(archivesTag);
+
+        Location medicalRecordLocation = new Location();
+        Location archives = new Location();
+        Location outpatientClinic = new Location();
+        Location dental = new Location();
+
+        medicalRecordLocation.addTag(medicalRecordTag);
+        archives.addTag(archivesTag);
+
+        medicalRecordLocation.addChildLocation(dental);
+        medicalRecordLocation.addChildLocation(outpatientClinic);
+        outpatientClinic.addChildLocation(archives);
+
+        assertThat(paperRecordService.getArchivesLocationAssociatedWith(medicalRecordLocation), is(archives));
+    }
+
+    @Test(expected = IllegalStateException.class)
+    public void getArchivesLocation_shouldNotFindArchivesLocationOutsideOfHierarchy() {
+
+        LocationTag archivesTag = new LocationTag(PaperRecordConstants.LOCATION_TAG_ARCHIVES_LOCATION, null);
+        when(mockPaperRecordProperties.getArchivesLocationTag()).thenReturn(archivesTag);
+
+        Location medicalRecordLocation = new Location();
+        Location archives = new Location();
+        Location outpatientClinic = new Location();
+        Location dental = new Location();
+        Location anotherMedicalRecordLocation = new Location();
+        Location anotherOutpatientClinic = new Location();
+
+        archives.addTag(archivesTag);
+
+        medicalRecordLocation.addChildLocation(dental);
+        medicalRecordLocation.addChildLocation(outpatientClinic);
+        outpatientClinic.addChildLocation(archives);
+
+        anotherMedicalRecordLocation.addChildLocation(anotherOutpatientClinic);
+
+        paperRecordService.getArchivesLocationAssociatedWith(anotherMedicalRecordLocation);
+
+    }
+
     private PatientIdentifier createIdentifier(Location medicalRecordLocation, String identifier) {
         PatientIdentifier identifer = new PatientIdentifier();
         identifer.setIdentifier(identifier);
@@ -1682,7 +1731,7 @@ public class PaperRecordServiceTest {
         }
 
         @Override
-        protected Location getMedicalRecordLocationAssociatedWith(Location location) {
+        public Location getMedicalRecordLocationAssociatedWith(Location location) {
             return location;
         }
 

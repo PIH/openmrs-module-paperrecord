@@ -511,6 +511,31 @@ public interface PaperRecordService extends OpenmrsService {
     void expirePendingCreateRequests(Date expireDate);
 
     /**
+     * Finds the medical record location associated with the given location
+     * (This searches up the hierarchy and returns the first location the Medical Record Location)
+     *
+     * @param location
+     * @return
+     * @throws IllegalStateException if no location found
+     * @should ignore retired locations
+     */
+    Location getMedicalRecordLocationAssociatedWith(Location location);
+
+    /**
+     * Finds the archives room associated with this location
+     * Thie method first determines the medical record location associated with the given
+     * location (via the getMedicalRecordLocationAssociatedWith method) and then
+     * traverses back done the tree until it finds a location tagged as an Archives Location
+     * (Note that the assumption here is that there is only one archives location for each medical
+     * record location, and the archives location must be a child of the medical record location)
+     *
+     * @return
+     * @throws IllegalStateException if no location found
+     * @should ignore retired locations
+     */
+    Location getArchivesLocationAssociatedWith(Location location);
+
+    /**
      * Hack to bring this up to the interface level to allow us to stub out the template when printing
      */
     void setPrinterService(PrinterService printerService);
@@ -519,5 +544,6 @@ public interface PaperRecordService extends OpenmrsService {
      * Hack to bring this up to the interface level to allow us to stub out the template in component tests
      */
     void setIdentifierSourceService(IdentifierSourceService identifierSourceService);
+
 }
 

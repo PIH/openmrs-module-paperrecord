@@ -860,7 +860,8 @@ public class PaperRecordServiceImpl extends BaseOpenmrsService implements PaperR
         return paperRecordDAO.saveOrUpdate(paperRecord);
     }
 
-    protected Location getMedicalRecordLocationAssociatedWith(Location location) {
+    @Override
+    public Location getMedicalRecordLocationAssociatedWith(Location location) {
 
         if (location != null) {
             if (location.hasTag(paperRecordProperties.getMedicalRecordLocationLocationTag().toString())) {
@@ -874,6 +875,35 @@ public class PaperRecordServiceImpl extends BaseOpenmrsService implements PaperR
                 "There is no matching location with the tag: " + paperRecordProperties.getMedicalRecordLocationLocationTag().toString());
     }
 
+    @Override
+    public Location getArchivesLocationAssociatedWith(Location location) {
+
+        Location l = getArchivesLocationHelper(getMedicalRecordLocationAssociatedWith(location));
+
+        if (l == null) {
+            throw new IllegalStateException("No archives room location found for location " + location);
+        }
+
+        return l;
+    }
+
+    private Location getArchivesLocationHelper(Location location) {
+
+        if (location.hasTag(paperRecordProperties.getArchivesLocationTag().toString())) {
+            return location;
+        }
+
+        if (location.getChildLocations(false) != null) {
+            for (Location l : location.getChildLocations(false)) {
+                Location match = getArchivesLocationHelper(l);
+                if (match != null) {
+                    return match;
+                }
+            }
+        }
+
+        return null;
+    }
 
     private Object lockOnPatient(Patient patient) {
 
