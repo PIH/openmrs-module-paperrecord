@@ -21,11 +21,10 @@ import org.openmrs.api.context.UserContext;
 import org.openmrs.module.emrapi.EmrApiProperties;
 import org.openmrs.module.emrapi.adt.AdtServiceImpl;
 import org.openmrs.module.emrapi.disposition.DispositionService;
+import org.openmrs.module.emrapi.domainwrapper.DomainWrapperFactory;
 import org.openmrs.module.emrapi.merge.PatientMergeAction;
 import org.openmrs.module.emrapi.patient.PatientDomainWrapper;
-import org.openmrs.module.emrapi.patient.PatientDomainWrapperFactory;
 import org.openmrs.module.emrapi.visit.VisitDomainWrapper;
-import org.openmrs.module.emrapi.visit.VisitDomainWrapperFactory;
 import org.openmrs.module.paperrecord.PaperRecord;
 import org.openmrs.module.paperrecord.PaperRecordProperties;
 import org.openmrs.module.paperrecord.PaperRecordService;
@@ -55,8 +54,7 @@ public class FixPaperRecordsForMergeTest {
     private VisitQueryService mockVisitQueryService;
     private EmrApiProperties emrApiProperties;
     private PaperRecordProperties paperRecordProperties;
-    private VisitDomainWrapperFactory mockVisitDomainWrapperFactory;
-    private PatientDomainWrapperFactory mockPatientDomainWrapperFactory;
+    private DomainWrapperFactory mockDomainWrapperFactory;
 
     private Person personForCurrentUser;
     private Provider providerForCurrentUser;
@@ -88,8 +86,7 @@ public class FixPaperRecordsForMergeTest {
         mockDispositionService = mock(DispositionService.class);
         mockVisitQueryService = mock(VisitQueryService.class);
 
-        mockPatientDomainWrapperFactory = new MockPatientDomainWrapperFactory();
-        mockVisitDomainWrapperFactory = new MockVisitDomainWrapperFactory();
+        mockDomainWrapperFactory = new MockDomainWrapperFactory();
 
         paperRecordIdentifierType = new PatientIdentifierType();
 
@@ -110,8 +107,7 @@ public class FixPaperRecordsForMergeTest {
         service.setProviderService(mockProviderService);
         service.setEmrApiProperties(emrApiProperties);
         service.setPatientMergeActions(Arrays.<PatientMergeAction>asList(fixPaperRecordsForMerge));
-        service.setPatientDomainWrapperFactory(mockPatientDomainWrapperFactory);
-        service.setVisitDomainWrapperFactory(mockVisitDomainWrapperFactory);
+        service.setDomainWrapperFactory(mockDomainWrapperFactory);
     }
 
 
@@ -162,7 +158,7 @@ public class FixPaperRecordsForMergeTest {
         verify(mockPaperRecordService, never()).markPaperRecordsForMerge(anotherPreferredPaperRecord, notPreferredPaperRecord);
     }
 
-    private class MockVisitDomainWrapperFactory extends VisitDomainWrapperFactory{
+    private class MockDomainWrapperFactory extends DomainWrapperFactory{
 
         @Override
         public VisitDomainWrapper newVisitDomainWrapper() {
@@ -179,9 +175,7 @@ public class FixPaperRecordsForMergeTest {
             visitDomainWrapper.setVisit(visit);
             return visitDomainWrapper;
         }
-    }
 
-    private class MockPatientDomainWrapperFactory extends PatientDomainWrapperFactory{
 
         @Override
         public PatientDomainWrapper newPatientDomainWrapper() {
@@ -199,4 +193,5 @@ public class FixPaperRecordsForMergeTest {
             return patientDomainWrapper;
         }
     }
+
 }
