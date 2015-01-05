@@ -303,5 +303,28 @@
         <dropColumn tableName="paperrecord_paper_record_request" columnName="record_location"/>
     </changeSet>
 
+    <changeSet id="2015-01-05-1" author="mgoodrich">
+        <comment>Add index to status column of paperrecord_paper_record_request</comment>
+        <createIndex indexName="idx_paper_record_request_status"
+                     tableName="paperrecord_paper_record_request">
+            <column name="status" type="varchar(50)"/>
+        </createIndex>
+    </changeSet>
+
+    <changeSet id="2015-01-05-2" author="mgoodrich">
+        <comment>Add index to status column of paperrecord_paper_record</comment>
+        <createIndex indexName="idx_paper_record_status"
+                     tableName="paperrecord_paper_record">
+            <column name="status" type="varchar(50)"/>
+        </createIndex>
+    </changeSet>
+
+    <changeSet id="2015-01-05-3" author="mgoodrich">
+        <comment>Add index to status column of paperrecord_paper_record_merge_request</comment>
+        <createIndex indexName="idx_paper_record_merge_request_status"
+                     tableName="paperrecord_paper_record_merge_request">
+            <column name="status" type="varchar(50)"/>
+        </createIndex>
+    </changeSet>
 
 </databaseChangeLog>
