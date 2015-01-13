@@ -315,8 +315,6 @@ public class ArchivesRoomFragmentController {
             result.put("identifier", ui.format(request.getPaperRecord().getPatientIdentifier().getIdentifier()));
             result.put("dateCreated", timeAndDateFormat.format(request.getDateCreated()));
             result.put("dateCreatedSortable", request.getDateCreated());
-            // TODO: do we still need patient identifier?
-            result.put("patientIdentifier", ui.format(request.getPaperRecord().getPatientIdentifier().getPatient().getPatientIdentifier(emrApiProperties.getPrimaryIdentifierType()).getIdentifier()));
             result.put("patient", ui.format(request.getPaperRecord().getPatientIdentifier().getPatient()));
 
             // add the last sent and last sent date to any pending pull requests

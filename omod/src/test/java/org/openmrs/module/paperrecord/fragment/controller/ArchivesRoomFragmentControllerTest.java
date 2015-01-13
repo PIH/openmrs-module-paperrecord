@@ -274,11 +274,6 @@ public class ArchivesRoomFragmentControllerTest {
         name.setGivenName("Tom");
         patient.addName(name);
 
-        PatientIdentifier patientIdentifier = new PatientIdentifier();
-        patientIdentifier.setIdentifier("987");
-        patientIdentifier.setIdentifierType(patientIdentifierType);
-        patient.addIdentifier(patientIdentifier);
-
         PatientIdentifier paperRecordIdentifier = new PatientIdentifier();
         paperRecordIdentifier.setIdentifier("123");
         paperRecordIdentifier.setIdentifierType(paperRecordIdentifierType);
@@ -289,11 +284,6 @@ public class ArchivesRoomFragmentControllerTest {
         name.setFamilyName("Wallace");
         name.setGivenName("Mike");
         patient2.addName(name);
-
-        PatientIdentifier patientIdentifier2 = new PatientIdentifier();
-        patientIdentifier2.setIdentifier("763");
-        patientIdentifier2.setIdentifierType(patientIdentifierType);
-        patient2.addIdentifier(patientIdentifier2);
 
         PatientIdentifier paperRecordIdentifier2 = new PatientIdentifier();
         paperRecordIdentifier2.setIdentifier("ABC");
@@ -347,11 +337,6 @@ public class ArchivesRoomFragmentControllerTest {
         name.setGivenName("Tom");
         patient.addName(name);
 
-        PatientIdentifier patientIdentifier = new PatientIdentifier();
-        patientIdentifier.setIdentifier("987");
-        patientIdentifier.setIdentifierType(patientIdentifierType);
-        patient.addIdentifier(patientIdentifier);
-
         PatientIdentifier paperRecordIdentifier = new PatientIdentifier();
         paperRecordIdentifier.setIdentifier("123");
         paperRecordIdentifier.setIdentifierType(paperRecordIdentifierType);
@@ -362,11 +347,6 @@ public class ArchivesRoomFragmentControllerTest {
         name.setFamilyName("Wallace");
         name.setGivenName("Mike");
         patient2.addName(name);
-
-        PatientIdentifier patientIdentifier2 = new PatientIdentifier();
-        patientIdentifier2.setIdentifier("763");
-        patientIdentifier2.setIdentifierType(patientIdentifierType);
-        patient2.addIdentifier(patientIdentifier2);
 
         PatientIdentifier paperRecordIdentifier2 = new PatientIdentifier();
         paperRecordIdentifier2.setIdentifier("ABC");
@@ -421,11 +401,6 @@ public class ArchivesRoomFragmentControllerTest {
         name.setGivenName("Tom");
         patient.addName(name);
 
-        PatientIdentifier patientIdentifier = new PatientIdentifier();
-        patientIdentifier.setIdentifier("987");
-        patientIdentifier.setIdentifierType(patientIdentifierType);
-        patient.addIdentifier(patientIdentifier);
-
         PatientIdentifier paperRecordIdentifier = new PatientIdentifier();
         paperRecordIdentifier.setIdentifier("123");
         paperRecordIdentifier.setIdentifierType(paperRecordIdentifierType);
@@ -460,7 +435,6 @@ public class ArchivesRoomFragmentControllerTest {
         assertThat((String) result.get("requestLocation"), is("Test location"));
         assertThat((String) result.get("identifier"), is("123"));
         assertThat((String) result.get("patient"), is("Tom Jones"));
-        assertThat((String) result.get("patientIdentifier"), is("987"));
         assertThat((String) result.get("dateCreated"), is("11:10 22/03"));
         assertFalse(result.containsKey("dateLastSent"));
         assertFalse(result.containsKey("locationLastSent"));
@@ -470,7 +444,6 @@ public class ArchivesRoomFragmentControllerTest {
         assertThat((String) result2.get("requestLocation"), is("Another location"));
         assertThat((String) result2.get("identifier"), is("ABC"));
         assertThat((String) result2.get("patient"), is("Mike Wallace"));
-        assertThat((String) result2.get("patientIdentifier"), is("763"));
         assertThat((String) result2.get("dateCreated"), is("12:11 22/03"));
         assertFalse(result.containsKey("dateLastSent"));
         assertFalse(result.containsKey("locationLastSent"));
@@ -486,7 +459,6 @@ public class ArchivesRoomFragmentControllerTest {
         assertThat((String) result.get("requestLocation"), is("Test location"));
         assertThat((String) result.get("identifier"), is("123"));
         assertThat((String) result.get("patient"), is("Tom Jones"));
-        assertThat((String) result.get("patientIdentifier"), is("987"));
         assertThat((String) result.get("dateCreated"), is("11:10 22/03"));
         assertThat((String) result.get("locationLastSent"), is("Previously sent location"));
         assertNotNull(result.get("dateLastSent"));
@@ -496,7 +468,6 @@ public class ArchivesRoomFragmentControllerTest {
         assertThat((String) result2.get("requestLocation"), is("Another location"));
        assertThat((String) result2.get("identifier"), is("ABC"));
         assertThat((String) result2.get("patient"), is("Mike Wallace"));
-        assertThat((String) result2.get("patientIdentifier"), is("763"));
         assertThat((String) result2.get("dateCreated"), is("12:11 22/03"));
         assertFalse(result2.containsKey("dateLastSent"));
         assertFalse(result2.containsKey("locationLastSent"));

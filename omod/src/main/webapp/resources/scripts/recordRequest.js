@@ -7,11 +7,10 @@ var mergeRequestsViewModel;
 
 var cancelPaperRecordRequestDialog = null;
 
-function RecordRequestModel(requestId, patientName, patientId, dossierNumber, sendToLocation, timeRequested, timeRequestedSortable, dateLastSent, locationLastSent, selected) {
+function RecordRequestModel(requestId, patientName, dossierNumber, sendToLocation, timeRequested, timeRequestedSortable, dateLastSent, locationLastSent, selected) {
     var model = {};
     model.requestId = requestId;
     model.patientName = patientName;
-    model.patientId = patientId;
     model.dossierNumber = dossierNumber;
     model.sendToLocation = sendToLocation;
     model.timeRequested = timeRequested;
@@ -93,7 +92,7 @@ function PullRequestsViewModel(recordsToPull) {
                 // create the new list
                 jQuery.each(data, function(index, request) {
                     api.recordsToPull.push(RecordRequestModel(request.requestId, request.patient,
-                        request.patientIdentifier, request.identifier, request.requestLocation, request.dateCreated,
+                        request.identifier, request.requestLocation, request.dateCreated,
                         request.dateCreatedSortable, request.dateLastSent, request.locationLastSent, selectedRequestIds.indexOf(request.requestId) == -1 ? false : true));
                 });
 
@@ -156,7 +155,7 @@ function CreateRequestsViewModel(recordsToCreate) {
                 // create the new list
                 jQuery.each(data, function(index, request) {
                     api.recordsToCreate.push(RecordRequestModel(request.requestId, request.patient,
-                        request.patientIdentifier, request.identifier, request.requestLocation, request.dateCreated,
+                        request.identifier, request.requestLocation, request.dateCreated,
                         request.dateCreatedSortable, undefined, undefined, selectedRequestIds.indexOf(request.requestId) == -1 ? false : true));
                 });
 
@@ -190,7 +189,7 @@ function AssignedPullRequestsViewModel(assignedRecordsToPull) {
                 // create the new list
                 jQuery.each(data, function(index, request) {
                     api.assignedRecordsToPull.push(RecordRequestModel(request.requestId, request.patient,
-                        request.patientIdentifier, request.identifier, request.requestLocation, request.dateCreated,
+                        request.identifier, request.requestLocation, request.dateCreated,
                         request.dateCreatedSortable, request.dateLastSent, request.locationLastSent));
                 });
 
@@ -239,7 +238,7 @@ function AssignedCreateRequestsViewModel(assignedRecordsToCreate) {
                 // create the new list
                 jQuery.each(data, function(index, request) {
                     api.assignedRecordsToCreate.push(RecordRequestModel(request.requestId, request.patient,
-                        request.patientIdentifier, request.identifier, request.requestLocation, request.dateCreated,
+                        request.identifier, request.requestLocation, request.dateCreated,
                         request.dateCreatedSortable));
                 });
 
