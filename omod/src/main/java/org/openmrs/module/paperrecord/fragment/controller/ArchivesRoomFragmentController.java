@@ -317,6 +317,15 @@ public class ArchivesRoomFragmentController {
             result.put("dateCreatedSortable", request.getDateCreated());
             result.put("patient", ui.format(request.getPaperRecord().getPatientIdentifier().getPatient()));
 
+            // this should never be null, but ran into a random case a patient was merged and the requests for the non-preferred patient weren't cancelled
+            // this just makes sure that if it happens again a NPE won't take down the system
+            if (request.getPaperRecord().getPatientIdentifier().getPatient().getPatientIdentifier(emrApiProperties.getPrimaryIdentifierType()) == null) {
+                log.error("Patient's primary identifier is null");
+            }
+            else {
+                result.put("patientIdentifier", ui.format(request.getPaperRecord().getPatientIdentifier().getPatient().getPatientIdentifier(emrApiProperties.getPrimaryIdentifierType()).getIdentifier()));
+            }
+
             // add the last sent and last sent date to any pending pull requests
             if (PaperRecordRequest.PENDING_STATUSES.contains(request.getStatus()) && !request.getPaperRecord().getStatus().equals(PaperRecord.Status.PENDING_CREATION)) {
 
