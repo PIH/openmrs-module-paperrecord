@@ -13,8 +13,7 @@ public class DefaultZplPaperFormLabelTemplate extends DefaultZplPaperRecordLabel
 
          /* Print the patient's paper record identifier, if it exists */
         if (StringUtils.isNotBlank(paperRecordIdentifier)) {
-            data.append("^FO680,40^FB520,1,0,R,0^AUN^FD" + messageSourceService.getMessage("paperrecord.archivesRoom.recordNumber.label")
-                    + " " + paperRecordIdentifier + "^FS");
+            data.append("^FO680,40^FB520,1,0,R,0^AUN^FD" + paperRecordIdentifier + "^FS");
         }
 
         /* Print the bar code, based on the primary identifier */
