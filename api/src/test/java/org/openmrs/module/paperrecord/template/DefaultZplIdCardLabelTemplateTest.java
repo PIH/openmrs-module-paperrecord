@@ -10,11 +10,13 @@ import org.openmrs.PatientIdentifier;
 import org.openmrs.PatientIdentifierType;
 import org.openmrs.PersonName;
 import org.openmrs.messagesource.MessageSourceService;
+import org.openmrs.module.appframework.feature.FeatureToggleProperties;
 import org.openmrs.module.emrapi.EmrApiProperties;
+import org.openmrs.module.paperrecord.PaperRecordProperties;
 import org.openmrs.module.printer.Printer;
 import org.openmrs.module.printer.PrinterServiceImpl;
 import org.openmrs.module.printer.UnableToPrintViaSocketException;
-import org.openmrs.module.paperrecord.PaperRecordProperties;
+import org.powermock.api.mockito.PowerMockito;
 
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -48,6 +50,8 @@ public class DefaultZplIdCardLabelTemplateTest {
         externalDossierIdentifierType.setId(4);
         when(paperRecordProperties.getExternalDossierIdentifierType()).thenReturn(externalDossierIdentifierType);
 
+        FeatureToggleProperties featureToggles = PowerMockito.mock(FeatureToggleProperties.class);
+        PowerMockito.when(featureToggles.isFeatureEnabled("cdi")).thenReturn(true);
 
         MessageSourceService messageSourceService = mock(MessageSourceService.class);
         when(messageSourceService.getMessage("emr.archivesRoom.recordNumber.label")).thenReturn("Dossier ID");
@@ -56,6 +60,7 @@ public class DefaultZplIdCardLabelTemplateTest {
         template.setEmrApiProperties(emrApiProperties);
         template.setPaperRecordProperties(paperRecordProperties);
         template.setMessageSourceService(messageSourceService);
+        template.setFeatureToggles(featureToggles);
     }
 
     @Test(expected = IllegalArgumentException.class)
@@ -126,7 +131,7 @@ public class DefaultZplIdCardLabelTemplateTest {
         String data = template.generateLabel(patient, null);
 
         System.out.println(data);
-        Assert.assertTrue(data.equals("^XA^CI28^PW1300^MTT^FO100,40^AUN^FDJazayeri, Ellen^FS^FO480,40^FB520,1,0,R,0^AUN^FD2F1406^FS^FO100,110^AUN^FDA002300^FS^FO100,160^ATN^FDMirebalais Dossier ID^FS^FO1025,10^GB0,590,10^FS^XZ"));
+        Assert.assertTrue(data.equals("^XA^CI28^PW1300^MTT^FO100,40^AUN^FDJazayeri, Ellen^FS^FO480,40^FB520,1,0,R,0^AUN^FD2F1406^FS^FO100,110^AUN^FDA 002300^FS^FO100,160^ATN^FDMirebalais Dossier ID^FS^FO1025,10^GB0,590,10^FS^XZ"));
 
     }
 
@@ -202,7 +207,7 @@ public class DefaultZplIdCardLabelTemplateTest {
         String data = template.generateLabel(patient, null);
 
         Printer printer = new Printer();
-        printer.setIpAddress("10.3.18.100");
+        printer.setIpAddress("10.3.18.111");
         printer.setPort("9100");
         printer.setId(1);
 

@@ -1,15 +1,16 @@
 package org.openmrs.module.paperrecord.template;
 
-import java.util.List;
-
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.openmrs.Patient;
 import org.openmrs.PatientIdentifier;
 import org.openmrs.messagesource.MessageSourceService;
+import org.openmrs.module.appframework.feature.FeatureToggleProperties;
 import org.openmrs.module.emrapi.EmrApiProperties;
 import org.openmrs.module.paperrecord.PaperRecordProperties;
+
+import java.util.List;
 
 public class DefaultZplIdCardLabelTemplate implements IdCardLabelTemplate {
 
@@ -21,6 +22,8 @@ public class DefaultZplIdCardLabelTemplate implements IdCardLabelTemplate {
 
     private MessageSourceService messageSourceService;
 
+    private FeatureToggleProperties featureToggles;
+
     public void setEmrApiProperties(EmrApiProperties emrApiProperties) {
         this.emrApiProperties = emrApiProperties;
     }
@@ -31,6 +34,10 @@ public class DefaultZplIdCardLabelTemplate implements IdCardLabelTemplate {
 
     public void setMessageSourceService(MessageSourceService messageSourceService) {
         this.messageSourceService = messageSourceService;
+    }
+
+    public void setFeatureToggles(FeatureToggleProperties featureToggles) {
+        this.featureToggles = featureToggles;
     }
 
     @Override
@@ -78,7 +85,17 @@ public class DefaultZplIdCardLabelTemplate implements IdCardLabelTemplate {
         int horizontalPosition = 100;
         if (paperRecordIdentifiers != null && paperRecordIdentifiers.size() > 0) {
             for (PatientIdentifier identifier : paperRecordIdentifiers) {
-                data.append("^FO" + horizontalPosition + "," + verticalPosition + "^AUN^FD" + identifier.getIdentifier() + "^FS");
+
+                if (featureToggles.isFeatureEnabled("cdi")) {
+                    data.append("^FO" + horizontalPosition + "," + verticalPosition + "^AUN^FD"
+                            + identifier.getIdentifier().substring(0, identifier.getIdentifier().length() - 6) + " "
+                            + identifier.getIdentifier().substring(identifier.getIdentifier().length() - 6)
+                            + "^FS");
+                }
+                else {
+                    data.append("^FO" + horizontalPosition + "," + verticalPosition + "^AUN^FD" + identifier.getIdentifier() + "^FS");
+                }
+
                 if (identifier.getLocation() != null) {
                     data.append("^FO" + horizontalPosition + "," + (verticalPosition + 50) + "^ATN^FD" + identifier.getLocation().getName() + " "
                             + messageSourceService.getMessage("emr.archivesRoom.recordNumber.label") + "^FS");

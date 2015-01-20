@@ -55,6 +55,7 @@
                         <property name="messageSourceService" ref="messageSourceService"/>
                         <property name="emrApiProperties" ref="emrApiProperties"/>
                         <property name="paperRecordProperties" ref="paperRecordProperties"/>
+                        <property name="featureToggles" ref="featureToggles"/>
                     </bean>
                 </property>
             </bean>

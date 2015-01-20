@@ -12,6 +12,7 @@ import org.openmrs.PersonAddress;
 import org.openmrs.PersonName;
 import org.openmrs.api.context.Context;
 import org.openmrs.messagesource.MessageSourceService;
+import org.openmrs.module.appframework.feature.FeatureToggleProperties;
 import org.openmrs.module.emrapi.EmrApiProperties;
 import org.openmrs.module.printer.Printer;
 import org.openmrs.module.printer.PrinterServiceImpl;
@@ -45,6 +46,9 @@ public class DefaultZplPaperFormLabelTemplateTest {
         when(messageSourceService.getMessage("coreapps.gender.M")).thenReturn("Male");
         when(messageSourceService.getMessage("coreapps.gender.F")).thenReturn("Female");
 
+        FeatureToggleProperties featureToggleProperties = mock(FeatureToggleProperties.class);
+        when(featureToggleProperties.isFeatureEnabled("cdi")).thenReturn(true);
+
         EmrApiProperties emrApiProperties = mock(EmrApiProperties.class);
         primaryIdentifierType = new PatientIdentifierType();
         primaryIdentifierType.setUuid("e0987dc0-460f-11e2-bcfd-0800200c9a66");
@@ -53,6 +57,7 @@ public class DefaultZplPaperFormLabelTemplateTest {
         template = new DefaultZplPaperFormLabelTemplate();
         template.setMessageSourceService(messageSourceService);
         template.setEmrApiProperties(emrApiProperties);
+        template.setFeatureToggles(featureToggleProperties);
 
     }
 
@@ -96,7 +101,7 @@ public class DefaultZplPaperFormLabelTemplateTest {
         PersonName personName = new PersonName();
         patient.addName(personName);
 
-        String result = template.generateLabel(patient, "123");
+        String result = template.generateLabel(patient, "A000123");
         Assert.assertTrue(result.contains("123"));
         Assert.assertTrue(result.contains("ABC"));
     }
@@ -124,9 +129,9 @@ public class DefaultZplPaperFormLabelTemplateTest {
         name.setGivenName("Indiana");
         patient.addName(name);
 
-        String data = template.generateLabel(patient, "123");
+        String data = template.generateLabel(patient, "A000117");
         System.out.println(data);
-        Assert.assertTrue(data.equals("^XA^CI28^PW1300^MTT^FO080,40^AVN^FDJones, Indiana^FS^FO080,120^AUN^FDABC^FS^FO080,190^ATN^FD02/Dec/2010, Female^FS^FO680,40^FB520,1,0,R,0^AUN^FD123^FS^FO780,100^ATN^BY4^BCN,150,N^FDABC^FS^XZ"));
+        Assert.assertTrue(data.equals("^XA^CI28^PW1300^MTT^FO080,40^AVN^FDJones, Indiana^FS^FO080,120^AUN^FDABC^FS^FO080,190^ATN^FD02/Dec/2010, Female^FS^FO680,40^FB520,1,0,R,0^AUN^FDA 000117^FS^FO780,100^ATN^BY4^BCN,150,N^FDABC^FS^XZ"));
 
     }
 
@@ -162,10 +167,10 @@ public class DefaultZplPaperFormLabelTemplateTest {
         personAddress.setCountyDistrict("Centre");
         personAddress.setCountry("Haiti");
 
-        String data = template.generateLabel(patient, "A000071");
+        String data = template.generateLabel(patient, "CDI000071");
 
         Printer printer = new Printer();
-        printer.setIpAddress("10.3.18.100");
+        printer.setIpAddress("10.3.18.111");
         printer.setPort("9100");
         printer.setId(1);
 
