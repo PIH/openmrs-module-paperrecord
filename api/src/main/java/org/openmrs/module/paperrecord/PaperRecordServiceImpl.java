@@ -37,8 +37,8 @@ import org.openmrs.module.paperrecord.template.IdCardLabelTemplate;
 import org.openmrs.module.paperrecord.template.LabelTemplate;
 import org.openmrs.module.paperrecord.template.PaperFormLabelTemplate;
 import org.openmrs.module.paperrecord.template.PaperRecordLabelTemplate;
+import org.openmrs.module.printer.Printer;
 import org.openmrs.module.printer.PrinterService;
-import org.openmrs.module.printer.PrinterType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.transaction.annotation.Transactional;
@@ -661,7 +661,7 @@ public class PaperRecordServiceImpl extends BaseOpenmrsService implements PaperR
         }
 
         try {
-            printerService.printViaSocket(dataBuffer.toString(), PrinterType.LABEL, location, encoding, false, 500 + (count * 100));   // add a slight delay to avoid overloading a single printer
+            printerService.printViaSocket(dataBuffer.toString(), Printer.Type.LABEL, location, encoding, false, 500 + (count * 100));   // add a slight delay to avoid overloading a single printer
         } catch (Exception e) {
             throw new UnableToPrintLabelException("Unable to print paper record label at location " + location + " for patient " + patient, e);
         }
