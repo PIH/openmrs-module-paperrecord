@@ -11,6 +11,7 @@ import org.openmrs.module.paperrecord.PaperRecordService;
 import org.openmrs.module.paperrecord.UnableToPrintLabelException;
 import org.openmrs.module.printer.Printer;
 import org.openmrs.module.printer.PrinterService;
+import org.openmrs.module.printer.PrinterType;
 import org.openmrs.ui.framework.SimpleObject;
 import org.openmrs.ui.framework.UiUtils;
 import org.openmrs.ui.framework.annotation.SpringBean;
@@ -95,7 +96,7 @@ public class RequestPaperRecordFragmentController {
             service.savePaperRecord(paperRecord);
         }
 
-        Printer printer = printerService.getDefaultPrinter(location, Printer.Type.LABEL);
+        Printer printer = printerService.getDefaultPrinter(location, PrinterType.LABEL);
         return SimpleObject.create("success", true, "message", ui.message("paperrecord.patientDashBoard.printLabels.successMessage") + " " + printer.getPhysicalLocation().getName());
 
     }
@@ -116,7 +117,7 @@ public class RequestPaperRecordFragmentController {
 
         try {
             service.printPaperRecordLabels(patient, location, 1);     // we print one label by default
-            Printer printer = printerService.getDefaultPrinter(location, Printer.Type.LABEL);
+            Printer printer = printerService.getDefaultPrinter(location, PrinterType.LABEL);
 
             return SimpleObject.create("success", true, "message", ui.message("paperrecord.patientDashBoard.printLabels.successMessage") + " " + printer.getPhysicalLocation().getName());
         } catch (UnableToPrintLabelException e) {
@@ -140,7 +141,7 @@ public class RequestPaperRecordFragmentController {
 
         try {
             service.printPaperFormLabels(patient, location, 1);     // we print one label by default
-            Printer printer = printerService.getDefaultPrinter(location, Printer.Type.LABEL);
+            Printer printer = printerService.getDefaultPrinter(location, PrinterType.LABEL);
 
             return SimpleObject.create("success", true, "message", ui.message("paperrecord.patientDashBoard.printLabels.successMessage") + " " + printer.getPhysicalLocation().getName());
         } catch (UnableToPrintLabelException e) {
@@ -164,7 +165,7 @@ public class RequestPaperRecordFragmentController {
 
         try {
             service.printIdCardLabel(patient, location);
-            Printer printer = printerService.getDefaultPrinter(location, Printer.Type.LABEL);
+            Printer printer = printerService.getDefaultPrinter(location, PrinterType.LABEL);
 
             return SimpleObject.create("success", true, "message", ui.message("paperrecord.patientDashBoard.printLabels.successMessage") + " " + printer.getPhysicalLocation().getName());
         } catch (UnableToPrintLabelException e) {
