@@ -1,6 +1,7 @@
 package org.openmrs.module.paperrecord.fragment.controller;
 
 import org.openmrs.Concept;
+import org.openmrs.Person;
 import org.openmrs.api.AdministrationService;
 import org.openmrs.ui.framework.BasicUiUtils;
 import org.openmrs.ui.framework.FormatterImpl;
@@ -45,7 +46,12 @@ public class TestUiUtils extends BasicUiUtils {
         if (mockFormattingConcepts && o instanceof Concept) {
             Concept concept = (Concept) o;
             return concept.getNames().iterator().next().getName();
-        } else {
+        } else if (o instanceof Person) {
+            // skip using the name support bean
+            return ((Person) o).getPersonName().getFullName();
+        }
+
+        else {
             return super.format(o);
         }
     }
