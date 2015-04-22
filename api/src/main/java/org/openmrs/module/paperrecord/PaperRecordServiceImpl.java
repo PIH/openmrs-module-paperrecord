@@ -872,7 +872,7 @@ public class PaperRecordServiceImpl extends BaseOpenmrsService implements PaperR
         }
 
         throw new IllegalStateException(
-                "There is no matching location with the tag: " + paperRecordProperties.getMedicalRecordLocationLocationTag().toString());
+                "Location " + location + " has is no matching parent location with the tag: " + paperRecordProperties.getMedicalRecordLocationLocationTag().toString());
     }
 
     @Override
