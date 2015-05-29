@@ -58,6 +58,7 @@ public class RequestPaperRecordFragmentController {
                                             @SpringBean("printerService") PrinterService printerService,
                                             UiSessionContext uiSessionContext) throws UnableToPrintLabelException {
 
+        location = location != null ? location : uiSessionContext.getSessionLocation();
 
         // get paper records for this patient at this location (in the current design, generally, they should only have one)
         List<PaperRecord> paperRecords = service.getPaperRecords(patient, location);
@@ -101,14 +102,14 @@ public class RequestPaperRecordFragmentController {
 
     }
 
-
-
     public SimpleObject printPaperRecordLabel(UiUtils ui,
                                               @RequestParam("patientId") Patient patient,
                                               @RequestParam("locationId") Location location,
                                               @SpringBean("paperRecordService") PaperRecordService service,
                                               @SpringBean("printerService") PrinterService printerService,
                                               UiSessionContext uiSessionContext) throws UnableToPrintLabelException {
+
+        location = location != null ? location : uiSessionContext.getSessionLocation();
 
         // create paper record if necessary
         if(!service.paperRecordExistsForPatient(patient, location)) {
@@ -134,6 +135,8 @@ public class RequestPaperRecordFragmentController {
                                               @SpringBean("printerService") PrinterService printerService,
                                               UiSessionContext uiSessionContext) throws UnableToPrintLabelException {
 
+        location = location != null ? location : uiSessionContext.getSessionLocation();
+
         // create paper record if necessary
         if(!service.paperRecordExistsForPatient(patient, location)) {
             service.createPaperRecord(patient, location);
@@ -157,6 +160,8 @@ public class RequestPaperRecordFragmentController {
                                          @SpringBean("paperRecordService") PaperRecordService service,
                                          @SpringBean("printerService") PrinterService printerService,
                                          UiSessionContext uiSessionContext) throws UnableToPrintLabelException {
+
+        location = location != null ? location : uiSessionContext.getSessionLocation();
 
         // create paper record if necessary
         if(!service.paperRecordExistsForPatient(patient, location)) {
