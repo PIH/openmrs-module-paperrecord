@@ -876,6 +876,17 @@ public class PaperRecordServiceImpl extends BaseOpenmrsService implements PaperR
     }
 
     @Override
+    public Boolean locationHasAssociatedMedicalRecordLocation(Location location) {
+        try {
+            Location medicalRecordLocation = getMedicalRecordLocationAssociatedWith(location);
+            return medicalRecordLocation != null;
+        }
+        catch (IllegalStateException e) {
+            return false;
+        }
+    }
+
+    @Override
     public Location getArchivesLocationAssociatedWith(Location location) {
 
         Location l = getArchivesLocationHelper(getMedicalRecordLocationAssociatedWith(location));

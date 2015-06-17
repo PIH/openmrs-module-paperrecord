@@ -522,6 +522,14 @@ public interface PaperRecordService extends OpenmrsService {
     Location getMedicalRecordLocationAssociatedWith(Location location);
 
     /**
+     * Returns true/false whether a Medical Record is associated with this location
+     *
+     * @param location
+     * @return true/false whether a location is found
+     */
+    Boolean locationHasAssociatedMedicalRecordLocation(Location location);
+
+    /**
      * Finds the archives room associated with this location
      * Thie method first determines the medical record location associated with the given
      * location (via the getMedicalRecordLocationAssociatedWith method) and then
