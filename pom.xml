@@ -40,7 +40,7 @@
         <uiframeworkVersion>3.4-SNAPSHOT</uiframeworkVersion>
         <appuiVersion>1.4-SNAPSHOT</appuiVersion>
         <appframeworkVersion>2.4-SNAPSHOT</appframeworkVersion>
-        <idgenVersion>3.2</idgenVersion>
+        <idgenVersion>4.0</idgenVersion>
         <providermanagementVersion>2.2</providermanagementVersion>
         <metadatasharingVersion>1.1.9</metadatasharingVersion>
         <reportingVersion>0.9.7-SNAPSHOT</reportingVersion>
