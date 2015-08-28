@@ -34,9 +34,9 @@
     </modules>
 
     <properties>
-        <openMRSVersion>1.9.9</openMRSVersion>
+        <openMRSVersion>1.9.10-SNAPSHOT</openMRSVersion>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <emrapiVersion>1.9-SNAPSHOT</emrapiVersion>
+        <emrapiVersion>1.10-SNAPSHOT</emrapiVersion>
         <uiframeworkVersion>3.4-SNAPSHOT</uiframeworkVersion>
         <appuiVersion>1.4-SNAPSHOT</appuiVersion>
         <appframeworkVersion>2.4-SNAPSHOT</appframeworkVersion>
@@ -44,7 +44,7 @@
         <providermanagementVersion>2.2</providermanagementVersion>
         <metadatasharingVersion>1.1.9</metadatasharingVersion>
         <reportingVersion>0.9.7-SNAPSHOT</reportingVersion>
-        <serializationxstreamVersion>0.2.7</serializationxstreamVersion>
+        <serializationxstreamVersion>0.2.8-SNAPSHOT</serializationxstreamVersion>
         <calculationVersion>1.1</calculationVersion>
         <printerVersion>1.2-SNAPSHOT</printerVersion>
         <htmlformentryVersion>2.6-SNAPSHOT</htmlformentryVersion>
