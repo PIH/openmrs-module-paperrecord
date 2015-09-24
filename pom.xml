@@ -36,7 +36,7 @@
     <properties>
         <openMRSVersion>1.9.10-SNAPSHOT</openMRSVersion>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <emrapiVersion>1.11-SNAPSHOT</emrapiVersion>
+        <emrapiVersion>1.12-SNAPSHOT</emrapiVersion>
         <uiframeworkVersion>3.4</uiframeworkVersion>
         <appuiVersion>1.5-SNAPSHOT</appuiVersion>
         <appframeworkVersion>2.4-SNAPSHOT</appframeworkVersion>
