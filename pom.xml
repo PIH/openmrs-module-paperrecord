@@ -39,11 +39,11 @@
         <emrapiVersion>1.12-SNAPSHOT</emrapiVersion>
         <uiframeworkVersion>3.4</uiframeworkVersion>
         <appuiVersion>1.5-SNAPSHOT</appuiVersion>
-        <appframeworkVersion>2.4-SNAPSHOT</appframeworkVersion>
+        <appframeworkVersion>2.4</appframeworkVersion>
         <idgenVersion>4.0</idgenVersion>
         <providermanagementVersion>2.3</providermanagementVersion>
         <metadatasharingVersion>1.1.9</metadatasharingVersion>
-        <reportingVersion>0.9.7-SNAPSHOT</reportingVersion>
+        <reportingVersion>0.9.7</reportingVersion>
         <serializationxstreamVersion>0.2.8</serializationxstreamVersion>
         <calculationVersion>1.1</calculationVersion>
         <printerVersion>1.2-SNAPSHOT</printerVersion>
