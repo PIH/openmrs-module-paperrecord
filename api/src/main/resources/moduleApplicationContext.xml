@@ -13,21 +13,21 @@
                 <property name="paperRecordDAO">
                     <bean class="${project.parent.groupId}.${project.parent.artifactId}.db.HibernatePaperRecordDAO">
                         <property name="sessionFactory">
-                            <ref bean="sessionFactory"/>
+                            <ref bean="dbSessionFactory"/>
                         </property>
                     </bean>
                 </property>
                 <property name="paperRecordRequestDAO">
                     <bean class="${project.parent.groupId}.${project.parent.artifactId}.db.HibernatePaperRecordRequestDAO">
                         <property name="sessionFactory">
-                            <ref bean="sessionFactory"/>
+                            <ref bean="dbSessionFactory"/>
                         </property>
                     </bean>
                 </property>
                 <property name="paperRecordMergeRequestDAO">
                     <bean class="${project.parent.groupId}.${project.parent.artifactId}.db.HibernatePaperRecordMergeRequestDAO">
                         <property name="sessionFactory">
-                            <ref bean="sessionFactory"/>
+                            <ref bean="dbSessionFactory"/>
                         </property>
                     </bean>
                 </property>
