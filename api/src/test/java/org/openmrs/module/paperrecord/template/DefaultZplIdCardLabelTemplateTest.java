@@ -51,7 +51,6 @@ public class DefaultZplIdCardLabelTemplateTest {
         when(paperRecordProperties.getExternalDossierIdentifierType()).thenReturn(externalDossierIdentifierType);
 
         FeatureToggleProperties featureToggles = PowerMockito.mock(FeatureToggleProperties.class);
-        PowerMockito.when(featureToggles.isFeatureEnabled("cdi")).thenReturn(true);
 
         MessageSourceService messageSourceService = mock(MessageSourceService.class);
         when(messageSourceService.getMessage("emr.archivesRoom.recordNumber.label")).thenReturn("Dossier ID");

@@ -13,16 +13,9 @@ public class DefaultZplPaperFormLabelTemplate extends DefaultZplPaperRecordLabel
 
          /* Print the patient's paper record identifier, if it exists */
         if (StringUtils.isNotBlank(paperRecordIdentifier)) {
-
-            if (featureToggles.isFeatureEnabled("cdi")) {
-                data.append("^FO680,40^FB520,1,0,R,0^AUN^FD"
-                        + paperRecordIdentifier.substring(0, paperRecordIdentifier.length() - 6) + " "
-                        + paperRecordIdentifier.substring(paperRecordIdentifier.length() - 6) + "^FS");
-            }
-            else {
-                data.append("^FO680,40^FB520,1,0,R,0^AUN^FD" + paperRecordIdentifier + "^FS");
-            }
-
+            data.append("^FO680,40^FB520,1,0,R,0^AUN^FD"
+                    + paperRecordIdentifier.substring(0, Math.max(0, paperRecordIdentifier.length() - 6)) + " "
+                    + paperRecordIdentifier.substring(Math.max(0, paperRecordIdentifier.length() - 6)) + "^FS");
         }
 
         /* Print the bar code, based on the primary identifier */

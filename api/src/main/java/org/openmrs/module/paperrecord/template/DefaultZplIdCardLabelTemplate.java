@@ -86,15 +86,10 @@ public class DefaultZplIdCardLabelTemplate implements IdCardLabelTemplate {
         if (paperRecordIdentifiers != null && paperRecordIdentifiers.size() > 0) {
             for (PatientIdentifier identifier : paperRecordIdentifiers) {
 
-                if (featureToggles.isFeatureEnabled("cdi")) {
-                    data.append("^FO" + horizontalPosition + "," + verticalPosition + "^AUN^FD"
-                            + identifier.getIdentifier().substring(0, identifier.getIdentifier().length() - 6) + " "
-                            + identifier.getIdentifier().substring(identifier.getIdentifier().length() - 6)
-                            + "^FS");
-                }
-                else {
-                    data.append("^FO" + horizontalPosition + "," + verticalPosition + "^AUN^FD" + identifier.getIdentifier() + "^FS");
-                }
+                data.append("^FO" + horizontalPosition + "," + verticalPosition + "^AUN^FD"
+                        + identifier.getIdentifier().substring(0, Math.max(0, identifier.getIdentifier().length() - 6)) + " "
+                        + identifier.getIdentifier().substring(Math.max(0, identifier.getIdentifier().length() - 6))
+                        + "^FS");
 
                 if (identifier.getLocation() != null) {
                     data.append("^FO" + horizontalPosition + "," + (verticalPosition + 50) + "^ATN^FD" + identifier.getLocation().getName() + " "

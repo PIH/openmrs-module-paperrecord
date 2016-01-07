@@ -47,7 +47,6 @@ public class DefaultZplPaperFormLabelTemplateTest {
         when(messageSourceService.getMessage("coreapps.gender.F")).thenReturn("Female");
 
         FeatureToggleProperties featureToggleProperties = mock(FeatureToggleProperties.class);
-        when(featureToggleProperties.isFeatureEnabled("cdi")).thenReturn(true);
 
         EmrApiProperties emrApiProperties = mock(EmrApiProperties.class);
         primaryIdentifierType = new PatientIdentifierType();

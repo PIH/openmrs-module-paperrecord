@@ -158,18 +158,10 @@ public class DefaultZplPaperRecordLabelTemplate implements PaperRecordLabelTempl
 
         /* Print the patient's paper record identifier, if it exists  (h x w set to 120, 110, not sure if this is accurate) */
         if (StringUtils.isNotBlank(paperRecordIdentifier)) {
-
-            if (featureToggles.isFeatureEnabled("cdi")) {
-                data.append("^FO680,40^FB520,1,0,R,0^AUN,140,110^FD"
-                        + paperRecordIdentifier.substring(0, paperRecordIdentifier.length() - 6) + " "
-                        + paperRecordIdentifier.substring(paperRecordIdentifier.length() - 6, paperRecordIdentifier.length() - 3) + " "
-                        + paperRecordIdentifier.substring(paperRecordIdentifier.length() - 3) + "^FS");
-            }
-            else {
-                data.append("^FO680,40^FB520,1,0,R,0^AUN,140,110^FD"
-                        + paperRecordIdentifier.substring(0, paperRecordIdentifier.length() - 3) + " "
-                        + paperRecordIdentifier.substring(paperRecordIdentifier.length() - 3) + "^FS");
-            }
+            data.append("^FO680,40^FB520,1,0,R,0^AUN,140,110^FD"
+                    + paperRecordIdentifier.substring(0, Math.max(0, paperRecordIdentifier.length() - 6)) + " "
+                    + paperRecordIdentifier.substring(Math.max(0, paperRecordIdentifier.length() - 6), Math.max(0, paperRecordIdentifier.length() - 3)) + " "
+                    + paperRecordIdentifier.substring(Math.max(0, paperRecordIdentifier.length() - 3)) + "^FS");
         }
 
         /* Print the bar code, based on the primary identifier */

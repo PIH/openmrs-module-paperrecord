@@ -68,7 +68,6 @@ public class DefaultZplPaperRecordLabelTemplateTest {
         when(emrApiProperties.getPrimaryIdentifierType()).thenReturn(primaryIdentifierType);
 
         FeatureToggleProperties featureToggleProperties = mock(FeatureToggleProperties.class);
-        when(featureToggleProperties.isFeatureEnabled("cdi")).thenReturn(true);
 
         template = new DefaultZplPaperRecordLabelTemplate();
         template.setMessageSourceService(messageSourceService);
