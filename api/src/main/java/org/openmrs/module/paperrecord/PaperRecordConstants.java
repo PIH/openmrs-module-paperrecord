@@ -25,6 +25,6 @@ public class PaperRecordConstants {
 
     public static final String TASK_CLOSE_STALE_CREATE_REQUESTS_DESCRIPTION = "Closes any pending create record requests older than a specified date";
 
-    public final static int NUMBER_OF_FORM_LABELS_TO_PRINT = 3;
+    public final static int NUMBER_OF_FORM_LABELS_TO_PRINT = 2;
 
 }
