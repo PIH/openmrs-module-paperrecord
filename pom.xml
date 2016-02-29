@@ -47,7 +47,7 @@
         <serializationxstreamVersion>0.2.10</serializationxstreamVersion>
         <calculationVersion>1.1</calculationVersion>
         <printerVersion>1.2</printerVersion>
-        <htmlformentryVersion>3.0</htmlformentryVersion>
+        <htmlformentryVersion>3.1</htmlformentryVersion>
         <coreappsVersion>1.9</coreappsVersion>  <!-- currently only used for messages.properties -->
     </properties>
 
