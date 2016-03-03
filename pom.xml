@@ -44,7 +44,7 @@
         <providermanagementVersion>2.4</providermanagementVersion>
         <metadatasharingVersion>1.1.10</metadatasharingVersion>
         <reportingVersion>0.9.8.1</reportingVersion>
-        <serializationxstreamVersion>0.2.10</serializationxstreamVersion>
+        <serializationxstreamVersion>0.2.11</serializationxstreamVersion>
         <calculationVersion>1.1</calculationVersion>
         <printerVersion>1.2</printerVersion>
         <htmlformentryVersion>3.1</htmlformentryVersion>
