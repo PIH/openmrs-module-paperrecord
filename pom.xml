@@ -127,6 +127,14 @@
 
         <dependency>
             <groupId>org.openmrs.module</groupId>
+            <artifactId>reporting-api-1.9</artifactId>
+            <version>${reportingVersion}</version>
+            <scope>provided</scope>
+        </dependency>
+
+
+        <dependency>
+            <groupId>org.openmrs.module</groupId>
             <artifactId>calculation-api</artifactId>
             <version>${calculationVersion}</version>
             <scope>provided</scope>
