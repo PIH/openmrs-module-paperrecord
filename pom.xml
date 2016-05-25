@@ -43,7 +43,7 @@
         <idgenVersion>4.3</idgenVersion>
         <providermanagementVersion>2.4</providermanagementVersion>
         <metadatasharingVersion>1.2</metadatasharingVersion>
-        <reportingVersion>0.9.9</reportingVersion>
+        <reportingVersion>0.10.0</reportingVersion>
         <serializationxstreamVersion>0.2.11</serializationxstreamVersion>
         <calculationVersion>1.1</calculationVersion>
         <printerVersion>1.2</printerVersion>
