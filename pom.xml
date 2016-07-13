@@ -36,9 +36,9 @@
     <properties>
         <openMRSVersion>1.10.4</openMRSVersion>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <emrapiVersion>1.14</emrapiVersion>
+        <emrapiVersion>1.16-SNAPSHOT</emrapiVersion>
         <uiframeworkVersion>3.6</uiframeworkVersion>
-        <appuiVersion>1.5.1</appuiVersion>
+        <appuiVersion>1.6-SNAPSHOT</appuiVersion>
         <appframeworkVersion>2.8</appframeworkVersion>
         <idgenVersion>4.3</idgenVersion>
         <providermanagementVersion>2.4</providermanagementVersion>
@@ -48,7 +48,7 @@
         <calculationVersion>1.1</calculationVersion>
         <printerVersion>1.2</printerVersion>
         <htmlformentryVersion>3.2</htmlformentryVersion>
-        <coreappsVersion>1.9</coreappsVersion>  <!-- currently only used for messages.properties -->
+        <coreappsVersion>1.10-SNAPSHOT</coreappsVersion>
     </properties>
 
     <dependencies>
