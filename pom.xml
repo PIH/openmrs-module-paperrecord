@@ -42,7 +42,7 @@
         <appframeworkVersion>2.9</appframeworkVersion>
         <idgenVersion>4.3</idgenVersion>
         <providermanagementVersion>2.4</providermanagementVersion>
-        <metadatasharingVersion>1.2</metadatasharingVersion>
+        <metadatasharingVersion>1.2.1</metadatasharingVersion>
         <reportingVersion>0.10.1</reportingVersion>
         <serializationxstreamVersion>0.2.11</serializationxstreamVersion>
         <calculationVersion>1.1</calculationVersion>
