@@ -25,7 +25,7 @@ jq(document).ready( function() {
     // load the tables
     refreshAllQueues();
 
-    // set up auto-refresh of tables every 30 seconds
+    // set up auto-refresh of tables every 20 seconds
     setInterval(function() {
         refreshAllQueues();
     }, 20000)
