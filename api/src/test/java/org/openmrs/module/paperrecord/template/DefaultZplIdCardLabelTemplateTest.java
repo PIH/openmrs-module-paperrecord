@@ -10,11 +10,13 @@ import org.openmrs.PatientIdentifier;
 import org.openmrs.PatientIdentifierType;
 import org.openmrs.PersonName;
 import org.openmrs.messagesource.MessageSourceService;
+import org.openmrs.module.appframework.feature.FeatureToggleProperties;
 import org.openmrs.module.emrapi.EmrApiProperties;
 import org.openmrs.module.paperrecord.PaperRecordProperties;
 import org.openmrs.module.printer.Printer;
 import org.openmrs.module.printer.PrinterServiceImpl;
 import org.openmrs.module.printer.UnableToPrintViaSocketException;
+import org.powermock.api.mockito.PowerMockito;
 
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -48,6 +50,8 @@ public class DefaultZplIdCardLabelTemplateTest {
         externalDossierIdentifierType.setId(4);
         when(paperRecordProperties.getExternalDossierIdentifierType()).thenReturn(externalDossierIdentifierType);
 
+        FeatureToggleProperties featureToggles = PowerMockito.mock(FeatureToggleProperties.class);
+
         MessageSourceService messageSourceService = mock(MessageSourceService.class);
         when(messageSourceService.getMessage("emr.archivesRoom.recordNumber.label")).thenReturn("Dossier ID");
 
@@ -55,6 +59,7 @@ public class DefaultZplIdCardLabelTemplateTest {
         template.setEmrApiProperties(emrApiProperties);
         template.setPaperRecordProperties(paperRecordProperties);
         template.setMessageSourceService(messageSourceService);
+        template.setFeatureToggles(featureToggles);
     }
 
     @Test(expected = IllegalArgumentException.class)

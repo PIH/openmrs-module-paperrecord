@@ -6,6 +6,7 @@ import org.apache.commons.logging.LogFactory;
 import org.openmrs.Patient;
 import org.openmrs.PatientIdentifier;
 import org.openmrs.messagesource.MessageSourceService;
+import org.openmrs.module.appframework.feature.FeatureToggleProperties;
 import org.openmrs.module.emrapi.EmrApiProperties;
 import org.openmrs.module.paperrecord.PaperRecordProperties;
 
@@ -21,6 +22,8 @@ public class DefaultZplIdCardLabelTemplate implements IdCardLabelTemplate {
 
     private MessageSourceService messageSourceService;
 
+    private FeatureToggleProperties featureToggles;
+
     public void setEmrApiProperties(EmrApiProperties emrApiProperties) {
         this.emrApiProperties = emrApiProperties;
     }
@@ -31,6 +34,10 @@ public class DefaultZplIdCardLabelTemplate implements IdCardLabelTemplate {
 
     public void setMessageSourceService(MessageSourceService messageSourceService) {
         this.messageSourceService = messageSourceService;
+    }
+
+    public void setFeatureToggles(FeatureToggleProperties featureToggles) {
+        this.featureToggles = featureToggles;
     }
 
     @Override
