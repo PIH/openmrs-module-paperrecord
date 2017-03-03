@@ -16,7 +16,6 @@ package org.openmrs.module.paperrecord;
 
 import junit.framework.Assert;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.openmrs.Location;
 import org.openmrs.Patient;
@@ -25,10 +24,14 @@ import org.openmrs.api.LocationService;
 import org.openmrs.api.PatientService;
 import org.openmrs.api.PersonService;
 import org.openmrs.api.context.Context;
+import org.openmrs.module.emrapi.EmrApiConstants;
 import org.openmrs.module.idgen.service.IdentifierSourceService;
+import org.openmrs.module.metadatamapping.MetadataSource;
+import org.openmrs.module.metadatamapping.api.MetadataMappingService;
 import org.openmrs.module.printer.PrinterService;
 import org.openmrs.test.BaseModuleContextSensitiveTest;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 
 import java.util.Date;
 import java.util.List;
@@ -59,6 +62,11 @@ public class PaperRecordServiceComponentTest extends BaseModuleContextSensitiveT
     @Autowired
     PaperRecordProperties paperRecordProperties;
 
+    @Autowired
+    @Qualifier("metadatamapping.MetadataMappingService")
+    private MetadataMappingService metadataMappingService;
+
+
     private IdentifierSourceService mockIdentifierSourceService;
 
     private PrinterService mockPrinterService;
@@ -66,6 +74,15 @@ public class PaperRecordServiceComponentTest extends BaseModuleContextSensitiveT
     @Before
     public void beforeAllTests() throws Exception {
         executeDataSet("paperRecordTestDataset.xml");
+
+        // setup the EMR API metadata mapping source
+        MetadataSource source = new MetadataSource();
+        source.setName(EmrApiConstants.EMR_METADATA_SOURCE_NAME);
+        source.setDescription(EmrApiConstants.EMR_METADATA_SOURCE_DESCRIPTION);
+        metadataMappingService.saveMetadataSource(source);
+
+        // set up metadata mappings used
+        metadataMappingService.mapMetadataItem(patientService.getPatientIdentifierTypeByUuid("1a339fe9-38bc-4ab3-b180-320988c0b968"), EmrApiConstants.EMR_METADATA_SOURCE_NAME, EmrApiConstants.PRIMARY_IDENTIFIER_TYPE);
 
         // stub out the printer service
         mockPrinterService = mock(PrinterService.class);
