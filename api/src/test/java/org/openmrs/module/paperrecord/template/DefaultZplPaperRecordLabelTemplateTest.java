@@ -26,7 +26,6 @@ import org.openmrs.PersonAddress;
 import org.openmrs.PersonName;
 import org.openmrs.api.context.Context;
 import org.openmrs.messagesource.MessageSourceService;
-import org.openmrs.module.appframework.feature.FeatureToggleProperties;
 import org.openmrs.module.emrapi.EmrApiProperties;
 import org.openmrs.module.printer.Printer;
 import org.openmrs.module.printer.PrinterServiceImpl;
@@ -67,12 +66,9 @@ public class DefaultZplPaperRecordLabelTemplateTest {
         primaryIdentifierType.setUuid("e0987dc0-460f-11e2-bcfd-0800200c9a66");
         when(emrApiProperties.getPrimaryIdentifierType()).thenReturn(primaryIdentifierType);
 
-        FeatureToggleProperties featureToggleProperties = mock(FeatureToggleProperties.class);
-
         template = new DefaultZplPaperRecordLabelTemplate();
         template.setMessageSourceService(messageSourceService);
         template.setEmrApiProperties(emrApiProperties);
-        template.setFeatureToggles(featureToggleProperties);
     }
 
     @Test(expected = IllegalArgumentException.class)

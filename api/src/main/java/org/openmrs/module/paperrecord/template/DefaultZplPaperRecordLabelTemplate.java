@@ -8,7 +8,6 @@ import org.openmrs.PatientIdentifier;
 import org.openmrs.api.context.Context;
 import org.openmrs.layout.web.address.AddressSupport;
 import org.openmrs.messagesource.MessageSourceService;
-import org.openmrs.module.appframework.feature.FeatureToggleProperties;
 import org.openmrs.module.emrapi.EmrApiProperties;
 import org.openmrs.module.emrapi.utils.GeneralUtils;
 
@@ -25,12 +24,6 @@ public class DefaultZplPaperRecordLabelTemplate implements PaperRecordLabelTempl
     protected MessageSourceService messageSourceService;
 
     protected EmrApiProperties emrApiProperties;
-
-    protected FeatureToggleProperties featureToggles;
-
-    public void setFeatureToggles(FeatureToggleProperties featureToggles) {
-        this.featureToggles = featureToggles;
-    }
 
     public void setMessageSourceService(MessageSourceService messageSourceService) {
         this.messageSourceService = messageSourceService;
