@@ -36,13 +36,14 @@
     <properties>
         <openMRSVersion>1.10.4</openMRSVersion>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <emrapiVersion>1.19</emrapiVersion>
+        <emrapiVersion>1.21.0</emrapiVersion>
         <uiframeworkVersion>3.9</uiframeworkVersion>
         <appuiVersion>1.7</appuiVersion>
         <appframeworkVersion>2.9</appframeworkVersion>
         <idgenVersion>4.4.0</idgenVersion>
         <providermanagementVersion>2.5.0</providermanagementVersion>
         <metadatasharingVersion>1.2.2</metadatasharingVersion>
+        <reportingVersion>0.11.0</reportingVersion>
         <metadatamappingVersion>1.3.1</metadatamappingVersion>
         <reportingVersion>0.10.6</reportingVersion>
         <serializationxstreamVersion>0.2.12</serializationxstreamVersion>
