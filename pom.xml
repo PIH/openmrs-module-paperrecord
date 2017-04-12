@@ -45,7 +45,7 @@
         <metadatasharingVersion>1.2.2</metadatasharingVersion>
         <reportingVersion>0.11.0</reportingVersion>
         <metadatamappingVersion>1.3.1</metadatamappingVersion>
-        <reportingVersion>0.11.0</reportingVersion>
+        <reportingVersion>1.12.0</reportingVersion>
         <serializationxstreamVersion>0.2.12</serializationxstreamVersion>
         <calculationVersion>1.2</calculationVersion>
         <printerVersion>1.2</printerVersion>
