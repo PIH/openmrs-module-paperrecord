@@ -40,11 +40,11 @@
         <uiframeworkVersion>3.11.0</uiframeworkVersion>
         <appuiVersion>1.8.0</appuiVersion>
         <appframeworkVersion>2.10.0</appframeworkVersion>
-        <idgenVersion>4.4.0</idgenVersion>
+        <idgenVersion>4.4.1</idgenVersion>
         <providermanagementVersion>2.6.0</providermanagementVersion>
         <metadatasharingVersion>1.2.2</metadatasharingVersion>
         <reportingVersion>0.11.0</reportingVersion>
-        <metadatamappingVersion>1.3.1</metadatamappingVersion>
+        <metadatamappingVersion>1.3.2</metadatamappingVersion>
         <reportingVersion>1.12.0</reportingVersion>
         <serializationxstreamVersion>0.2.12</serializationxstreamVersion>
         <calculationVersion>1.2</calculationVersion>
