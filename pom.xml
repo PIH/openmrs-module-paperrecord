@@ -49,7 +49,7 @@
         <serializationxstreamVersion>0.2.12</serializationxstreamVersion>
         <calculationVersion>1.2</calculationVersion>
         <printerVersion>1.2</printerVersion>
-        <htmlformentryVersion>3.3.2</htmlformentryVersion>
+        <htmlformentryVersion>3.4.0</htmlformentryVersion>
         <coreappsVersion>1.10-SNAPSHOT</coreappsVersion>
     </properties>
 
