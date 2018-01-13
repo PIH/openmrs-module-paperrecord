@@ -39,7 +39,7 @@
         <emrapiVersion>1.23.0</emrapiVersion>
         <uiframeworkVersion>3.13.0</uiframeworkVersion>
         <appuiVersion>1.8.0</appuiVersion>
-        <appframeworkVersion>2.10.0</appframeworkVersion>
+        <appframeworkVersion>2.11.0</appframeworkVersion>
         <idgenVersion>4.4.1</idgenVersion>
         <providermanagementVersion>2.10.0</providermanagementVersion>
         <metadatasharingVersion>1.3.0</metadatasharingVersion>
@@ -49,7 +49,7 @@
         <serializationxstreamVersion>0.2.13</serializationxstreamVersion>
         <calculationVersion>1.2</calculationVersion>
         <printerVersion>1.2</printerVersion>
-        <htmlformentryVersion>3.4.0</htmlformentryVersion>
+        <htmlformentryVersion>3.5.1</htmlformentryVersion>
         <coreappsVersion>1.10-SNAPSHOT</coreappsVersion>
     </properties>
 
