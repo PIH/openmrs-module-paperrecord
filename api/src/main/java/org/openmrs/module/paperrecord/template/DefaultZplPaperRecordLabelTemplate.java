@@ -6,7 +6,7 @@ import org.apache.commons.logging.LogFactory;
 import org.openmrs.Patient;
 import org.openmrs.PatientIdentifier;
 import org.openmrs.api.context.Context;
-import org.openmrs.layout.web.address.AddressSupport;
+import org.openmrs.layout.address.AddressSupport;
 import org.openmrs.messagesource.MessageSourceService;
 import org.openmrs.module.emrapi.EmrApiProperties;
 import org.openmrs.module.emrapi.utils.GeneralUtils;

@@ -14,8 +14,9 @@
         <property name="dateCreated" type="java.util.Date" column="date_created"/>
 
         <property name="status" column="status" length="50" not-null="true">
-            <type name="org.openmrs.util.HibernateEnumType">
-                <param name="enumClassName">org.openmrs.module.paperrecord.PaperRecordMergeRequest$Status</param>
+            <type name="org.hibernate.type.EnumType">
+                <param name="enumClass">org.openmrs.module.paperrecord.PaperRecordMergeRequest$Status</param>
+                <param name="useNamed">true</param>
             </type>
         </property>
 

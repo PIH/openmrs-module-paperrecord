@@ -18,8 +18,9 @@
 
         <!-- we use field access here so that we can remove getter and force the use of the update status message -->
         <property name="status" column="status" length="50" not-null="true" access="field">
-            <type name="org.openmrs.util.HibernateEnumType">
-                <param name="enumClassName">org.openmrs.module.paperrecord.PaperRecordRequest$Status</param>
+            <type name="org.hibernate.type.EnumType">
+                <param name="enumClass">org.openmrs.module.paperrecord.PaperRecordRequest$Status</param>
+                <param name="useNamed">true</param>
             </type>
         </property>
 

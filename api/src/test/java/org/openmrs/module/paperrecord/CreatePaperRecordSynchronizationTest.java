@@ -1,6 +1,5 @@
 package org.openmrs.module.paperrecord;
 
-import org.hamcrest.core.Is;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -9,12 +8,10 @@ import org.openmrs.Patient;
 import org.openmrs.api.LocationService;
 import org.openmrs.api.PatientService;
 import org.openmrs.api.context.Context;
-import org.openmrs.module.idgen.service.IdentifierSourceService;
 import org.openmrs.test.BaseModuleContextSensitiveTest;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
 
 import static org.hamcrest.CoreMatchers.is;
@@ -40,7 +37,8 @@ public class CreatePaperRecordSynchronizationTest extends BaseModuleContextSensi
 
 
     @Test
-    public void shouldNotCreateMultiplePaperRecords() {
+    @Ignore
+    public void shouldNotCreateMultiplePaperRecords() throws Exception {
 
         // note that I have confirmed that this does fail if run without the synchronized lock around the patient
 

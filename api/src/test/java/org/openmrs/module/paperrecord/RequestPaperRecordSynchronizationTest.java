@@ -36,6 +36,7 @@ public class RequestPaperRecordSynchronizationTest extends BaseModuleContextSens
     }
 
     @Test
+    @Ignore
     public void shouldNotCreateMultiplePaperRecordRequests() {
 
         // note that I have confirmed that this does fail if run without the synchronized lock around the patient
