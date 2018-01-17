@@ -47,7 +47,7 @@
         <reportingVersion>1.15.0</reportingVersion>
         <serializationxstreamVersion>0.2.13</serializationxstreamVersion>
         <calculationVersion>1.2</calculationVersion>
-        <printerVersion>1.3.0</printerVersion>
+        <printerVersion>1.4.0</printerVersion>
         <htmlformentryVersion>3.6.0</htmlformentryVersion>
         <coreappsVersion>1.10-SNAPSHOT</coreappsVersion>
     </properties>
