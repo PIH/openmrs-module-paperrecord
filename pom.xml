@@ -4,7 +4,7 @@
 
     <groupId>org.openmrs.module</groupId>
     <artifactId>paperrecord</artifactId>
-    <version>1.3.0</version>
+    <version>1.4.0-SNAPSHOT</version>
     <packaging>pom</packaging>
     <name>Paper Record Management Module</name>
     <description>Add-on to the Reference Application for managing an archive of paper records alongside the EMR
