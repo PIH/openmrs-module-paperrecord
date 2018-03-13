@@ -1,7 +1,6 @@
 package org.openmrs.module.paperrecord;
 
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.openmrs.Location;
 import org.openmrs.Patient;
@@ -33,10 +32,11 @@ public class RequestPaperRecordSynchronizationTest extends BaseModuleContextSens
     @Before
     public void beforeAllTests() throws Exception {
         executeDataSet("paperRecordTestDataset.xml");
+        // we seem to need to do this so that the dataset is avaiable to all the threads we create
+        getConnection().commit();
     }
 
     @Test
-    @Ignore
     public void shouldNotCreateMultiplePaperRecordRequests() {
 
         // note that I have confirmed that this does fail if run without the synchronized lock around the patient
