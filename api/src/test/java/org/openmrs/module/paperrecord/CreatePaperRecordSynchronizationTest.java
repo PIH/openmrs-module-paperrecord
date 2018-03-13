@@ -1,5 +1,6 @@
 package org.openmrs.module.paperrecord;
 
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.openmrs.Location;
@@ -36,6 +37,10 @@ public class CreatePaperRecordSynchronizationTest extends BaseModuleContextSensi
         getConnection().commit();
     }
 
+    @After
+    public void tearDown() throws Exception {
+        deleteAllData();
+    }
 
     @Test
     public void shouldNotCreateMultiplePaperRecords() throws Exception {

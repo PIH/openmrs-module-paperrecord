@@ -1,5 +1,6 @@
 package org.openmrs.module.paperrecord;
 
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.openmrs.Location;
@@ -34,6 +35,11 @@ public class RequestPaperRecordSynchronizationTest extends BaseModuleContextSens
         executeDataSet("paperRecordTestDataset.xml");
         // we seem to need to do this so that the dataset is avaiable to all the threads we create
         getConnection().commit();
+    }
+
+    @After
+    public void tearDown() throws Exception {
+        deleteAllData();
     }
 
     @Test
