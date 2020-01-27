@@ -1,6 +1,7 @@
 package org.openmrs.module.paperrecord.fragment.controller;
 
 import org.openmrs.Concept;
+import org.openmrs.OpenmrsMetadata;
 import org.openmrs.Person;
 import org.openmrs.api.AdministrationService;
 import org.openmrs.ui.framework.BasicUiUtils;
@@ -50,7 +51,10 @@ public class TestUiUtils extends BasicUiUtils {
             // skip using the name support bean
             return ((Person) o).getPersonName().getFullName();
         }
-
+        else if (o instanceof OpenmrsMetadata) {
+            // simplify formatting metadata to not need to access messages source
+            return ((OpenmrsMetadata) o).getName();
+        }
         else {
             return super.format(o);
         }
