@@ -313,7 +313,7 @@
             <url>http://mavenrepo.openmrs.org/nexus/content/repositories/modules-pih/</url>
         </repository>
         <snapshotRepository>
-            <id>openmrs-repo-modules-snapshots</id>
+            <id>openmrs-repo-modules-pih-snapshots</id>
             <name>OpenMRS Snapshots</name>
             <url>http://mavenrepo.openmrs.org/nexus/content/repositories/modules-pih-snapshots</url>
         </snapshotRepository>
