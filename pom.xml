@@ -48,7 +48,7 @@
         <serializationxstreamVersion>0.2.14</serializationxstreamVersion>
         <calculationVersion>1.2.1</calculationVersion>
         <printerVersion>1.4.0</printerVersion>
-        <htmlformentryVersion>3.11.0</htmlformentryVersion>
+        <htmlformentryVersion>3.12.0</htmlformentryVersion>
         <coreappsVersion>1.10-SNAPSHOT</coreappsVersion>
     </properties>
 
