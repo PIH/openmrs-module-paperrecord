@@ -69,7 +69,7 @@
         <property name="moduleService">
             <list merge="true">
                 <value>org.openmrs.module.paperrecord.PaperRecordService</value>
-                <ref local="paperRecordService"/>
+                <ref bean="paperRecordService"/>
             </list>
         </property>
     </bean>
