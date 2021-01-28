@@ -37,7 +37,7 @@
         <openMRSVersion>2.1.3-SNAPSHOT</openMRSVersion>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <emrapiVersion>1.30.0</emrapiVersion>
-        <uiframeworkVersion>3.19.0</uiframeworkVersion>
+        <uiframeworkVersion>3.20.0</uiframeworkVersion>
         <appuiVersion>1.13.0</appuiVersion>
         <appframeworkVersion>2.16.0</appframeworkVersion>
         <idgenVersion>4.6.0</idgenVersion>
