@@ -259,8 +259,11 @@ public class PaperRecordServiceImpl extends BaseOpenmrsService implements PaperR
             // get records to create requests for
             List<PaperRecord> paperRecords = getPaperRecords(patient, recordLocation);
 
-            // if no record, create one
-            if (paperRecords == null || paperRecords.size() == 0) {
+            // if null, initialize. If no records, create one
+            if (paperRecords == null) {
+                paperRecords = new ArrayList<PaperRecord>();
+            }
+            if (paperRecords.size() == 0) {
                 paperRecords.add(createPaperRecord(patient, recordLocation));
             }
 
