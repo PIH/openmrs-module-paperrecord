@@ -103,8 +103,8 @@ public class DefaultZplIdCardLabelTemplate implements IdCardLabelTemplate {
                 }
             }
         }
-        if(externalIdentifiers!=null){
-            for(PatientIdentifier externalIdentifier: externalIdentifiers){
+        if (externalIdentifiers != null){
+            for (PatientIdentifier externalIdentifier: externalIdentifiers) {
                 if (count > 6) {
                     break;
                 }
