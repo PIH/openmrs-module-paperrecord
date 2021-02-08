@@ -798,7 +798,8 @@ public class PaperRecordServiceImpl extends BaseOpenmrsService implements PaperR
                     "generating a new paper record identifier number");
 
             if (paperRecordId == null) {
-                throw new APIException("Unable to generate paper record identifier for patient " + patient);
+                throw new APIException("Unable to generate paper record identifier for patient " + patient +
+                        ". Either no auto generation option has been provided for the identifier type, or auto-generation has been disabled.");
             }
 
             // double check to make sure this identifier is not in use
