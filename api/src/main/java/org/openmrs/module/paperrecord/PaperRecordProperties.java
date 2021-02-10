@@ -12,7 +12,7 @@ import org.springframework.stereotype.Component;
 public class PaperRecordProperties extends ModuleProperties {
 
     public PatientIdentifierType getPaperRecordIdentifierType() {
-        return getPatientIdentifierTypeByGlobalProperty(PaperRecordConstants.GP_PAPER_RECORD_IDENTIFIER_TYPE, false);
+        return getPatientIdentifierTypeByGlobalProperty(PaperRecordConstants.GP_PAPER_RECORD_IDENTIFIER_TYPE, true);
     }
 
     public PatientIdentifierType getExternalDossierIdentifierType() {

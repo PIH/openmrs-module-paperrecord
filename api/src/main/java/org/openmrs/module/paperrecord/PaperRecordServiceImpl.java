@@ -259,8 +259,11 @@ public class PaperRecordServiceImpl extends BaseOpenmrsService implements PaperR
             // get records to create requests for
             List<PaperRecord> paperRecords = getPaperRecords(patient, recordLocation);
 
-            // if no record, create one
-            if (paperRecords == null || paperRecords.size() == 0) {
+            // if null, initialize. If no records, create one
+            if (paperRecords == null) {
+                paperRecords = new ArrayList<PaperRecord>();
+            }
+            if (paperRecords.size() == 0) {
                 paperRecords.add(createPaperRecord(patient, recordLocation));
             }
 
@@ -798,7 +801,8 @@ public class PaperRecordServiceImpl extends BaseOpenmrsService implements PaperR
                     "generating a new paper record identifier number");
 
             if (paperRecordId == null) {
-                throw new APIException("Unable to generate paper record identifier for patient " + patient);
+                throw new APIException("Unable to generate paper record identifier for patient " + patient +
+                        ". Either no auto generation option has been provided for the identifier type, or auto-generation has been disabled.");
             }
 
             // double check to make sure this identifier is not in use
