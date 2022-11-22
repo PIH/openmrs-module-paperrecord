@@ -41,7 +41,7 @@
         <appuiVersion>1.16.0</appuiVersion>
         <appframeworkVersion>2.16.0</appframeworkVersion>
         <idgenVersion>4.8.0</idgenVersion>
-        <providermanagementVersion>2.13.0</providermanagementVersion>
+        <providermanagementVersion>2.14.0</providermanagementVersion>
         <metadatasharingVersion>1.8.0</metadatasharingVersion>
         <metadatamappingVersion>1.5.0</metadatamappingVersion>
         <reportingVersion>1.25.0</reportingVersion>
