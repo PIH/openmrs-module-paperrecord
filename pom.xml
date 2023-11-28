@@ -38,7 +38,7 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <emrapiVersion>1.34.0</emrapiVersion>
         <uiframeworkVersion>3.24.0</uiframeworkVersion>
-        <appuiVersion>1.16.0</appuiVersion>
+        <appuiVersion>1.17.0</appuiVersion>
         <appframeworkVersion>2.17.0</appframeworkVersion>
         <idgenVersion>4.10.0</idgenVersion>
         <providermanagementVersion>2.14.0</providermanagementVersion>
