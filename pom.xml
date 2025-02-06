@@ -38,13 +38,13 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <emrapiVersion>1.36.0</emrapiVersion>
         <uiframeworkVersion>3.25.0</uiframeworkVersion>
-        <appuiVersion>1.17.0</appuiVersion>
-        <appframeworkVersion>2.17.0</appframeworkVersion>
+        <appuiVersion>1.18.0</appuiVersion>
+        <appframeworkVersion>2.18.0</appframeworkVersion>
         <idgenVersion>4.14.0</idgenVersion>
         <providermanagementVersion>2.15.0</providermanagementVersion>
         <metadatasharingVersion>1.9.0</metadatasharingVersion>
         <metadatamappingVersion>1.6.0</metadatamappingVersion>
-        <reportingVersion>1.26.0</reportingVersion>
+        <reportingVersion>1.27.0</reportingVersion>
         <serializationxstreamVersion>0.2.16</serializationxstreamVersion>
         <calculationVersion>1.3.0</calculationVersion>
         <printerVersion>1.4.0</printerVersion>
