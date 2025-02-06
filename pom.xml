@@ -34,7 +34,7 @@
     </modules>
 
     <properties>
-        <openMRSVersion>2.1.3-SNAPSHOT</openMRSVersion>
+        <openMRSVersion>2.1.3</openMRSVersion>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <emrapiVersion>1.36.0</emrapiVersion>
         <uiframeworkVersion>3.25.0</uiframeworkVersion>
@@ -49,7 +49,7 @@
         <calculationVersion>1.3.0</calculationVersion>
         <printerVersion>1.5.0</printerVersion>
         <htmlformentryVersion>3.13.1</htmlformentryVersion>
-        <coreappsVersion>1.10-SNAPSHOT</coreappsVersion>
+        <coreappsVersion>1.10</coreappsVersion>
     </properties>
 
     <dependencies>
