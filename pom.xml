@@ -40,7 +40,7 @@
         <uiframeworkVersion>3.25.0</uiframeworkVersion>
         <appuiVersion>1.18.0</appuiVersion>
         <appframeworkVersion>2.18.0</appframeworkVersion>
-        <idgenVersion>4.14.0</idgenVersion>
+        <idgenVersion>5.0.0-SNAPSHOT</idgenVersion>
         <providermanagementVersion>2.15.0</providermanagementVersion>
         <metadatasharingVersion>1.9.0</metadatasharingVersion>
         <metadatamappingVersion>1.6.0</metadatamappingVersion>
