@@ -32,7 +32,7 @@
                     </bean>
                 </property>
                 <property name="patientService" ref="patientService"/>
-                <property name="identifierSourceService" ref="identifierSourceService"/>
+                <property name="identifierSourceService" ref="baseIdentifierSourceService"/>
                 <property name="printerService" ref="printerService"/>
                 <property name="emrApiProperties" ref="emrApiProperties"/>
                 <property name="paperRecordProperties" ref="paperRecordProperties"/>
